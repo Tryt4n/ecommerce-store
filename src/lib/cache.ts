@@ -1,7 +1,8 @@
 import { unstable_cache as nextCache } from "next/cache";
 import { cache as reactCache } from "react";
 
-type Callback = (...args: unknown[]) => Promise<unknown>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Callback = (...args: any[]) => Promise<any>;
 
 type Options = {
   revalidate?: number | false;
