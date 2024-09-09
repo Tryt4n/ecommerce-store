@@ -1,7 +1,6 @@
 "use server";
 
 import { notFound, redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import {
   createProduct,
   updateProduct as updateProductInDB,
@@ -21,8 +20,6 @@ export async function addProduct(prevState: unknown, formData: FormData) {
   const data = result.data;
 
   await createProduct(data).then(() => {
-    revalidatePath("/");
-    revalidatePath("/products");
     redirect("/admin/products");
   });
 }
@@ -46,8 +43,6 @@ export async function updateProduct(
   if (product == null) return notFound();
 
   await updateProductInDB(data, product).then(() => {
-    revalidatePath("/");
-    revalidatePath("/products");
     redirect("/admin/products");
   });
 }
