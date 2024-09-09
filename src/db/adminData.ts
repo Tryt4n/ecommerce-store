@@ -94,6 +94,8 @@ export async function createProduct(data: z.infer<typeof productAddSchema>) {
 
     revalidatePath("/");
     revalidatePath("/products");
+    revalidatePath("/admin");
+    revalidatePath("/admin/products");
   } catch (error) {
     console.error(`Can't create product. Error: ${error}`);
   }
@@ -138,6 +140,8 @@ export async function updateProduct(
 
     revalidatePath("/");
     revalidatePath("/products");
+    revalidatePath("/admin");
+    revalidatePath("/admin/products");
   } catch (error) {
     console.error(`Can't update product. Error: ${error}`);
   }
@@ -155,6 +159,8 @@ export async function toggleProductAvailability(
 
     revalidatePath("/");
     revalidatePath("/products");
+    revalidatePath("/admin");
+    revalidatePath("/admin/products");
   } catch (error) {
     console.error(`Can't toggle product availability. Error: ${error}`);
   }
@@ -177,6 +183,8 @@ export async function deleteProduct(id: string) {
 
     revalidatePath("/");
     revalidatePath("/products");
+    revalidatePath("/admin");
+    revalidatePath("/admin/products");
   } catch (error) {
     console.error(`Can't delete product. Error: ${error}`);
   }
