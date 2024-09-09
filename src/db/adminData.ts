@@ -1,8 +1,9 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { notFound } from "next/navigation";
 import db from "@/db/db";
 import fs from "fs/promises";
-import { notFound } from "next/navigation";
 import type {
   editProductSchema,
   productAddSchema,
@@ -90,6 +91,9 @@ export async function createProduct(data: z.infer<typeof productAddSchema>) {
         imagePath,
       },
     });
+
+    revalidatePath("/");
+    revalidatePath("/products");
   } catch (error) {
     console.error(`Can't create product. Error: ${error}`);
   }
@@ -131,6 +135,9 @@ export async function updateProduct(
         imagePath,
       },
     });
+
+    revalidatePath("/");
+    revalidatePath("/products");
   } catch (error) {
     console.error(`Can't update product. Error: ${error}`);
   }
@@ -145,6 +152,9 @@ export async function toggleProductAvailability(
       where: { id },
       data: { isAvailableForPurchase: availability },
     });
+
+    revalidatePath("/");
+    revalidatePath("/products");
   } catch (error) {
     console.error(`Can't toggle product availability. Error: ${error}`);
   }
@@ -164,6 +174,9 @@ export async function deleteProduct(id: string) {
       await fs.unlink(`public${product.imagePath}`),
       await db.product.delete({ where: { id } }),
     ]);
+
+    revalidatePath("/");
+    revalidatePath("/products");
   } catch (error) {
     console.error(`Can't delete product. Error: ${error}`);
   }
