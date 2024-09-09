@@ -1,6 +1,6 @@
 import React from "react";
-import DashboardCardList from "@/components/DashboardCardList";
+import AdminDashboardCardList from "./_components/AdminDashboardCardList";
 
 export default function AdminDashboard() {
-  return <DashboardCardList />;
+  return <AdminDashboardCardList />;
 }
