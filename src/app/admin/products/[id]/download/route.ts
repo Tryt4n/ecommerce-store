@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getProduct } from "@/db/adminData";
+import { getProduct } from "@/db/data";
 import fs from "fs/promises";
 import { NextResponse, type NextRequest } from "next/server";
 
