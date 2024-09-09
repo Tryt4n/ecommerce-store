@@ -9,7 +9,7 @@ import {
 import { MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { ActiveToggleDropdownItem, DeleteDropdownItem } from "./ProductActions";
-import type { getProducts } from "@/db/adminData";
+import type { getProducts } from "@/db/data";
 
 export default function ProductDropdownMenu({
   product,
