@@ -1,5 +1,16 @@
 import React from "react";
+import ProductsGridSection from "./_components/ProductsGridSection";
+import { getMostPopularProducts, getNewestProducts } from "@/db/data";
 
-export default function Home() {
-  return <h1>Hi</h1>;
+export default function HomePage() {
+  return (
+    <>
+      <ProductsGridSection
+        title="Most Popular"
+        productsFetcher={getMostPopularProducts}
+      />
+
+      <ProductsGridSection title="Newest" productsFetcher={getNewestProducts} />
+    </>
+  );
 }
