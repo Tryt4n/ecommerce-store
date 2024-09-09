@@ -1,4 +1,5 @@
 import React from "react";
+import ListGrid from "@/components/ListGrid";
 import DashboardCard from "../../../components/DashboardCard";
 import { getSalesData, getUsersData, getProductsData } from "@/db/adminData";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
@@ -11,7 +12,7 @@ export default async function AdminDashboardCardList() {
   ]);
 
   return (
-    <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <ListGrid>
       <DashboardCard
         title="Sales"
         subtitle={`${formatNumber(salesData?.numberOfSales || 0)} Orders`}
@@ -29,6 +30,6 @@ export default async function AdminDashboardCardList() {
         subtitle={`${formatNumber(productsData?.inactiveProducts || 0)} Inactive`}
         body={formatNumber(productsData?.activeProducts || 0)}
       />
-    </ul>
+    </ListGrid>
   );
 }
