@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getProducts } from "@/db/adminData";
+import { getProducts } from "@/db/data";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
 import ProductDropdownMenu from "./ProductDropdownMenu";
 

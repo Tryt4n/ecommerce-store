@@ -1,5 +1,5 @@
 import React from "react";
-import { Nav, NavLink } from "../../components/Nav";
+import { Nav, NavLink } from "../../layout/Nav";
 
 export const dynamic = "force-dynamic"; // Force NextJS to not cache any of admin pages
 

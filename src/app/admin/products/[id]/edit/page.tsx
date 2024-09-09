@@ -1,7 +1,7 @@
 import React from "react";
 import AdminPageHeader from "@/app/admin/_components/AdminPageHeader";
 import ProductForm from "../../_components/ProductForm";
-import { getProduct } from "@/db/adminData";
+import { getProduct } from "@/db/data";
 import { notFound } from "next/navigation";
 
 export default async function AdminEditProductPage({

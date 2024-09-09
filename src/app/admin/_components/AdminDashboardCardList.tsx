@@ -1,5 +1,5 @@
 import React from "react";
-import ListGrid from "@/components/ListGrid";
+import ListGrid from "@/layout/ListGrid";
 import DashboardCard from "../../../components/DashboardCard";
 import { getSalesData, getUsersData, getProductsData } from "@/db/adminData";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
