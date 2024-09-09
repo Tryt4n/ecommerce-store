@@ -4,10 +4,10 @@ import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import {
   createProduct,
-  getProduct,
   updateProduct as updateProductInDB,
 } from "@/db/adminData";
 import { editProductSchema, productAddSchema } from "@/lib/zod/productSchema";
+import { getProduct } from "@/db/data";
 
 export async function addProduct(prevState: unknown, formData: FormData) {
   const result = productAddSchema.safeParse(
