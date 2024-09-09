@@ -1,32 +1,41 @@
 import db from "./db";
+import { cache } from "@/lib/cache";
 
-export async function getMostPopularProducts(numberOfProducts: number = 6) {
-  try {
-    const products = db.product.findMany({
-      where: { isAvailableForPurchase: true },
-      orderBy: { orders: { _count: "desc" } },
-      take: numberOfProducts,
-    });
+export const getMostPopularProducts = cache(
+  async (numberOfProducts: number = 6) => {
+    try {
+      const products = db.product.findMany({
+        where: { isAvailableForPurchase: true },
+        orderBy: { orders: { _count: "desc" } },
+        take: numberOfProducts,
+      });
 
-    return products;
-  } catch (error) {
-    console.error(`Can't get most popular products. Error: ${error}`);
-  }
-}
+      return products;
+    } catch (error) {
+      console.error(`Can't get most popular products. Error: ${error}`);
+    }
+  },
+  ["/", "getMostPopularProducts"],
+  { revalidate: 60 * 60 * 24 } // 24 hours
+);
 
-export async function getNewestProducts(numberOfProducts: number = 6) {
-  try {
-    const products = db.product.findMany({
-      where: { isAvailableForPurchase: true },
-      orderBy: { createdAt: "desc" },
-      take: numberOfProducts,
-    });
+export const getNewestProducts = cache(
+  async (numberOfProducts: number = 6) => {
+    try {
+      const products = db.product.findMany({
+        where: { isAvailableForPurchase: true },
+        orderBy: { createdAt: "desc" },
+        take: numberOfProducts,
+      });
 
-    return products;
-  } catch (error) {
-    console.error(`Can't get newest products. Error: ${error}`);
-  }
-}
+      return products;
+    } catch (error) {
+      console.error(`Can't get newest products. Error: ${error}`);
+    }
+  },
+  ["/", "getNewestProducts"],
+  { revalidate: 60 * 60 * 24 } // 24 hours
+);
 
 export async function getProduct(id: string) {
   try {
@@ -49,7 +58,7 @@ export async function getProduct(id: string) {
   }
 }
 
-export async function getProducts() {
+export const getProducts = cache(async () => {
   try {
     const products = await db.product.findMany({
       select: {
@@ -69,4 +78,4 @@ export async function getProducts() {
   } catch (error) {
     console.error(`Can't get products. Error: ${error}`);
   }
-}
+}, ["/products", "getProducts"]);
