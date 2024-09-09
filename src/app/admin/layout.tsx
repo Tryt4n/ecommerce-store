@@ -16,7 +16,7 @@ export default function AdminLayout({
         <NavLink href="/admin/users">Customers</NavLink>
         <NavLink href="/admin/orders">Sales</NavLink>
       </Nav>
-      <main className="container mx-auto my-6">{children}</main>
+      <main className="container mx-auto my-6 px-6 sm:px-0">{children}</main>
     </>
   );
 }
