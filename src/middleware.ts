@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isValidPassword } from "./lib/isValidPassword";
-import { parsedEnv } from "./lib/zod/env";
 
 export async function middleware(req: NextRequest) {
   if ((await isAuthenticated(req)) === false) {
@@ -23,7 +22,7 @@ async function isAuthenticated(req: NextRequest) {
 
   return (
     username === process.env.ADMIN_USERNAME &&
-    (await isValidPassword(password, parsedEnv.HASHED_ADMIN_PASSWORD))
+    (await isValidPassword(password, process.env.HASHED_ADMIN_PASSWORD))
   );
 }
 
