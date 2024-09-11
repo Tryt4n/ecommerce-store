@@ -25,8 +25,9 @@ export async function POST(req: NextRequest) {
       return new NextResponse("Bad Request", { status: 400 });
     }
 
-    await createOrEditUser(email, productId, pricePaidInCents);
+    await createOrEditUser(email, product, pricePaidInCents);
     revalidatePath("/admin");
+    revalidatePath("/admin/products");
     revalidatePath("/admin/orders");
     revalidatePath("/admin/users");
   }
