@@ -13,3 +13,7 @@ const NUMBER_FORMATTER = new Intl.NumberFormat("pl-PL");
 export function formatNumber(amount: number) {
   return NUMBER_FORMATTER.format(amount);
 }
+
+export function dateFormatter(date: Date | number) {
+  return new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium" }).format(date);
+}
