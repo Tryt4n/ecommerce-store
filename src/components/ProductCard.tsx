@@ -28,8 +28,8 @@ export default function ProductCard({
   imagePath,
 }: ProductCardProps) {
   return (
-    <li className="flex flex-col overflow-hidden">
-      <Card>
+    <li className="overflow-hidden">
+      <Card className="flex h-full flex-col">
         <div className="relative aspect-video h-auto w-full">
           <Image src={imagePath} fill alt={name} className="object-cover" />
         </div>
