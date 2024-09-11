@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useFormState } from "react-dom";
-import { emailOrderHistory } from "@/app/_actions/order";
+import { emailOrdersHistory } from "@/app/_actions/order";
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import ErrorMessage from "@/components/ErrorMessage";
 import SubmitButton from "@/components/SubmitButton";
 
 export default function MyOrdersPage() {
-  const [data, action] = useFormState(emailOrderHistory, {});
+  const [data, action] = useFormState(emailOrdersHistory, {});
 
   return (
     <form action={action} className="max-2-xl mx-auto mt-8">
