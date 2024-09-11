@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,8 +8,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical } from "lucide-react";
-import Link from "next/link";
-import { ActiveToggleDropdownItem, DeleteDropdownItem } from "./ProductActions";
+import { ActiveToggleDropdownItem } from "./ProductActions";
+import DeleteDropdownItem from "../../_components/DeleteDropdownItem";
+import { deleteProduct } from "@/db/adminData";
 import type { getProducts } from "@/db/data";
 
 export default function ProductDropdownMenu({
@@ -48,6 +50,7 @@ export default function ProductDropdownMenu({
         <DeleteDropdownItem
           id={product.id}
           disabled={product._count.orders > 0}
+          promiseFn={deleteProduct}
         />
       </DropdownMenuContent>
     </DropdownMenu>
