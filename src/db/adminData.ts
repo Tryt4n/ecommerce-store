@@ -96,6 +96,8 @@ export async function createProduct(data: z.infer<typeof productAddSchema>) {
     revalidatePath("/products");
     revalidatePath("/admin");
     revalidatePath("/admin/products");
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/orders");
   } catch (error) {
     console.error(`Can't create product. Error: ${error}`);
   }
@@ -142,6 +144,8 @@ export async function updateProduct(
     revalidatePath("/products");
     revalidatePath("/admin");
     revalidatePath("/admin/products");
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/orders");
   } catch (error) {
     console.error(`Can't update product. Error: ${error}`);
   }
@@ -161,6 +165,8 @@ export async function toggleProductAvailability(
     revalidatePath("/products");
     revalidatePath("/admin");
     revalidatePath("/admin/products");
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/orders");
   } catch (error) {
     console.error(`Can't toggle product availability. Error: ${error}`);
   }
@@ -185,7 +191,39 @@ export async function deleteProduct(id: string) {
     revalidatePath("/products");
     revalidatePath("/admin");
     revalidatePath("/admin/products");
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/orders");
   } catch (error) {
     console.error(`Can't delete product. Error: ${error}`);
+  }
+}
+
+export async function deleteUser(id: string) {
+  try {
+    const user = await db.user.delete({ where: { id } });
+
+    if (user == null) return notFound();
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/orders");
+  } catch (error) {
+    console.error(`Can't delete user. Error: ${error}`);
+  }
+}
+
+export async function deleteOrder(id: string) {
+  try {
+    const order = await db.order.delete({ where: { id } });
+
+    if (order == null) return notFound();
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/orders");
+  } catch (error) {
+    console.error(`Can't delete order. Error: ${error}`);
   }
 }
