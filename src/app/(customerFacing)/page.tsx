@@ -9,10 +9,13 @@ export default function HomePage() {
 
       <ProductsGridSection
         title="Most Popular"
-        productsFetcher={getMostPopularProducts}
+        productsFetcher={() => getMostPopularProducts(3)}
       />
 
-      <ProductsGridSection title="Newest" productsFetcher={getNewestProducts} />
+      <ProductsGridSection
+        title="Newest"
+        productsFetcher={() => getNewestProducts(3)}
+      />
     </>
   );
 }
