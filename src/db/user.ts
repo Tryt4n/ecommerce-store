@@ -2,18 +2,19 @@
 
 import db from "./db";
 import { createDownloadVerification } from "@/app/_actions/download";
-import { sendEmail } from "@/lib/resend/emails";
-import type { Product } from "@prisma/client";
+import { sendPurchaseEmail } from "@/lib/resend/emails";
+import type { Product as DBProduct } from "@prisma/client";
 
 export async function createOrEditUser(
   email: string,
-  productId: Product["id"],
-  pricePaidInCents: Product["priceInCents"]
+  product: Partial<DBProduct> &
+    Required<Pick<DBProduct, "id" | "name" | "description" | "imagePath">>,
+  pricePaidInCents: DBProduct["priceInCents"]
 ) {
   try {
     const userFields = {
       email,
-      orders: { create: { productId, pricePaidInCents } },
+      orders: { create: { productId: product.id, pricePaidInCents } },
     };
 
     const {
@@ -25,10 +26,63 @@ export async function createOrEditUser(
       select: { orders: { orderBy: { createdAt: "desc" }, take: 1 } },
     });
 
-    const downloadVerification = await createDownloadVerification(productId);
+    const downloadVerification = await createDownloadVerification(product.id);
 
-    await sendEmail(email);
+    downloadVerification &&
+      (await sendPurchaseEmail(email, order, product, downloadVerification));
   } catch (error) {
     console.error(`Can't create/edit user. Error: ${error}`);
+  }
+}
+
+export async function getUser(email: string) {
+  try {
+    return await db.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        orders: {
+          select: {
+            id: true,
+            pricePaidInCents: true,
+            createdAt: true,
+            product: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                imagePath: true,
+                filePath: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error(`Can't get user. Error: ${error}`);
+  }
+}
+
+export async function getUsers() {
+  try {
+    return db.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        orders: {
+          select: {
+            id: true,
+            pricePaidInCents: true,
+            product: true,
+            productId: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    console.error(`Can't get users. Error: ${error}`);
   }
 }
