@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import DiscountDropdownMenu from "./DiscountDropdownMenu";
 import { Globe, Infinity, Minus } from "lucide-react";
-import type { getDiscountCodes } from "@/app/_actions/discounts";
+import type { getDiscountCodes } from "@/db/adminData";
 
 type DiscountCodesTableProps = {
   discountCodes: NonNullable<

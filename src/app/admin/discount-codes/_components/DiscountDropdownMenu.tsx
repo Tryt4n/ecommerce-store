@@ -3,7 +3,7 @@ import {
   deleteDiscountCode,
   toggleDiscountCodeActive,
   type getDiscountCodes,
-} from "@/app/_actions/discounts";
+} from "@/db/adminData";
 import {
   DropdownMenu,
   DropdownMenuContent,

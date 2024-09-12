@@ -1,5 +1,5 @@
 import React from "react";
-import { getDiscountCodes } from "@/app/_actions/discounts";
+import { getDiscountCodes } from "@/db/adminData";
 import AdminPageHeader from "../_components/AdminPageHeader";
 import DiscountCodesTable from "./_components/DiscountCodesTable";
 import { Button } from "@/components/ui/button";
