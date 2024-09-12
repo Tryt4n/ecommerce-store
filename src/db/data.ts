@@ -2,6 +2,7 @@
 
 import db from "./db";
 import { cache } from "@/lib/cache";
+import type { Product } from "@prisma/client";
 
 export const getMostPopularProducts = cache(
   async (numberOfProducts: number = 6) => {
@@ -60,24 +61,28 @@ export async function getProduct(id: string) {
   }
 }
 
-export const getProducts = cache(async () => {
-  try {
-    const products = await db.product.findMany({
-      select: {
-        id: true,
-        name: true,
-        priceInCents: true,
-        isAvailableForPurchase: true,
-        description: true,
-        filePath: true,
-        imagePath: true,
-        _count: { select: { orders: true } },
-      },
-      orderBy: { name: "asc" },
-    });
+export const getAllAvailableForPurchaseProducts = cache(
+  async (orderBy: keyof Product = "name", type: "asc" | "desc" = "asc") => {
+    try {
+      const products = await db.product.findMany({
+        where: { isAvailableForPurchase: true },
+        select: {
+          id: true,
+          name: true,
+          priceInCents: true,
+          isAvailableForPurchase: true,
+          description: true,
+          filePath: true,
+          imagePath: true,
+          _count: { select: { orders: true } },
+        },
+        orderBy: { [orderBy]: type },
+      });
 
-    return products;
-  } catch (error) {
-    console.error(`Can't get products. Error: ${error}`);
-  }
-}, ["/products", "getProducts"]);
+      return products;
+    } catch (error) {
+      console.error(`Can't get products. Error: ${error}`);
+    }
+  },
+  ["/products", "getAllAvailableForPurchaseProducts"]
+);
