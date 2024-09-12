@@ -1,7 +1,6 @@
 import React from "react";
 import Image from "next/image";
 import Stripe from "stripe";
-import { formatCurrency } from "@/lib/formatters";
 import { notFound } from "next/navigation";
 import { getProduct } from "@/db/data";
 import { Button } from "@/components/ui/button";
@@ -44,10 +43,6 @@ export default async function SuccessPurchasePage({
           </div>
 
           <div>
-            <p className="text-lg">
-              {formatCurrency(product.priceInCents / 100)}
-            </p>
-
             <h2 className="text-2xl font-bold">{product.name}</h2>
 
             <p className="line-clamp-3 text-muted-foreground">
