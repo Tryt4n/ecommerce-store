@@ -1,7 +1,6 @@
 import db from "@/db/db";
-import { cache } from "@/lib/cache";
 
-export const getOrders = cache(async () => {
+export async function getOrders() {
   try {
     return db.order.findMany({
       select: {
@@ -18,4 +17,4 @@ export const getOrders = cache(async () => {
   } catch (error) {
     console.error(`Can't get orders. Error: ${error}`);
   }
-}, ["/admin/orders", "getOrders"]);
+}

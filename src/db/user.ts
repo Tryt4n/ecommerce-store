@@ -2,7 +2,6 @@
 
 import db from "./db";
 import { createDownloadVerification } from "@/app/_actions/download";
-import { cache } from "@/lib/cache";
 import { sendPurchaseEmail } from "@/lib/resend/emails";
 import type { Product, User } from "@prisma/client";
 
@@ -66,27 +65,27 @@ export async function getUser(email: string) {
   }
 }
 
-export const getUsers = cache(
-  async (orderBy: keyof User = "createdAt", type: "asc" | "desc" = "desc") => {
-    try {
-      return db.user.findMany({
-        select: {
-          id: true,
-          email: true,
-          orders: {
-            select: {
-              id: true,
-              pricePaidInCents: true,
-              product: true,
-              productId: true,
-            },
+export async function getUsers(
+  orderBy: keyof User = "createdAt",
+  type: "asc" | "desc" = "desc"
+) {
+  try {
+    return db.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        orders: {
+          select: {
+            id: true,
+            pricePaidInCents: true,
+            product: true,
+            productId: true,
           },
         },
-        orderBy: { [orderBy]: type },
-      });
-    } catch (error) {
-      console.error(`Can't get users. Error: ${error}`);
-    }
-  },
-  ["/admin/users", "getUsers"]
-);
+      },
+      orderBy: { [orderBy]: type },
+    });
+  } catch (error) {
+    console.error(`Can't get users. Error: ${error}`);
+  }
+}

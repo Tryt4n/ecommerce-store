@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 import fs from "fs/promises";
 import db from "@/db/db";
-import { cache } from "@/lib/cache";
 import type {
   editProductSchema,
   productAddSchema,
@@ -50,30 +49,30 @@ export async function getUsersData() {
   }
 }
 
-export const getAllProducts = cache(
-  async (orderBy: keyof Product = "name", type: "asc" | "desc" = "asc") => {
-    try {
-      const products = await db.product.findMany({
-        select: {
-          id: true,
-          name: true,
-          priceInCents: true,
-          isAvailableForPurchase: true,
-          description: true,
-          filePath: true,
-          imagePath: true,
-          _count: { select: { orders: true } },
-        },
-        orderBy: { [orderBy]: type },
-      });
+export async function getAllProducts(
+  orderBy: keyof Product = "name",
+  type: "asc" | "desc" = "asc"
+) {
+  try {
+    const products = await db.product.findMany({
+      select: {
+        id: true,
+        name: true,
+        priceInCents: true,
+        isAvailableForPurchase: true,
+        description: true,
+        filePath: true,
+        imagePath: true,
+        _count: { select: { orders: true } },
+      },
+      orderBy: { [orderBy]: type },
+    });
 
-      return products;
-    } catch (error) {
-      console.error(`Can't get products. Error: ${error}`);
-    }
-  },
-  ["/admin/products", "getAllProducts"]
-);
+    return products;
+  } catch (error) {
+    console.error(`Can't get products. Error: ${error}`);
+  }
+}
 
 export async function getProductsData() {
   try {
