@@ -2,8 +2,10 @@
 
 import db from "./db";
 import { cache } from "@/lib/cache";
-import type { Product } from "@prisma/client";
+import { usableDiscountCodeWhere } from "@/lib/discountCodeHelpers";
+import type { DiscountCode, Product } from "@prisma/client";
 
+// Products
 export const getMostPopularProducts = cache(
   async (numberOfProducts: number = 6) => {
     try {
@@ -40,7 +42,7 @@ export const getNewestProducts = cache(
   { revalidate: 60 * 60 * 24 } // 24 hours
 );
 
-export async function getProduct(id: string) {
+export async function getProduct(id: Product["id"]) {
   try {
     const product = await db.product.findUnique({
       where: { id },
@@ -86,3 +88,23 @@ export const getAllAvailableForPurchaseProducts = cache(
   },
   ["/products", "getAllAvailableForPurchaseProducts"]
 );
+
+// Discount Codes
+export async function getDiscountCode(
+  coupon: DiscountCode["code"],
+  productId: Product["id"]
+) {
+  try {
+    return await db.discountCode.findUnique({
+      where: { ...usableDiscountCodeWhere, code: coupon },
+      select: {
+        id: true,
+        code: true,
+        discountAmount: true,
+        discountType: true,
+      },
+    });
+  } catch (error) {
+    console.error(`Error getting discount code. Error: ${error}`);
+  }
+}
