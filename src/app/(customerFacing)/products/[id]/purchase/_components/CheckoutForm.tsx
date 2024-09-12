@@ -2,20 +2,16 @@
 
 import React from "react";
 import { loadStripe } from "@stripe/stripe-js";
-import { formatCurrency } from "@/lib/formatters";
-import Image from "next/image";
 import { Elements } from "@stripe/react-stripe-js";
+import { getDiscountedAmount } from "@/lib/discountCodeHelpers";
+import { formatCurrency } from "@/lib/formatters";
 import StripePaymentForm from "./StripePaymentForm";
-import type { Product } from "@prisma/client";
+import Image from "next/image";
+import type { getDiscountCode, getProduct } from "@/db/data";
 
 type CheckoutFormProps = {
-  product: Partial<Product> &
-    Required<
-      Pick<
-        Product,
-        "id" | "name" | "priceInCents" | "description" | "imagePath"
-      >
-    >;
+  product: NonNullable<Awaited<ReturnType<typeof getProduct>>>;
+  discountCode: Awaited<ReturnType<typeof getDiscountCode>>;
   clientSecret: string;
 };
 
@@ -23,8 +19,19 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
 export default function CheckoutForm({
   product,
+  discountCode,
   clientSecret,
 }: CheckoutFormProps) {
+  const amount =
+    discountCode == null
+      ? product.priceInCents
+      : getDiscountedAmount(
+          discountCode.discountAmount,
+          discountCode.discountType,
+          product.priceInCents
+        );
+  const isDiscounted = amount !== product.priceInCents;
+
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <section className="flex items-center gap-4">
@@ -38,8 +45,21 @@ export default function CheckoutForm({
         </div>
 
         <div>
-          <p className="text-lg">
-            {formatCurrency(product.priceInCents / 100)}
+          <p className="flex items-center text-lg">
+            {isDiscounted && (
+              <>
+                <s
+                  className="text-sm text-muted-foreground"
+                  aria-label="Old price"
+                >
+                  {formatCurrency(product.priceInCents / 100)}
+                </s>
+                &nbsp;
+              </>
+            )}
+            <span aria-label={isDiscounted ? "New price" : undefined}>
+              {formatCurrency(amount / 100)}
+            </span>
           </p>
 
           <h2 className="text-2xl font-bold">{product.name}</h2>
@@ -56,7 +76,8 @@ export default function CheckoutForm({
         <Elements stripe={stripePromise} options={{ clientSecret }}>
           <StripePaymentForm
             productId={product.id}
-            priceInCents={product.priceInCents}
+            priceInCents={amount}
+            discountCode={discountCode}
           />
         </Elements>
       </section>

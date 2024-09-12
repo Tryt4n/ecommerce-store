@@ -1,19 +1,25 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import Stripe from "stripe";
-import { getProduct } from "@/db/data";
+import { getDiscountCode, getProduct } from "@/db/data";
 import CheckoutForm from "./_components/CheckoutForm";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export default async function PurchasePage({
   params: { id },
+  searchParams: { coupon },
 }: {
   params: { id: string };
+  searchParams: { coupon?: string };
 }) {
   const product = await getProduct(id);
 
   if (product == null) notFound();
+
+  const discountCode = coupon
+    ? await getDiscountCode(coupon, product.id)
+    : undefined;
 
   const paymentIntent = await stripe.paymentIntents.create({
     amount: product.priceInCents,
@@ -31,6 +37,7 @@ export default async function PurchasePage({
 
       <CheckoutForm
         product={product}
+        discountCode={discountCode}
         clientSecret={paymentIntent.client_secret}
       />
     </>

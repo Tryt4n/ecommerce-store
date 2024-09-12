@@ -1,5 +1,12 @@
-import React, { useState, type FormEvent } from "react";
-import { formatCurrency } from "@/lib/formatters";
+import React, {
+  useRef,
+  useState,
+  type ComponentProps,
+  type FormEvent,
+} from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { formatCurrency, formatDiscountCode } from "@/lib/formatters";
+import { userOrderExist } from "@/app/_actions/order";
 import {
   LinkAuthenticationElement,
   PaymentElement,
@@ -15,22 +22,37 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import ErrorMessage from "@/components/ErrorMessage";
 import type { Product } from "@prisma/client";
-import { userOrderExist } from "@/app/_actions/order";
+import type CheckoutForm from "./CheckoutForm";
+
+type StripePaymentFormProps = {
+  productId: Product["id"];
+  priceInCents: Product["priceInCents"];
+  discountCode: ComponentProps<typeof CheckoutForm>["discountCode"];
+};
 
 export default function StripePaymentForm({
   productId,
   priceInCents,
-}: {
-  productId: Product["id"];
-  priceInCents: Product["priceInCents"];
-}) {
+  discountCode,
+}: StripePaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>("");
+
+  const discountCodeRef = useRef<HTMLInputElement>(null);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const coupon = searchParams.get("coupon");
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -94,6 +116,51 @@ export default function StripePaymentForm({
               onChange={(e) => setEmail(e.value.email)}
             />
           )}
+
+          <div className="mt-4 space-y-2">
+            <Label
+              htmlFor="discountCode"
+              className="font-normal text-[#30313d]"
+            >
+              Coupon
+            </Label>
+            <div className="flex items-center gap-4">
+              <Input
+                type="text"
+                id="discountCode"
+                name="discountCode"
+                className="w-full max-w-xs"
+                ref={discountCodeRef}
+                defaultValue={coupon || ""}
+              />
+
+              <Button
+                type="button"
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams);
+                  params.set(
+                    "coupon",
+                    discountCodeRef.current?.value.trim() || ""
+                  );
+                  console.log(discountCodeRef.current?.value.trim());
+                  router.push(`${pathname}?${params.toString()}`);
+                }}
+              >
+                Apply
+              </Button>
+            </div>
+            {coupon != null && discountCode == null && (
+              <ErrorMessage error={"Invalid discount code."} />
+            )}
+            {discountCode && (
+              <p className="text-sm text-green-500">
+                {`${formatDiscountCode(
+                  discountCode.discountAmount,
+                  discountCode.discountType
+                )} discount applied`}
+              </p>
+            )}
+          </div>
         </CardContent>
 
         <CardFooter>
