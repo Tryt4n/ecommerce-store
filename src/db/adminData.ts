@@ -9,8 +9,14 @@ import type {
   productAddSchema,
 } from "@/lib/zod/productSchema";
 import type { z } from "zod";
-import type { DiscountCode, Prisma, Product } from "@prisma/client";
 import type { addDiscountSchema } from "@/lib/zod/discount";
+import type {
+  DiscountCode,
+  Order,
+  Prisma,
+  Product,
+  User,
+} from "@prisma/client";
 
 // Products
 export async function getAllProducts(
@@ -142,8 +148,8 @@ export async function updateProduct(
 }
 
 export async function toggleProductAvailability(
-  id: string,
-  availability: boolean
+  id: Product["id"],
+  availability: Product["isAvailableForPurchase"]
 ) {
   try {
     await db.product.update({
@@ -162,7 +168,7 @@ export async function toggleProductAvailability(
   }
 }
 
-export async function deleteProduct(id: string) {
+export async function deleteProduct(id: Product["id"]) {
   try {
     const product = await db.product.findUnique({
       where: { id },
@@ -205,7 +211,7 @@ export async function getSalesData() {
   }
 }
 
-export async function deleteOrder(id: string) {
+export async function deleteOrder(id: Order["id"]) {
   try {
     const order = await db.order.delete({ where: { id } });
 
@@ -242,7 +248,7 @@ export async function getUsersData() {
   }
 }
 
-export async function deleteUser(id: string) {
+export async function deleteUser(id: User["id"]) {
   try {
     const user = await db.user.delete({ where: { id } });
 
@@ -330,7 +336,10 @@ export async function getDiscountCodes(
   }
 }
 
-export async function toggleDiscountCodeActive(id: string, isActive: boolean) {
+export async function toggleDiscountCodeActive(
+  id: DiscountCode["id"],
+  isActive: DiscountCode["isActive"]
+) {
   try {
     await db.discountCode.update({
       where: { id },
@@ -343,7 +352,7 @@ export async function toggleDiscountCodeActive(id: string, isActive: boolean) {
   }
 }
 
-export async function deleteDiscountCode(id: string) {
+export async function deleteDiscountCode(id: DiscountCode["id"]) {
   try {
     const discountCode = await db.discountCode.delete({
       where: { id },
