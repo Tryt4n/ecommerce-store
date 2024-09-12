@@ -3,7 +3,7 @@
 import db from "./db";
 import { cache } from "@/lib/cache";
 import { usableDiscountCodeWhere } from "@/lib/discountCodeHelpers";
-import type { DiscountCode, Product } from "@prisma/client";
+import type { DiscountCode, Prisma, Product, User } from "@prisma/client";
 
 // Products
 export const getMostPopularProducts = cache(
@@ -89,6 +89,21 @@ export const getAllAvailableForPurchaseProducts = cache(
   ["/products", "getAllAvailableForPurchaseProducts"]
 );
 
+// Orders
+export async function userOrderExist(
+  email: User["email"],
+  productId: Product["id"]
+) {
+  try {
+    return await db.order.findFirst({
+      where: { user: { email }, productId },
+      select: { id: true },
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 // Discount Codes
 export async function getDiscountCode(
   coupon: DiscountCode["code"],
@@ -96,7 +111,7 @@ export async function getDiscountCode(
 ) {
   try {
     return await db.discountCode.findUnique({
-      where: { ...usableDiscountCodeWhere, code: coupon },
+      where: { ...usableDiscountCodeWhere(productId), code: coupon },
       select: {
         id: true,
         code: true,
@@ -106,5 +121,19 @@ export async function getDiscountCode(
     });
   } catch (error) {
     console.error(`Error getting discount code. Error: ${error}`);
+  }
+}
+
+export async function updateDiscountCode(
+  discountCodeId: DiscountCode["id"],
+  data: Prisma.DiscountCodeUpdateInput
+) {
+  try {
+    return await db.discountCode.update({
+      where: { id: discountCodeId },
+      data,
+    });
+  } catch (error) {
+    console.error(`Error updating discount code. Error: ${error}`);
   }
 }
