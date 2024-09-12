@@ -30,7 +30,7 @@ export default function ProductsPage() {
               productsFetcher={
                 getAllAvailableForPurchaseProducts as ComponentProps<
                   typeof ProductsGridSection
-                >["productsFetcher"] // type assertion because `getProducts` is not assignable to type `() => Promise<Product[] | undefined>` but it has the same signature and all required properties
+                >["productsFetcher"] // type assertion because `getAllAvailableForPurchaseProducts` is not assignable to type `() => Promise<Product[] | undefined>` but it has the same signature and all required properties
               }
             />
           </Suspense>
