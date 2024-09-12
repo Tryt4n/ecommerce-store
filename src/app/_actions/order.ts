@@ -1,24 +1,13 @@
 "use server";
 
-import db from "@/db/db";
 import { getUser } from "@/db/user";
+import { getDiscountCode, getProduct, userOrderExist } from "@/db/data";
 import { emailSchema } from "@/lib/zod/emailSchema";
-import { createDownloadVerification } from "./download";
-import type { Product } from "@prisma/client";
 import { sendEmailWithOrderHistory } from "@/lib/resend/emails";
-
-export async function userOrderExist(email: string, productId: Product["id"]) {
-  try {
-    return (
-      (await db.order.findFirst({
-        where: { user: { email }, productId },
-        select: { id: true },
-      })) != null
-    );
-  } catch (error) {
-    console.error(error);
-  }
-}
+import { createDownloadVerification } from "./download";
+import { getDiscountedAmount } from "@/lib/discountCodeHelpers";
+import { createStripePaymentIntent } from "@/lib/stripe/stripe";
+import type { DiscountCode, Product, User } from "@prisma/client";
 
 export async function emailOrdersHistory(
   prevState: unknown,
@@ -68,4 +57,49 @@ export async function emailOrdersHistory(
   }
 
   return { message: success_message };
+}
+
+export async function createPaymentIntent(
+  email: User["email"],
+  productId: Product["id"],
+  discountCouponCode?: DiscountCode["code"]
+) {
+  const product = await getProduct(productId);
+  if (!product) {
+    return { error: "Unexpected Error." };
+  }
+
+  const discountCode =
+    discountCouponCode &&
+    (await getDiscountCode(discountCouponCode, product.id));
+  if (!discountCode == null && discountCouponCode != null) {
+    return { error: "Coupon has expired." };
+  }
+
+  const existingOrder = await userOrderExist(email, productId);
+
+  if (existingOrder) {
+    return {
+      error:
+        "You have already purchased this product. Try downloading it from the My Orders page.",
+    };
+  }
+
+  const amount = !discountCode
+    ? product.priceInCents
+    : getDiscountedAmount(
+        discountCode.discountAmount,
+        discountCode.discountType,
+        product.priceInCents
+      );
+
+  const paymentIntent = await createStripePaymentIntent(amount, {
+    productId: product.id,
+    discountCodeId: (discountCode && discountCode?.id) || null,
+  });
+  if (!paymentIntent?.client_secret) {
+    return { error: "Unknown error." };
+  }
+
+  return { clientSecret: paymentIntent.client_secret };
 }
