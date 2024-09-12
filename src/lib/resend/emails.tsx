@@ -27,7 +27,7 @@ export async function sendPurchaseEmail(
       ),
     });
   } catch (error) {
-    console.log(`Can't send email. Error: ${error}`);
+    console.error(`Can't send email. Error: ${error}`);
   }
 }
 
@@ -43,6 +43,6 @@ export async function sendEmailWithOrderHistory(
       react: <OrderHistoryEmail orders={orders} />,
     });
   } catch (error) {
-    console.log(`Can't send email. Error: ${error}`);
+    console.error(`Can't send email. Error: ${error}`);
   }
 }
