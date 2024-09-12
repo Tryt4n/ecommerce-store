@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
   if (event.type === "charge.succeeded") {
     const charge = event.data.object;
     const productId = charge.metadata.productId;
+    const discountCodeId = charge.metadata.discountCodeId;
     const email = charge.billing_details.email;
     const pricePaidInCents = charge.amount;
 
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
       return new NextResponse("Bad Request", { status: 400 });
     }
 
-    await createOrEditUser(email, product, pricePaidInCents);
+    await createOrEditUser(email, product, pricePaidInCents, discountCodeId);
     revalidatePath("/admin");
     revalidatePath("/admin/products");
     revalidatePath("/admin/orders");
