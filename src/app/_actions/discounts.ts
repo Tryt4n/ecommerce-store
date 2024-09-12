@@ -5,7 +5,7 @@ import db from "@/db/db";
 import { addDiscountSchema } from "@/lib/zod/discount";
 import { cache } from "@/lib/cache";
 import { createDiscountCode } from "@/db/adminData";
-import type { Prisma } from "@prisma/client";
+import type { DiscountCode, Prisma } from "@prisma/client";
 
 const WHERE_EXPIRED: Prisma.DiscountCodeWhereInput = {
   OR: [
@@ -28,30 +28,36 @@ const SELECT_FIELDS: Prisma.DiscountCodeSelect = {
   _count: { select: { orders: true } },
 };
 
-export const getDiscountCodes = cache(async () => {
-  try {
-    const [unexpiredDiscountCodes, expiredDiscountCodes] =
-      await db.$transaction([
-        db.discountCode.findMany({
-          where: { NOT: WHERE_EXPIRED },
-          select: SELECT_FIELDS,
-          orderBy: { createdAt: "asc" },
-        }),
-        db.discountCode.findMany({
-          where: WHERE_EXPIRED,
-          select: SELECT_FIELDS,
-          orderBy: { createdAt: "asc" },
-        }),
-      ]);
+export const getDiscountCodes = cache(
+  async (
+    orderBy: keyof DiscountCode = "createdAt",
+    type: "asc" | "desc" = "asc"
+  ) => {
+    try {
+      const [unexpiredDiscountCodes, expiredDiscountCodes] =
+        await db.$transaction([
+          db.discountCode.findMany({
+            where: { NOT: WHERE_EXPIRED },
+            select: SELECT_FIELDS,
+            orderBy: { [orderBy]: type },
+          }),
+          db.discountCode.findMany({
+            where: WHERE_EXPIRED,
+            select: SELECT_FIELDS,
+            orderBy: { [orderBy]: type },
+          }),
+        ]);
 
-    return {
-      unexpiredDiscountCodes: unexpiredDiscountCodes,
-      expiredDiscountCodes: expiredDiscountCodes,
-    };
-  } catch (error) {
-    console.error(`Error getting discount codes. Error: ${error}`);
-  }
-}, ["/admin/discount-codes", "getDiscountCodes"]);
+      return {
+        unexpiredDiscountCodes: unexpiredDiscountCodes,
+        expiredDiscountCodes: expiredDiscountCodes,
+      };
+    } catch (error) {
+      console.error(`Error getting discount codes. Error: ${error}`);
+    }
+  },
+  ["/admin/discount-codes", "getDiscountCodes"]
+);
 
 export async function addDiscountCode(prevState: unknown, formData: FormData) {
   const productIds = formData.getAll("productIds");
