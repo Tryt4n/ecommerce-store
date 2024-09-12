@@ -8,9 +8,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical } from "lucide-react";
-import { ActiveToggleDropdownItem } from "./ProductActions";
+import ActiveToggleDropdownMenuItem from "../../_components/ActiveToggleDropdownMenuItem";
 import DeleteDropdownItem from "../../_components/DeleteDropdownItem";
-import { deleteProduct } from "@/db/adminData";
+import { deleteProduct, toggleProductAvailability } from "@/db/adminData";
 import type { getProducts } from "@/db/data";
 
 export default function ProductDropdownMenu({
@@ -40,9 +40,10 @@ export default function ProductDropdownMenu({
 
         <DropdownMenuSeparator />
 
-        <ActiveToggleDropdownItem
+        <ActiveToggleDropdownMenuItem
           id={product.id}
-          isAvailableForPurchase={product.isAvailableForPurchase}
+          isActive={product.isAvailableForPurchase}
+          promiseFn={toggleProductAvailability}
         />
 
         <DropdownMenuSeparator />
