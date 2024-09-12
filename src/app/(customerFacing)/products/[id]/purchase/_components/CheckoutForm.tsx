@@ -12,7 +12,6 @@ import type { getDiscountCode, getProduct } from "@/db/data";
 type CheckoutFormProps = {
   product: NonNullable<Awaited<ReturnType<typeof getProduct>>>;
   discountCode: Awaited<ReturnType<typeof getDiscountCode>>;
-  clientSecret: string;
 };
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
@@ -20,7 +19,6 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 export default function CheckoutForm({
   product,
   discountCode,
-  clientSecret,
 }: CheckoutFormProps) {
   const amount =
     discountCode == null
@@ -73,7 +71,10 @@ export default function CheckoutForm({
       <section>
         <h2 className="sr-only">Payments</h2>
 
-        <Elements stripe={stripePromise} options={{ clientSecret }}>
+        <Elements
+          stripe={stripePromise}
+          options={{ amount, mode: "payment", currency: "pln" }}
+        >
           <StripePaymentForm
             productId={product.id}
             priceInCents={amount}
