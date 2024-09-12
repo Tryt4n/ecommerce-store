@@ -1,10 +1,10 @@
 import React from "react";
 import AdminPageHeader from "../../_components/AdminPageHeader";
 import DiscountCodeForm from "../_components/DiscountCodeForm";
-import { getProducts } from "@/db/data";
+import { getAllProducts } from "@/db/adminData";
 
 export default async function AdminAddNewDiscountCodePage() {
-  const products = await getProducts();
+  const products = await getAllProducts();
 
   return (
     <>

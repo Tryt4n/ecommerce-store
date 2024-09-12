@@ -10,13 +10,16 @@ import {
 import { MoreVertical } from "lucide-react";
 import ActiveToggleDropdownMenuItem from "../../_components/ActiveToggleDropdownMenuItem";
 import DeleteDropdownItem from "../../_components/DeleteDropdownItem";
-import { deleteProduct, toggleProductAvailability } from "@/db/adminData";
-import type { getProducts } from "@/db/data";
+import {
+  deleteProduct,
+  toggleProductAvailability,
+  type getAllProducts,
+} from "@/db/adminData";
 
 export default function ProductDropdownMenu({
   product,
 }: {
-  product: NonNullable<Awaited<ReturnType<typeof getProducts>>>[number];
+  product: NonNullable<Awaited<ReturnType<typeof getAllProducts>>>[number];
 }) {
   return (
     <DropdownMenu>

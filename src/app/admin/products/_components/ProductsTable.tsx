@@ -7,12 +7,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getProducts } from "@/db/data";
+import { getAllProducts } from "@/db/adminData";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
 import ProductDropdownMenu from "./ProductDropdownMenu";
 
 export default async function ProductsTable() {
-  const products = await getProducts("createdAt");
+  const products = await getAllProducts("createdAt");
 
   if (!products) {
     return <p>Loading products...</p>;

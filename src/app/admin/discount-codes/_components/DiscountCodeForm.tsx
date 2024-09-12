@@ -4,16 +4,16 @@ import React, { useState } from "react";
 import { useFormState } from "react-dom";
 import { DiscountCodeType } from "@prisma/client";
 import { addDiscountCode } from "@/app/_actions/discounts";
-import { getProducts } from "@/db/data";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import ErrorMessage from "@/components/ErrorMessage";
 import SubmitButton from "@/components/SubmitButton";
+import type { getAllProducts } from "@/db/adminData";
 
 type DiscountCodeFormProps = {
-  products: Awaited<ReturnType<typeof getProducts>>;
+  products: Awaited<ReturnType<typeof getAllProducts>>;
 };
 
 export default function DiscountCodeForm({ products }: DiscountCodeFormProps) {
