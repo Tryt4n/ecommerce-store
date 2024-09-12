@@ -304,7 +304,7 @@ const SELECT_FIELDS: Prisma.DiscountCodeSelect = {
   limit: true,
   uses: true,
   isActive: true,
-  products: { select: { name: true, id: true } },
+  products: { select: { name: true, id: true }, orderBy: { name: "asc" } },
   _count: { select: { orders: true } },
 };
 
