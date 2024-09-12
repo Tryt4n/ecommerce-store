@@ -1,59 +1,8 @@
 "use server";
 
-import { notFound, redirect } from "next/navigation";
-import db from "@/db/db";
+import { redirect } from "next/navigation";
 import { addDiscountSchema } from "@/lib/zod/discount";
 import { createDiscountCode } from "@/db/adminData";
-import type { DiscountCode, Prisma } from "@prisma/client";
-
-const WHERE_EXPIRED: Prisma.DiscountCodeWhereInput = {
-  OR: [
-    { limit: { not: null, lte: db.discountCode.fields.uses } },
-    { expiresAt: { not: null, lte: new Date() } },
-  ],
-};
-
-const SELECT_FIELDS: Prisma.DiscountCodeSelect = {
-  id: true,
-  allProducts: true,
-  code: true,
-  discountAmount: true,
-  discountType: true,
-  expiresAt: true,
-  limit: true,
-  uses: true,
-  isActive: true,
-  products: { select: { name: true, id: true } },
-  _count: { select: { orders: true } },
-};
-
-export async function getDiscountCodes(
-  orderBy: keyof DiscountCode = "createdAt",
-  type: "asc" | "desc" = "asc"
-) {
-  try {
-    const [unexpiredDiscountCodes, expiredDiscountCodes] =
-      await db.$transaction([
-        db.discountCode.findMany({
-          where: { NOT: WHERE_EXPIRED },
-          select: SELECT_FIELDS,
-          orderBy: { [orderBy]: type },
-        }),
-        db.discountCode.findMany({
-          where: WHERE_EXPIRED,
-          select: SELECT_FIELDS,
-          orderBy: { [orderBy]: type },
-        }),
-      ]);
-
-    return {
-      unexpiredDiscountCodes: unexpiredDiscountCodes,
-      expiredDiscountCodes: expiredDiscountCodes,
-    };
-  } catch (error) {
-    console.error(`Error getting discount codes. Error: ${error}`);
-  }
-}
 
 export async function addDiscountCode(prevState: unknown, formData: FormData) {
   const productIds = formData.getAll("productIds");
@@ -70,29 +19,4 @@ export async function addDiscountCode(prevState: unknown, formData: FormData) {
   const data = result.data;
 
   await createDiscountCode(data).then(() => redirect("/admin/discount-codes"));
-}
-
-export async function toggleDiscountCodeActive(id: string, isActive: boolean) {
-  try {
-    await db.discountCode.update({
-      where: { id },
-      data: { isActive },
-    });
-  } catch (error) {
-    console.error(
-      `Error toggling discount code active status. Error: ${error}`
-    );
-  }
-}
-
-export async function deleteDiscountCode(id: string) {
-  try {
-    const discountCode = await db.discountCode.delete({
-      where: { id },
-    });
-
-    if (discountCode == null) return notFound();
-  } catch (error) {
-    console.error(`Error deleting discount code. Error: ${error}`);
-  }
 }

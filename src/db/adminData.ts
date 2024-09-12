@@ -9,46 +9,10 @@ import type {
   productAddSchema,
 } from "@/lib/zod/productSchema";
 import type { z } from "zod";
-import type { Product } from "@prisma/client";
+import type { DiscountCode, Prisma, Product } from "@prisma/client";
 import type { addDiscountSchema } from "@/lib/zod/discount";
 
-export async function getSalesData() {
-  try {
-    const data = await db.order.aggregate({
-      _sum: { pricePaidInCents: true },
-      _count: true,
-    });
-
-    return {
-      amount: (data._sum.pricePaidInCents || 0) / 100,
-      numberOfSales: data._count,
-    };
-  } catch (error) {
-    console.error(`Can't get sales data. Error: ${error}`);
-  }
-}
-
-export async function getUsersData() {
-  try {
-    const [userCount, orderData] = await db.$transaction([
-      db.user.count(),
-      db.order.aggregate({
-        _sum: { pricePaidInCents: true },
-      }),
-    ]);
-
-    return {
-      userCount,
-      averageValuePerUser:
-        userCount === 0
-          ? 0
-          : (orderData._sum.pricePaidInCents || 0) / userCount / 100,
-    };
-  } catch (error) {
-    console.error(`Can't get users data. Error: ${error}`);
-  }
-}
-
+// Products
 export async function getAllProducts(
   orderBy: keyof Product = "name",
   type: "asc" | "desc" = "asc"
@@ -224,18 +188,20 @@ export async function deleteProduct(id: string) {
   }
 }
 
-export async function deleteUser(id: string) {
+// Orders
+export async function getSalesData() {
   try {
-    const user = await db.user.delete({ where: { id } });
+    const data = await db.order.aggregate({
+      _sum: { pricePaidInCents: true },
+      _count: true,
+    });
 
-    if (user == null) return notFound();
-
-    revalidatePath("/admin");
-    revalidatePath("/admin/products");
-    revalidatePath("/admin/users");
-    revalidatePath("/admin/orders");
+    return {
+      amount: (data._sum.pricePaidInCents || 0) / 100,
+      numberOfSales: data._count,
+    };
   } catch (error) {
-    console.error(`Can't delete user. Error: ${error}`);
+    console.error(`Can't get sales data. Error: ${error}`);
   }
 }
 
@@ -254,6 +220,44 @@ export async function deleteOrder(id: string) {
   }
 }
 
+// Users
+export async function getUsersData() {
+  try {
+    const [userCount, orderData] = await db.$transaction([
+      db.user.count(),
+      db.order.aggregate({
+        _sum: { pricePaidInCents: true },
+      }),
+    ]);
+
+    return {
+      userCount,
+      averageValuePerUser:
+        userCount === 0
+          ? 0
+          : (orderData._sum.pricePaidInCents || 0) / userCount / 100,
+    };
+  } catch (error) {
+    console.error(`Can't get users data. Error: ${error}`);
+  }
+}
+
+export async function deleteUser(id: string) {
+  try {
+    const user = await db.user.delete({ where: { id } });
+
+    if (user == null) return notFound();
+
+    revalidatePath("/admin");
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/orders");
+  } catch (error) {
+    console.error(`Can't delete user. Error: ${error}`);
+  }
+}
+
+// Discount Codes
 export async function createDiscountCode(
   data: z.infer<typeof addDiscountSchema>
 ) {
@@ -274,5 +278,79 @@ export async function createDiscountCode(
     });
   } catch (error) {
     console.error(`Can't create discount code. Error: ${error}`);
+  }
+}
+
+const WHERE_EXPIRED: Prisma.DiscountCodeWhereInput = {
+  OR: [
+    { limit: { not: null, lte: db.discountCode.fields.uses } },
+    { expiresAt: { not: null, lte: new Date() } },
+  ],
+};
+
+const SELECT_FIELDS: Prisma.DiscountCodeSelect = {
+  id: true,
+  allProducts: true,
+  code: true,
+  discountAmount: true,
+  discountType: true,
+  expiresAt: true,
+  limit: true,
+  uses: true,
+  isActive: true,
+  products: { select: { name: true, id: true } },
+  _count: { select: { orders: true } },
+};
+
+export async function getDiscountCodes(
+  orderBy: keyof DiscountCode = "createdAt",
+  type: "asc" | "desc" = "asc"
+) {
+  try {
+    const [unexpiredDiscountCodes, expiredDiscountCodes] =
+      await db.$transaction([
+        db.discountCode.findMany({
+          where: { NOT: WHERE_EXPIRED },
+          select: SELECT_FIELDS,
+          orderBy: { [orderBy]: type },
+        }),
+        db.discountCode.findMany({
+          where: WHERE_EXPIRED,
+          select: SELECT_FIELDS,
+          orderBy: { [orderBy]: type },
+        }),
+      ]);
+
+    return {
+      unexpiredDiscountCodes: unexpiredDiscountCodes,
+      expiredDiscountCodes: expiredDiscountCodes,
+    };
+  } catch (error) {
+    console.error(`Error getting discount codes. Error: ${error}`);
+  }
+}
+
+export async function toggleDiscountCodeActive(id: string, isActive: boolean) {
+  try {
+    await db.discountCode.update({
+      where: { id },
+      data: { isActive },
+    });
+  } catch (error) {
+    console.error(
+      `Error toggling discount code active status. Error: ${error}`
+    );
+  }
+}
+
+export async function deleteDiscountCode(id: string) {
+  try {
+    const discountCode = await db.discountCode.delete({
+      where: { id },
+    });
+
+    if (discountCode == null) return notFound();
+  } catch (error) {
+    console.error(`Error deleting discount code. Error: ${error}`);
   }
 }
