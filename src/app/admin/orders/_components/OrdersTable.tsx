@@ -1,5 +1,7 @@
 import React from "react";
 import { getOrders } from "../_actions/orders";
+import { deleteOrder } from "@/db/adminData";
+import { formatCurrency } from "@/lib/formatters";
 import {
   Table,
   TableBody,
@@ -8,9 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatCurrency } from "@/lib/formatters";
-import { deleteOrder } from "@/db/adminData";
 import AdminDropdownMenu from "../../_components/AdminDropdownMenu";
+import { Minus } from "lucide-react";
 
 export default async function OrdersTable() {
   const orders = await getOrders();
@@ -22,8 +23,9 @@ export default async function OrdersTable() {
       <TableHeader>
         <TableRow>
           <TableHead>Product</TableHead>
-          <TableHead>Customer</TableHead>
-          <TableHead>Price Paid</TableHead>
+          <TableHead className="text-center">Customer</TableHead>
+          <TableHead className="text-center">Price Paid</TableHead>
+          <TableHead className="text-center">Coupon</TableHead>
           <TableHead className="w-0">
             <span className="sr-only">Orders Actions</span>
           </TableHead>
@@ -33,12 +35,21 @@ export default async function OrdersTable() {
       <TableBody>
         {orders.map((order) => (
           <TableRow key={order.id}>
-            <TableCell>{order.product.name}</TableCell>
-            <TableCell>{order.user.email}</TableCell>
-            <TableCell>
+            <TableCell className="text-nowrap">{order.product.name}</TableCell>
+
+            <TableCell align="center" className="text-nowrap">
+              {order.user.email}
+            </TableCell>
+
+            <TableCell align="center" className="text-nowrap">
               {formatCurrency(order.pricePaidInCents / 100)}
             </TableCell>
-            <TableCell className="text-center">
+
+            <TableCell align="center" className="text-nowrap">
+              {order.discountCode == null ? <Minus /> : order.discountCode.code}
+            </TableCell>
+
+            <TableCell align="right" className="text-nowrap">
               <AdminDropdownMenu
                 id={order.id}
                 name={order.product.name}
