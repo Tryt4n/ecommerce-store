@@ -12,7 +12,7 @@ import { formatCurrency, formatNumber } from "@/lib/formatters";
 import ProductDropdownMenu from "./ProductDropdownMenu";
 
 export default async function ProductsTable() {
-  const products = await getProducts();
+  const products = await getProducts("createdAt");
 
   if (!products) {
     return <p>Loading products...</p>;
@@ -30,8 +30,8 @@ export default async function ProductsTable() {
             <span className="sr-only">Available For Purchase</span>
           </TableHead>
           <TableHead>Name</TableHead>
-          <TableHead>Price</TableHead>
-          <TableHead>Orders</TableHead>
+          <TableHead className="text-center">Price</TableHead>
+          <TableHead className="text-center">Orders</TableHead>
           <TableHead className="w-0">
             <span className="sr-only">Actions</span>
           </TableHead>
@@ -55,13 +55,23 @@ export default async function ProductsTable() {
               )}
             </TableCell>
 
-            <TableCell>{product.name}</TableCell>
+            <TableCell align="left" className="text-nowrap">
+              {product.name}
+            </TableCell>
 
-            <TableCell>{formatCurrency(product.priceInCents / 100)}</TableCell>
+            <TableCell align="center" className="text-nowrap">
+              {formatCurrency(product.priceInCents / 100)}
+            </TableCell>
 
-            <TableCell>{formatNumber(product._count.orders)}</TableCell>
+            <TableCell align="center" className="text-nowrap">
+              {formatNumber(product._count.orders)}
+            </TableCell>
 
-            <TableCell title="More Actions">
+            <TableCell
+              title="More Actions"
+              align="right"
+              className="text-nowrap"
+            >
               <ProductDropdownMenu product={product} />
             </TableCell>
           </TableRow>
