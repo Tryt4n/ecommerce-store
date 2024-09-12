@@ -2,14 +2,15 @@
 
 import db from "./db";
 import { createDownloadVerification } from "@/app/_actions/download";
+import { cache } from "@/lib/cache";
 import { sendPurchaseEmail } from "@/lib/resend/emails";
-import type { Product as DBProduct } from "@prisma/client";
+import type { Product, User } from "@prisma/client";
 
 export async function createOrEditUser(
   email: string,
-  product: Partial<DBProduct> &
-    Required<Pick<DBProduct, "id" | "name" | "description" | "imagePath">>,
-  pricePaidInCents: DBProduct["priceInCents"]
+  product: Partial<Product> &
+    Required<Pick<Product, "id" | "name" | "description" | "imagePath">>,
+  pricePaidInCents: Product["priceInCents"]
 ) {
   try {
     const userFields = {
@@ -65,24 +66,27 @@ export async function getUser(email: string) {
   }
 }
 
-export async function getUsers() {
-  try {
-    return db.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        orders: {
-          select: {
-            id: true,
-            pricePaidInCents: true,
-            product: true,
-            productId: true,
+export const getUsers = cache(
+  async (orderBy: keyof User = "createdAt", type: "asc" | "desc" = "desc") => {
+    try {
+      return db.user.findMany({
+        select: {
+          id: true,
+          email: true,
+          orders: {
+            select: {
+              id: true,
+              pricePaidInCents: true,
+              product: true,
+              productId: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-  } catch (error) {
-    console.error(`Can't get users. Error: ${error}`);
-  }
-}
+        orderBy: { [orderBy]: type },
+      });
+    } catch (error) {
+      console.error(`Can't get users. Error: ${error}`);
+    }
+  },
+  ["/admin/users", "getUsers"]
+);
