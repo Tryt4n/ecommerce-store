@@ -6,7 +6,7 @@ import React, {
 } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { formatCurrency, formatDiscountCode } from "@/lib/formatters";
-import { userOrderExist } from "@/app/_actions/order";
+import { createPaymentIntent } from "@/app/_actions/order";
 import {
   LinkAuthenticationElement,
   PaymentElement,
@@ -61,11 +61,24 @@ export default function StripePaymentForm({
 
     setIsLoading(true);
 
-    const orderExist = await userOrderExist(email, productId);
-
-    if (orderExist) {
+    const formSubmit = await elements.submit();
+    if (formSubmit.error != null) {
       setErrorMessage(
-        "You have already purchased this product. Try downloading it from the My Orders page."
+        formSubmit.error.message ||
+          "An unknown error occurred. Please try again."
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    const paymentIntent = await createPaymentIntent(
+      email,
+      productId,
+      discountCode?.code
+    );
+    if (!paymentIntent.clientSecret) {
+      setErrorMessage(
+        paymentIntent?.error || "An unknown error occurred. Please try again."
       );
       setIsLoading(false);
       return;
@@ -74,6 +87,7 @@ export default function StripePaymentForm({
     stripe
       .confirmPayment({
         elements,
+        clientSecret: paymentIntent.clientSecret,
         confirmParams: {
           return_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/stripe/purchase-success`,
         },
@@ -142,7 +156,6 @@ export default function StripePaymentForm({
                     "coupon",
                     discountCodeRef.current?.value.trim() || ""
                   );
-                  console.log(discountCodeRef.current?.value.trim());
                   router.push(`${pathname}?${params.toString()}`);
                 }}
               >
