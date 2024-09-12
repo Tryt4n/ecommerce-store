@@ -3,18 +3,22 @@
 import db from "./db";
 import { createDownloadVerification } from "@/app/_actions/download";
 import { sendPurchaseEmail } from "@/lib/resend/emails";
-import type { Product, User } from "@prisma/client";
+import type { DiscountCode, Product, User } from "@prisma/client";
+import { updateDiscountCode } from "./data";
 
 export async function createOrEditUser(
   email: string,
   product: Partial<Product> &
     Required<Pick<Product, "id" | "name" | "description" | "imagePath">>,
-  pricePaidInCents: Product["priceInCents"]
+  pricePaidInCents: Product["priceInCents"],
+  discountCodeId?: DiscountCode["id"]
 ) {
   try {
     const userFields = {
       email,
-      orders: { create: { productId: product.id, pricePaidInCents } },
+      orders: {
+        create: { productId: product.id, pricePaidInCents, discountCodeId },
+      },
     };
 
     const {
@@ -27,6 +31,10 @@ export async function createOrEditUser(
     });
 
     const downloadVerification = await createDownloadVerification(product.id);
+
+    if (discountCodeId) {
+      await updateDiscountCode(discountCodeId, { uses: { increment: 1 } });
+    }
 
     downloadVerification &&
       (await sendPurchaseEmail(email, order, product, downloadVerification));
