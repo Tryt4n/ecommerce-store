@@ -45,4 +45,4 @@ prisma/migrations
 /products
 /public/products
 
-stripe
+stripeInit
