@@ -1,16 +1,15 @@
 "use client";
 
-import React, { useTransition, type ComponentProps } from "react";
+import React, { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import type AdminDropdownMenu from "./AdminDropdownMenu";
 
 export default function DeleteDropdownItem({
   promiseFn,
   id,
   disabled,
 }: {
-  promiseFn: ComponentProps<typeof AdminDropdownMenu>["deleteFn"];
+  promiseFn: (id: string) => Promise<void>;
   id: string;
   disabled?: boolean;
 }) {
