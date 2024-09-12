@@ -10,6 +10,7 @@ import type {
 } from "@/lib/zod/productSchema";
 import type { z } from "zod";
 import type { Product } from "@prisma/client";
+import type { addDiscountSchema } from "@/lib/zod/discount";
 
 export async function getSalesData() {
   try {
@@ -225,5 +226,28 @@ export async function deleteOrder(id: string) {
     revalidatePath("/admin/orders");
   } catch (error) {
     console.error(`Can't delete order. Error: ${error}`);
+  }
+}
+
+export async function createDiscountCode(
+  data: z.infer<typeof addDiscountSchema>
+) {
+  try {
+    return await db.discountCode.create({
+      data: {
+        code: data.code,
+        discountAmount: data.discountAmount,
+        discountType: data.discountType,
+        allProducts: data.allProducts,
+        products:
+          data.productIds != null
+            ? { connect: data.productIds.map((id) => ({ id })) }
+            : undefined,
+        expiresAt: data.expiresAt,
+        limit: data.limit,
+      },
+    });
+  } catch (error) {
+    console.error(`Can't create discount code. Error: ${error}`);
   }
 }
