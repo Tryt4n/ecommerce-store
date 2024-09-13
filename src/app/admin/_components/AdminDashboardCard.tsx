@@ -15,7 +15,7 @@ type DashboardCardProps = {
   children?: React.ReactElement;
 };
 
-export default function DashboardCard({
+export default function AdminDashboardCard({
   title,
   subtitle,
   body,
