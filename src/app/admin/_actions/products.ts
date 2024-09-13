@@ -6,7 +6,7 @@ import {
   updateProduct as updateProductInDB,
 } from "@/db/adminData/products";
 import { editProductSchema, productAddSchema } from "@/lib/zod/productSchema";
-import { getProduct } from "@/db/data";
+import { getProduct } from "@/db/userData/products";
 
 export async function addProduct(prevState: unknown, formData: FormData) {
   const result = productAddSchema.safeParse(

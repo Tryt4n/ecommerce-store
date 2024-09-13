@@ -1,6 +1,6 @@
 "use server";
 
-import db from "../db";
+import db from "../init";
 import { createDownloadVerification } from "@/app/_actions/download";
 import { sendPurchaseEmail } from "@/lib/resend/emails";
 import { updateDiscountCode } from "./discountCodes";

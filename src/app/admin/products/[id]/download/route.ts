@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getProduct } from "@/db/data";
+import { getProduct } from "@/db/userData/products";
 import { downloadProduct } from "@/lib/downloadProduct";
 import type { NextRequest } from "next/server";
 

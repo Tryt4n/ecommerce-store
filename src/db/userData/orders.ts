@@ -1,6 +1,6 @@
 "use server";
 
-import db from "../db";
+import db from "../init";
 import type { Product, User } from "@prisma/client";
 
 export async function userOrderExist(

@@ -1,6 +1,6 @@
 "use server";
 
-import db from "../db";
+import db from "../init";
 import { cache } from "@/lib/cache";
 import type { Product } from "@prisma/client";
 

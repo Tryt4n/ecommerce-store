@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import Stripe from "stripe";
 import { notFound } from "next/navigation";
-import { getProduct } from "@/db/data";
+import { getProduct } from "@/db/userData/products";
 import { Button } from "@/components/ui/button";
 import { createDownloadVerification } from "@/app/_actions/download";
 

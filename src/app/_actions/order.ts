@@ -1,7 +1,9 @@
 "use server";
 
-import { getUser } from "@/db/user";
-import { getDiscountCode, getProduct, userOrderExist } from "@/db/data";
+import { getUser } from "@/db/userData/user";
+import { getProduct } from "@/db/userData/products";
+import { userOrderExist } from "@/db/userData/orders";
+import { getDiscountCode } from "@/db/userData/discountCodes";
 import { emailSchema } from "@/lib/zod/emailSchema";
 import { sendEmailWithOrderHistory } from "@/lib/resend/emails";
 import { createDownloadVerification } from "./download";

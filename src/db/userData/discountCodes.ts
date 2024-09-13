@@ -1,6 +1,6 @@
 "use server";
 
-import db from "../db";
+import db from "../init";
 import { usableDiscountCodeWhere } from "@/lib/discountCodeHelpers";
 import type { DiscountCode, Prisma, Product } from "@prisma/client";
 

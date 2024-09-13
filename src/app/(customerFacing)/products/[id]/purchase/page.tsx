@@ -1,6 +1,7 @@
 import React from "react";
 import { notFound } from "next/navigation";
-import { getDiscountCode, getProduct } from "@/db/data";
+import { getProduct } from "@/db/userData/products";
+import { getDiscountCode } from "@/db/userData/discountCodes";
 import CheckoutForm from "./_components/CheckoutForm";
 
 export default async function PurchasePage({

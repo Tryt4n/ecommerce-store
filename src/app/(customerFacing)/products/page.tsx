@@ -2,7 +2,7 @@ import React, { Suspense, type ComponentProps } from "react";
 import ListGrid from "@/layout/ListGrid";
 import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import ProductSuspense from "@/components/ProductSuspense";
-import { getAllAvailableForPurchaseProducts } from "@/db/data";
+import { getAllAvailableForPurchaseProducts } from "@/db/userData/products";
 import type ProductsGridSection from "../_components/ProductsGridSection";
 
 export default function ProductsPage() {

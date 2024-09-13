@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 import { NextResponse, type NextRequest } from "next/server";
-import { getProduct } from "@/db/data";
-import { createOrEditUser } from "@/db/user";
+import { getProduct } from "@/db/userData/products";
+import { createOrEditUser } from "@/db/userData/user";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 

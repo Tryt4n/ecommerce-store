@@ -7,7 +7,8 @@ import { getDiscountedAmount } from "@/lib/discountCodeHelpers";
 import { formatCurrency } from "@/lib/formatters";
 import StripePaymentForm from "./StripePaymentForm";
 import Image from "next/image";
-import type { getDiscountCode, getProduct } from "@/db/data";
+import type { getDiscountCode } from "@/db/userData/discountCodes";
+import type { getProduct } from "@/db/userData/products";
 
 type CheckoutFormProps = {
   product: NonNullable<Awaited<ReturnType<typeof getProduct>>>;

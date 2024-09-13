@@ -1,7 +1,7 @@
 "use server";
 
 import { notFound } from "next/navigation";
-import db from "../db";
+import db from "../init";
 import type { User } from "@prisma/client";
 
 export async function deleteUser(id: User["id"]) {

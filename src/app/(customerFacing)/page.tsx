@@ -1,6 +1,9 @@
 import React from "react";
 import ProductsGridSection from "./_components/ProductsGridSection";
-import { getMostPopularProducts, getNewestProducts } from "@/db/data";
+import {
+  getMostPopularProducts,
+  getNewestProducts,
+} from "@/db/userData/products";
 
 export default function HomePage() {
   return (
