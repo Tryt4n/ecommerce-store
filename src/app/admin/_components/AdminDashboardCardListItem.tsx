@@ -1,14 +1,16 @@
 import React, { type ComponentProps } from "react";
-import DashboardCard from "./DashboardCard";
+import AdminDashboardCard from "./AdminDashboardCard";
 
-type AdminDashboardCardListItemProps = ComponentProps<typeof DashboardCard>;
+type AdminDashboardCardListItemProps = ComponentProps<
+  typeof AdminDashboardCard
+>;
 
 export default function AdminDashboardCardListItem({
   ...props
 }: AdminDashboardCardListItemProps) {
   return (
     <li>
-      <DashboardCard {...props} />
+      <AdminDashboardCard {...props} />
     </li>
   );
 }

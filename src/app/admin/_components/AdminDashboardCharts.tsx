@@ -1,5 +1,5 @@
 import React from "react";
-import DashboardCard from "./DashboardCard";
+import AdminDashboardCard from "./AdminDashboardCard";
 import OrdersByDayChart from "./charts/OrdersByDayChart";
 import UsersByDayChart from "./charts/UsersByDayChart";
 import RevenueByProductChart from "./charts/RevenueByProductChart";
@@ -14,17 +14,17 @@ export default function AdminDashboardCharts({
 }: AdminDashboardChartsProps) {
   return (
     <div className="grid-cols1 grid gap-4 lg:grid-cols-2">
-      <DashboardCard title="Total Sales">
+      <AdminDashboardCard title="Total Sales">
         <OrdersByDayChart data={data.ordersCreationData} />
-      </DashboardCard>
+      </AdminDashboardCard>
 
-      <DashboardCard title="New Customers">
+      <AdminDashboardCard title="New Customers">
         <UsersByDayChart data={data.usersCreationDates} />
-      </DashboardCard>
+      </AdminDashboardCard>
 
-      <DashboardCard title="Revenue By Product">
+      <AdminDashboardCard title="Revenue By Product">
         <RevenueByProductChart data={data.revenueByProduct} />
-      </DashboardCard>
+      </AdminDashboardCard>
     </div>
   );
 }
