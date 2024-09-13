@@ -28,6 +28,7 @@ export default function DashboardCard({
         <CardTitle>{title}</CardTitle>
         {subtitle && <CardDescription>{subtitle}</CardDescription>}
       </CardHeader>
+
       <CardContent>
         {!children && body && <p>{body}</p>}
         {children}
