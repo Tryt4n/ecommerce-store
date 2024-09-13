@@ -4,6 +4,11 @@ import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 import fs from "fs/promises";
 import db from "@/db/db";
+import { startOfDay } from "date-fns";
+import {
+  calculateRevenueByProduct,
+  createAndUpdateDaysArray,
+} from "@/lib/dashboardDataHelpers";
 import type {
   editProductSchema,
   productAddSchema,
@@ -41,26 +46,6 @@ export async function getAllProducts(
     return products;
   } catch (error) {
     console.error(`Can't get products. Error: ${error}`);
-  }
-}
-
-export async function getProductsData() {
-  try {
-    const [activeProducts, inactiveProducts] = await db.$transaction([
-      db.product.count({
-        where: { isAvailableForPurchase: true },
-      }),
-      db.product.count({
-        where: { isAvailableForPurchase: false },
-      }),
-    ]);
-
-    return {
-      activeProducts,
-      inactiveProducts,
-    };
-  } catch (error) {
-    console.error(`Can't get products data. Error: ${error}`);
   }
 }
 
@@ -195,22 +180,6 @@ export async function deleteProduct(id: Product["id"]) {
 }
 
 // Orders
-export async function getSalesData() {
-  try {
-    const data = await db.order.aggregate({
-      _sum: { pricePaidInCents: true },
-      _count: true,
-    });
-
-    return {
-      amount: (data._sum.pricePaidInCents || 0) / 100,
-      numberOfSales: data._count,
-    };
-  } catch (error) {
-    console.error(`Can't get sales data. Error: ${error}`);
-  }
-}
-
 export async function deleteOrder(id: Order["id"]) {
   try {
     const order = await db.order.delete({ where: { id } });
@@ -227,27 +196,6 @@ export async function deleteOrder(id: Order["id"]) {
 }
 
 // Users
-export async function getUsersData() {
-  try {
-    const [userCount, orderData] = await db.$transaction([
-      db.user.count(),
-      db.order.aggregate({
-        _sum: { pricePaidInCents: true },
-      }),
-    ]);
-
-    return {
-      userCount,
-      averageValuePerUser:
-        userCount === 0
-          ? 0
-          : (orderData._sum.pricePaidInCents || 0) / userCount / 100,
-    };
-  } catch (error) {
-    console.error(`Can't get users data. Error: ${error}`);
-  }
-}
-
 export async function deleteUser(id: User["id"]) {
   try {
     const user = await db.user.delete({ where: { id } });
@@ -361,5 +309,105 @@ export async function deleteDiscountCode(id: DiscountCode["id"]) {
     if (discountCode == null) return notFound();
   } catch (error) {
     console.error(`Error deleting discount code. Error: ${error}`);
+  }
+}
+
+export async function getDashboardData(
+  createdAfter: Date | null,
+  createdBefore: Date | null
+) {
+  try {
+    const createdAtQuery: Prisma.DateTimeFilter = {};
+    if (createdAfter) createdAtQuery.gt = createdAfter;
+    if (createdBefore) createdAtQuery.lt = createdBefore;
+
+    const [
+      usersCount,
+      usersCreationDates,
+      salesData,
+      ordersData,
+      activeProductsCount,
+      inactiveProductsCount,
+      productsData,
+    ] = await db.$transaction([
+      // usersCount
+      db.user.count(),
+      // usersCreationDates
+      db.user.findMany({
+        select: { createdAt: true },
+        where: { createdAt: createdAtQuery },
+        orderBy: { createdAt: "asc" },
+      }),
+      // salesData
+      db.order.aggregate({
+        _sum: { pricePaidInCents: true },
+        _count: true,
+      }),
+      // ordersData
+      db.order.findMany({
+        select: { createdAt: true, pricePaidInCents: true },
+        where: { createdAt: createdAtQuery },
+        orderBy: { createdAt: "asc" },
+      }),
+      // activeProducts
+      db.product.count({
+        where: { isAvailableForPurchase: true },
+      }),
+      // inactiveProducts
+      db.product.count({
+        where: { isAvailableForPurchase: false },
+      }),
+      // productsData
+      db.product.findMany({
+        select: { name: true, orders: { select: { pricePaidInCents: true } } },
+        where: { createdAt: createdAtQuery },
+      }),
+    ]);
+
+    const updatedUsersCreationDates = createAndUpdateDaysArray({
+      dataArray: usersCreationDates,
+      startingDate: createdAfter,
+      endingDate: createdBefore,
+      defaultStartingDate: startOfDay(ordersData[0].createdAt),
+      dateKey: "createdAt",
+      valueKey: "totalUsers",
+    });
+
+    const updatedOrdersData = createAndUpdateDaysArray({
+      dataArray: ordersData,
+      startingDate: createdAfter,
+      endingDate: createdBefore,
+      defaultStartingDate: startOfDay(ordersData[0].createdAt),
+      dateKey: "createdAt",
+      valueKey: "totalSales",
+      valueToTransformWith: "pricePaidInCents",
+    });
+
+    const productsWithRevenue = calculateRevenueByProduct(productsData);
+
+    return {
+      usersData: {
+        usersCount,
+        averageValuePerUser:
+          usersCount === 0
+            ? 0
+            : (salesData._sum.pricePaidInCents || 0) / usersCount / 100,
+      },
+      productsData: {
+        activeProductsCount,
+        inactiveProductsCount,
+      },
+      salesData: {
+        amount: (salesData._sum.pricePaidInCents || 0) / 100,
+        numberOfSales: salesData._count,
+      },
+      chartsData: {
+        usersCreationDates: updatedUsersCreationDates,
+        ordersCreationData: updatedOrdersData,
+        revenueByProduct: productsWithRevenue,
+      },
+    };
+  } catch (error) {
+    console.error(`Can't get dashboard data. Error: ${error}`);
   }
 }
