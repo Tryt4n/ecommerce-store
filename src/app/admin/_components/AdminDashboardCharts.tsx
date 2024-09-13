@@ -3,7 +3,7 @@ import AdminDashboardCard from "./AdminDashboardCard";
 import OrdersByDayChart from "./charts/OrdersByDayChart";
 import UsersByDayChart from "./charts/UsersByDayChart";
 import RevenueByProductChart from "./charts/RevenueByProductChart";
-import type { getDashboardData } from "@/db/adminData";
+import type { getDashboardData } from "@/db/adminData/dashboardData";
 
 type AdminDashboardChartsProps = {
   data: NonNullable<Awaited<ReturnType<typeof getDashboardData>>>["chartsData"];

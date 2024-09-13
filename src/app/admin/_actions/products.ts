@@ -4,7 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import {
   createProduct,
   updateProduct as updateProductInDB,
-} from "@/db/adminData";
+} from "@/db/adminData/products";
 import { editProductSchema, productAddSchema } from "@/lib/zod/productSchema";
 import { getProduct } from "@/db/data";
 

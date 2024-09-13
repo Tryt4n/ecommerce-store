@@ -2,7 +2,7 @@ import React from "react";
 import ListGrid from "@/layout/ListGrid";
 import AdminDashboardCardListItem from "./AdminDashboardCardListItem";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
-import type { getDashboardData } from "@/db/adminData";
+import type { getDashboardData } from "@/db/adminData/dashboardData";
 
 type AdminDashboardCardList = {
   data: Pick<

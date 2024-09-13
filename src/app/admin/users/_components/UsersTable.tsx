@@ -1,7 +1,7 @@
 import React from "react";
 import { getUsers } from "@/db/user";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
-import { deleteUser } from "@/db/adminData";
+import { deleteUser } from "@/db/adminData/users";
 import {
   Table,
   TableRow,

@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { addDiscountSchema } from "@/lib/zod/discount";
-import { createDiscountCode } from "@/db/adminData";
+import { createDiscountCode } from "@/db/adminData/discountCodes";
 
 export async function addDiscountCode(prevState: unknown, formData: FormData) {
   const productIds = formData.getAll("productIds");

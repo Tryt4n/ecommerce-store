@@ -14,7 +14,7 @@ import {
   deleteProduct,
   toggleProductAvailability,
   type getAllProducts,
-} from "@/db/adminData";
+} from "@/db/adminData/products";
 
 export default function ProductDropdownMenu({
   product,

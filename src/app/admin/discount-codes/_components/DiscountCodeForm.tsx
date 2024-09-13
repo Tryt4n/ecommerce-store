@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import ErrorMessage from "@/components/ErrorMessage";
 import SubmitButton from "@/components/SubmitButton";
-import type { getAllProducts } from "@/db/adminData";
+import type { getAllProducts } from "@/db/adminData/products";
 
 type DiscountCodeFormProps = {
   products: Awaited<ReturnType<typeof getAllProducts>>;

@@ -1,7 +1,7 @@
 import React from "react";
 import AdminDashboardCardList from "./_components/AdminDashboardCardList";
 import AdminDashboardCharts from "./_components/AdminDashboardCharts";
-import { getDashboardData } from "@/db/adminData";
+import { getDashboardData } from "@/db/adminData/dashboardData";
 import { subDays } from "date-fns";
 
 export default async function AdminDashboard() {

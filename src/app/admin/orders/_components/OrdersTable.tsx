@@ -1,6 +1,6 @@
 import React from "react";
 import { getOrders } from "../_actions/orders";
-import { deleteOrder } from "@/db/adminData";
+import { deleteOrder } from "@/db/adminData/orders";
 import { formatCurrency } from "@/lib/formatters";
 import {
   Table,
