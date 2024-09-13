@@ -1,4 +1,4 @@
-import db from "@/db/db";
+import db from "@/db/init";
 
 export async function getOrders() {
   try {

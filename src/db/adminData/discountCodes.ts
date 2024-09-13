@@ -1,7 +1,7 @@
 "use server";
 
 import { notFound } from "next/navigation";
-import db from "@/db/db";
+import db from "@/db/init";
 import type { z } from "zod";
 import type { addDiscountSchema } from "@/lib/zod/discount";
 import type { DiscountCode, Prisma } from "@prisma/client";

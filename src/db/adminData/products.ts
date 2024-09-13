@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 import fs from "fs/promises";
-import db from "@/db/db";
+import db from "@/db/init";
 import type {
   editProductSchema,
   productAddSchema,

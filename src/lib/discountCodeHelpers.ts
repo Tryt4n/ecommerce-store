@@ -1,4 +1,4 @@
-import db from "@/db/db";
+import db from "@/db/init";
 import type { DiscountCode, Prisma, Product } from "@prisma/client";
 
 export function usableDiscountCodeWhere(productId: Product["id"]) {

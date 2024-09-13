@@ -1,6 +1,6 @@
 "use server";
 
-import db from "@/db/db";
+import db from "@/db/init";
 import type { Product } from "@prisma/client";
 
 export async function createDownloadVerification(productId: Product["id"]) {
