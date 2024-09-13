@@ -1,5 +1,5 @@
 import React from "react";
-import DashboardCard from "@/components/DashboardCard";
+import DashboardCard from "./DashboardCard";
 import OrdersByDayChart from "./charts/OrdersByDayChart";
 import UsersByDayChart from "./charts/UsersByDayChart";
 import RevenueByProductChart from "./charts/RevenueByProductChart";

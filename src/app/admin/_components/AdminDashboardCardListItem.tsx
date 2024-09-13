@@ -1,5 +1,5 @@
 import React, { type ComponentProps } from "react";
-import DashboardCard from "@/components/DashboardCard";
+import DashboardCard from "./DashboardCard";
 
 type AdminDashboardCardListItemProps = ComponentProps<typeof DashboardCard>;
 
