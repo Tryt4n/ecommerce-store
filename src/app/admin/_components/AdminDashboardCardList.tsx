@@ -1,34 +1,37 @@
 import React from "react";
 import ListGrid from "@/layout/ListGrid";
-import DashboardCard from "../../../components/DashboardCard";
-import { getSalesData, getUsersData, getProductsData } from "@/db/adminData";
+import AdminDashboardCardListItem from "./AdminDashboardCardListItem";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
+import type { getDashboardData } from "@/db/adminData";
 
-export default async function AdminDashboardCardList() {
-  const [salesData, usersData, productsData] = await Promise.all([
-    getSalesData(),
-    getUsersData(),
-    getProductsData(),
-  ]);
+type AdminDashboardCardList = {
+  data: Pick<
+    NonNullable<Awaited<ReturnType<typeof getDashboardData>>>,
+    "salesData" | "usersData" | "productsData"
+  >;
+};
 
+export default async function AdminDashboardCardList({
+  data,
+}: AdminDashboardCardList) {
   return (
     <ListGrid>
-      <DashboardCard
+      <AdminDashboardCardListItem
         title="Sales"
-        subtitle={`${formatNumber(salesData?.numberOfSales || 0)} Orders`}
-        body={formatCurrency(salesData?.amount || 0)}
+        subtitle={`${formatNumber(data.salesData.numberOfSales || 0)} Orders`}
+        body={formatCurrency(data.salesData.amount || 0)}
       />
 
-      <DashboardCard
+      <AdminDashboardCardListItem
         title="Customers"
-        subtitle={`${formatCurrency(usersData?.averageValuePerUser || 0)} Average Value`}
-        body={formatNumber(usersData?.userCount || 0)}
+        subtitle={`${formatCurrency(data.usersData.averageValuePerUser || 0)} Average Value`}
+        body={formatNumber(data.usersData.usersCount || 0)}
       />
 
-      <DashboardCard
+      <AdminDashboardCardListItem
         title="Active Products"
-        subtitle={`${formatNumber(productsData?.inactiveProducts || 0)} Inactive`}
-        body={formatNumber(productsData?.activeProducts || 0)}
+        subtitle={`${formatNumber(data.productsData.inactiveProductsCount || 0)} Inactive`}
+        body={formatNumber(data.productsData.activeProductsCount || 0)}
       />
     </ListGrid>
   );
