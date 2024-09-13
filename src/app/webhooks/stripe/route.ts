@@ -1,6 +1,5 @@
 import Stripe from "stripe";
 import { NextResponse, type NextRequest } from "next/server";
-import { revalidatePath } from "next/cache";
 import { getProduct } from "@/db/data";
 import { createOrEditUser } from "@/db/user";
 
@@ -27,10 +26,6 @@ export async function POST(req: NextRequest) {
     }
 
     await createOrEditUser(email, product, pricePaidInCents, discountCodeId);
-    revalidatePath("/admin");
-    revalidatePath("/admin/products");
-    revalidatePath("/admin/orders");
-    revalidatePath("/admin/users");
   }
 
   return new NextResponse();
