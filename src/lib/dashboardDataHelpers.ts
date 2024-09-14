@@ -1,4 +1,18 @@
-import { eachDayOfInterval, interval } from "date-fns";
+import {
+  differenceInDays,
+  differenceInMonths,
+  differenceInWeeks,
+  eachDayOfInterval,
+  eachMonthOfInterval,
+  eachWeekOfInterval,
+  eachYearOfInterval,
+  endOfWeek,
+  interval,
+  max,
+  min,
+  startOfWeek,
+} from "date-fns";
+import { pl } from "date-fns/locale";
 import { dateFormatter } from "./formatters";
 import type {
   DashboardDateParam,
@@ -17,7 +31,7 @@ type CreateAndUpdateDaysArrayParams<T> = {
   valueToTransformWith?: keyof T;
 };
 
-export type ChartDataArrayType = ReturnType<typeof createDaysArray>;
+export type ChartDataArrayType = ReturnType<typeof createDaysArray>["array"];
 
 export function createAndUpdateDaysArray<T>({
   dataArray,
@@ -28,7 +42,7 @@ export function createAndUpdateDaysArray<T>({
   valueKey,
   valueToTransformWith,
 }: CreateAndUpdateDaysArrayParams<T>) {
-  const daysArray = createDaysArray(
+  const { array, format } = createDaysArray(
     startingDate,
     endingDate,
     defaultStartingDate,
@@ -37,9 +51,10 @@ export function createAndUpdateDaysArray<T>({
 
   return updateDaysArrayDataByDate(
     dataArray,
-    daysArray,
+    array,
     dateKey,
     valueKey,
+    format,
     valueToTransformWith
   );
 }
@@ -50,27 +65,31 @@ function createDaysArray<T>(
   defaultStartingDate: CreateAndUpdateDaysArrayParams<T>["defaultStartingDate"],
   valueKey: CreateAndUpdateDaysArrayParams<T>["valueKey"]
 ) {
-  const daysArrayForOrders = eachDayOfInterval(
-    interval(startingDate || defaultStartingDate, endingDate || new Date())
-  ).map((date) => {
+  const { array, format } = getChartDateArray(
+    startingDate || defaultStartingDate,
+    endingDate || new Date()
+  );
+
+  const daysArrayForOrders = array.map((date) => {
     return {
-      date: dateFormatter(date),
+      date: format(date),
       [valueKey]: 0,
     };
   });
 
-  return daysArrayForOrders;
+  return { array: daysArrayForOrders, format };
 }
 
 function updateDaysArrayDataByDate<T>(
   dataArray: CreateAndUpdateDaysArrayParams<T>["dataArray"],
-  daysArray: ReturnType<typeof createDaysArray>,
+  daysArray: ReturnType<typeof createDaysArray>["array"],
   dateKey: CreateAndUpdateDaysArrayParams<T>["dateKey"],
   valueKey: CreateAndUpdateDaysArrayParams<T>["valueKey"],
+  format: ReturnType<typeof getChartDateArray>["format"],
   valueToTransformWith?: CreateAndUpdateDaysArrayParams<T>["valueToTransformWith"]
 ) {
   return dataArray.reduce((data, item) => {
-    const formattedDate = dateFormatter(item[dateKey] as Date);
+    const formattedDate = format(item[dateKey] as Date);
     const entry = daysArray.find((day) => day.date === formattedDate);
 
     if (!entry || typeof entry[valueKey] !== "number") return data;
@@ -86,6 +105,45 @@ function updateDaysArrayDataByDate<T>(
 
     return data;
   }, daysArray);
+}
+
+function getChartDateArray(startDate: Date, endDate: Date = new Date()) {
+  const days = differenceInDays(endDate, startDate);
+  if (days < 30) {
+    return {
+      array: eachDayOfInterval(interval(startDate, endDate)),
+      format: dateFormatter,
+    };
+  }
+
+  const weeks = differenceInWeeks(endDate, startDate);
+  if (weeks < 30) {
+    return {
+      array: eachWeekOfInterval(interval(startDate, endDate), { locale: pl }),
+      format: (date: Date) => {
+        const start = max([startOfWeek(date, { weekStartsOn: 1 }), startDate]);
+        const end = min([endOfWeek(date, { weekStartsOn: 1 }), endDate]);
+
+        return `${dateFormatter(start)} - ${dateFormatter(end)}`;
+      },
+    };
+  }
+
+  const months = differenceInMonths(endDate, startDate);
+  if (months < 30) {
+    return {
+      array: eachMonthOfInterval(interval(startDate, endDate)),
+      format: new Intl.DateTimeFormat("pl-PL", {
+        month: "long",
+        year: "numeric",
+      }).format,
+    };
+  }
+
+  return {
+    array: eachYearOfInterval(interval(startDate, endDate)),
+    format: new Intl.DateTimeFormat("pl-PL", { year: "numeric" }).format,
+  };
 }
 
 type Order = {
