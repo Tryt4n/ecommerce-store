@@ -11,21 +11,27 @@ export default function RevenueByProductChart({
   data: ReturnType<typeof calculateRevenueByProduct>;
 }) {
   return (
-    <ResponsiveContainer width="100%" minHeight={300}>
-      <PieChart>
-        <Tooltip
-          cursor={{ fill: "hsl(var(--muted))" }}
-          formatter={(value) => formatCurrency(value as number)}
-        />
+    <>
+      {data.length > 0 ? (
+        <ResponsiveContainer width="100%" minHeight={300}>
+          <PieChart>
+            <Tooltip
+              cursor={{ fill: "hsl(var(--muted))" }}
+              formatter={(value) => formatCurrency(value as number)}
+            />
 
-        <Pie
-          data={data}
-          dataKey="revenue"
-          nameKey="name"
-          label={(item) => item.name}
-          fill="hsl(var(--primary))"
-        />
-      </PieChart>
-    </ResponsiveContainer>
+            <Pie
+              data={data}
+              dataKey="revenue"
+              nameKey="name"
+              label={(item) => item.name}
+              fill="hsl(var(--primary))"
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      ) : (
+        <p>No data found</p>
+      )}
+    </>
   );
 }
