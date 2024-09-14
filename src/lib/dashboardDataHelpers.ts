@@ -1,5 +1,11 @@
 import { eachDayOfInterval, interval } from "date-fns";
 import { dateFormatter } from "./formatters";
+import type {
+  DashboardDateParam,
+  ChartsDateRange,
+  DateRange,
+} from "@/db/adminData/dashboardData";
+import type { Prisma } from "@prisma/client";
 
 type CreateAndUpdateDaysArrayParams<T> = {
   dataArray: T[];
@@ -105,4 +111,29 @@ export function calculateRevenueByProduct<T extends { orders: Order[] }>(
       };
     })
     .filter((product) => product.revenue > 0);
+}
+
+export function getCreatedAtQuery(dateRange: DateRange): Prisma.DateTimeFilter {
+  const query: Prisma.DateTimeFilter = {};
+  if (dateRange.createdAfter) query.gt = dateRange.createdAfter;
+  if (dateRange.createdBefore) query.lt = dateRange.createdBefore;
+  return query;
+}
+
+export function getDateRange(
+  dateRange: DashboardDateParam,
+  dataRangeKey: keyof ChartsDateRange
+): { startingDate: Date | null; endingDate: Date | null } {
+  if ("createdAfter" in dateRange && "createdBefore" in dateRange) {
+    return {
+      startingDate: dateRange.createdAfter,
+      endingDate: dateRange.createdBefore,
+    };
+  } else {
+    const range = dateRange[dataRangeKey];
+    return {
+      startingDate: range.createdAfter,
+      endingDate: range.createdBefore,
+    };
+  }
 }
