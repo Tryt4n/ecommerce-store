@@ -7,21 +7,45 @@ import { getRangeOption, RANGE_OPTIONS } from "@/lib/rangeOptions";
 type SearchParams = {
   searchParams: {
     totalSalesRange?: string;
+    totalSalesRangeFrom?: string;
+    totalSalesRangeTo?: string;
     newCustomersRange?: string;
+    newCustomersRangeFrom?: string;
+    newCustomersRangeTo?: string;
     revenueByProductRange?: string;
+    revenueByProductRangeFrom?: string;
+    revenueByProductRangeTo?: string;
   };
 };
 
 export default async function AdminDashboard({ searchParams }: SearchParams) {
-  const { totalSalesRange, newCustomersRange, revenueByProductRange } =
-    searchParams;
+  const {
+    totalSalesRange,
+    totalSalesRangeFrom,
+    totalSalesRangeTo,
+    newCustomersRange,
+    newCustomersRangeFrom,
+    newCustomersRangeTo,
+    revenueByProductRange,
+    revenueByProductRangeFrom,
+    revenueByProductRangeTo,
+  } = searchParams;
 
   const salesDataRange =
-    getRangeOption(totalSalesRange) || RANGE_OPTIONS.last_7_days;
+    getRangeOption(totalSalesRange, totalSalesRangeFrom, totalSalesRangeTo) ||
+    RANGE_OPTIONS.last_7_days;
   const usersDataRange =
-    getRangeOption(newCustomersRange) || RANGE_OPTIONS.last_7_days;
+    getRangeOption(
+      newCustomersRange,
+      newCustomersRangeFrom,
+      newCustomersRangeTo
+    ) || RANGE_OPTIONS.last_7_days;
   const productsDataRange =
-    getRangeOption(revenueByProductRange) || RANGE_OPTIONS.last_7_days;
+    getRangeOption(
+      revenueByProductRange,
+      revenueByProductRangeFrom,
+      revenueByProductRangeTo
+    ) || RANGE_OPTIONS.last_7_days;
 
   const data = await getDashboardData({
     salesDataRangeData: {

@@ -1,15 +1,22 @@
 "use client";
 
-import React, { type ComponentProps } from "react";
+import React, { useState, type ComponentProps } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { getRangeOption, RANGE_OPTIONS } from "@/lib/rangeOptions";
+import { subDays } from "date-fns";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { RANGE_OPTIONS } from "@/lib/rangeOptions";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Calendar } from "@/components/ui/calendar";
+import type { DateRange } from "react-day-picker";
 
 type ChartDataDropdownMenuProps = {
   queryKey: string;
@@ -24,25 +31,40 @@ export default function ChartDataDropdownMenu({
   const router = useRouter();
   const pathname = usePathname();
 
-  function setRange(range: keyof typeof RANGE_OPTIONS) {
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
+  function setRange(range: keyof typeof RANGE_OPTIONS | DateRange) {
     const params = new URLSearchParams(searchParams);
 
-    params.set(queryKey, range);
+    if (typeof range === "string") {
+      params.set(queryKey, range);
+      params.delete(`${queryKey}From`);
+      params.delete(`${queryKey}To`);
+    } else {
+      if (!range.from || !range.to) return;
+
+      params.delete(queryKey);
+      params.set(`${queryKey}From`, range.from.toISOString());
+      params.set(`${queryKey}To`, range.to.toISOString());
+    }
+
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
-  const currentRange = searchParams.get(queryKey) as
-    | keyof typeof RANGE_OPTIONS
-    | null;
+  const currentRange = searchParams.get(queryKey) as string;
+  const currentRangeFrom = searchParams.get(`${queryKey}From`) as string;
+  const currentRangeTo = searchParams.get(`${queryKey}To`) as string;
 
-  const currentLabel = currentRange
-    ? RANGE_OPTIONS[currentRange]?.label
-    : RANGE_OPTIONS["last_7_days"].label;
+  const rangeOptions = getRangeOption(
+    currentRange,
+    currentRangeFrom,
+    currentRangeTo
+  );
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className={className}>
-        <Button variant="outline">{currentLabel}</Button>
+        <Button variant="outline">{rangeOptions?.label}</Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent>
@@ -54,6 +76,38 @@ export default function ChartDataDropdownMenu({
             {option.label}
           </DropdownMenuItem>
         ))}
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>Custom</DropdownMenuSubTrigger>
+
+          <DropdownMenuSubContent>
+            <div>
+              <Calendar
+                mode="range"
+                disabled={{ after: new Date() }}
+                selected={dateRange}
+                defaultMonth={subDays(new Date(), 29)}
+                onSelect={setDateRange}
+                numberOfMonths={2}
+              />
+
+              <DropdownMenuItem className="hover:bg-auto" disabled={!dateRange}>
+                <Button
+                  className="w-full"
+                  disabled={!dateRange}
+                  onClick={() => {
+                    if (!dateRange) return;
+                    setRange(dateRange);
+                  }}
+                >
+                  Submit
+                </Button>
+              </DropdownMenuItem>
+            </div>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
       </DropdownMenuContent>
     </DropdownMenu>
   );
