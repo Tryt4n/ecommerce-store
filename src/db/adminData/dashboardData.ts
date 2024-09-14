@@ -4,18 +4,49 @@ import db from "@/db/init";
 import {
   calculateRevenueByProduct,
   createAndUpdateDaysArray,
+  getCreatedAtQuery,
+  getDateRange,
 } from "@/lib/dashboardDataHelpers";
 import { startOfDay } from "date-fns";
 import type { Prisma } from "@prisma/client";
 
-export async function getDashboardData(
-  createdAfter: Date | null,
-  createdBefore: Date | null
-) {
+export type DateRange = {
+  createdAfter: Date | null;
+  createdBefore: Date | null;
+};
+
+export type ChartsDateRange = {
+  salesDataRangeData: DateRange;
+  customersDataRangeData: DateRange;
+  revenueByProductData: DateRange;
+};
+
+export type DashboardDateParam = DateRange | ChartsDateRange;
+
+export async function getDashboardData(dateRange: DashboardDateParam) {
   try {
-    const createdAtQuery: Prisma.DateTimeFilter = {};
-    if (createdAfter) createdAtQuery.gt = createdAfter;
-    if (createdBefore) createdAtQuery.lt = createdBefore;
+    let createdAtQuery: Prisma.DateTimeFilter | undefined;
+    let createdAtQueryForSalesDataRangeData: Prisma.DateTimeFilter | undefined;
+    let createdAtQueryForCustomersDataRangeData:
+      | Prisma.DateTimeFilter
+      | undefined;
+    let createdAtQueryForRevenueByProductData:
+      | Prisma.DateTimeFilter
+      | undefined;
+
+    if ("createdAfter" in dateRange && "createdBefore" in dateRange) {
+      createdAtQuery = getCreatedAtQuery(dateRange);
+    } else {
+      createdAtQueryForSalesDataRangeData = getCreatedAtQuery(
+        dateRange.salesDataRangeData
+      );
+      createdAtQueryForCustomersDataRangeData = getCreatedAtQuery(
+        dateRange.customersDataRangeData
+      );
+      createdAtQueryForRevenueByProductData = getCreatedAtQuery(
+        dateRange.revenueByProductData
+      );
+    }
 
     const [
       usersCount,
@@ -31,7 +62,9 @@ export async function getDashboardData(
       // usersCreationDates
       db.user.findMany({
         select: { createdAt: true },
-        where: { createdAt: createdAtQuery },
+        where: {
+          createdAt: createdAtQuery || createdAtQueryForCustomersDataRangeData,
+        },
         orderBy: { createdAt: "asc" },
       }),
       // salesData
@@ -42,7 +75,9 @@ export async function getDashboardData(
       // ordersData
       db.order.findMany({
         select: { createdAt: true, pricePaidInCents: true },
-        where: { createdAt: createdAtQuery },
+        where: {
+          createdAt: createdAtQuery || createdAtQueryForSalesDataRangeData,
+        },
         orderBy: { createdAt: "asc" },
       }),
       // activeProducts
@@ -56,27 +91,37 @@ export async function getDashboardData(
       // productsData
       db.product.findMany({
         select: { name: true, orders: { select: { pricePaidInCents: true } } },
-        where: { createdAt: createdAtQuery },
+        where: {
+          createdAt: createdAtQuery || createdAtQueryForRevenueByProductData,
+        },
       }),
     ]);
 
-    const updatedUsersCreationDates = createAndUpdateDaysArray({
-      dataArray: usersCreationDates,
-      startingDate: createdAfter,
-      endingDate: createdBefore,
-      defaultStartingDate: startOfDay(ordersData[0].createdAt),
-      dateKey: "createdAt",
-      valueKey: "totalUsers",
-    });
+    const { startingDate: salesStartingDate, endingDate: salesEndingDate } =
+      getDateRange(dateRange, "salesDataRangeData");
 
     const updatedOrdersData = createAndUpdateDaysArray({
       dataArray: ordersData,
-      startingDate: createdAfter,
-      endingDate: createdBefore,
+      startingDate: salesStartingDate,
+      endingDate: salesEndingDate,
       defaultStartingDate: startOfDay(ordersData[0].createdAt),
       dateKey: "createdAt",
       valueKey: "totalSales",
       valueToTransformWith: "pricePaidInCents",
+    });
+
+    const {
+      startingDate: customersStartingDate,
+      endingDate: customersEndingDate,
+    } = getDateRange(dateRange, "customersDataRangeData");
+
+    const updatedUsersCreationDates = createAndUpdateDaysArray({
+      dataArray: usersCreationDates,
+      startingDate: customersStartingDate,
+      endingDate: customersEndingDate,
+      defaultStartingDate: startOfDay(ordersData[0].createdAt),
+      dateKey: "createdAt",
+      valueKey: "totalUsers",
     });
 
     const productsWithRevenue = calculateRevenueByProduct(productsData);
@@ -98,9 +143,9 @@ export async function getDashboardData(
         numberOfSales: salesData._count,
       },
       chartsData: {
-        usersCreationDates: updatedUsersCreationDates,
-        ordersCreationData: updatedOrdersData,
-        revenueByProduct: productsWithRevenue,
+        salesDataRangeData: updatedOrdersData,
+        customersDataRangeData: updatedUsersCreationDates,
+        revenueByProductData: productsWithRevenue,
       },
     };
   } catch (error) {
