@@ -14,16 +14,19 @@ export default function AdminDashboardCharts({
 }: AdminDashboardChartsProps) {
   return (
     <div className="grid-cols1 grid gap-4 lg:grid-cols-2">
-      <AdminDashboardCard title="Total Sales">
-        <OrdersByDayChart data={data.ordersCreationData} />
+      <AdminDashboardCard title="Total Sales" queryKey="totalSalesRange">
+        <OrdersByDayChart data={data.salesDataRangeData} />
       </AdminDashboardCard>
 
-      <AdminDashboardCard title="New Customers">
-        <UsersByDayChart data={data.usersCreationDates} />
+      <AdminDashboardCard title="New Customers" queryKey="newCustomersRange">
+        <UsersByDayChart data={data.customersDataRangeData} />
       </AdminDashboardCard>
 
-      <AdminDashboardCard title="Revenue By Product">
-        <RevenueByProductChart data={data.revenueByProduct} />
+      <AdminDashboardCard
+        title="Revenue By Product"
+        queryKey="revenueByProductRange"
+      >
+        <RevenueByProductChart data={data.revenueByProductData} />
       </AdminDashboardCard>
     </div>
   );
