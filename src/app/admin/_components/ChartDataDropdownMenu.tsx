@@ -61,10 +61,12 @@ export default function ChartDataDropdownMenu({
     currentRangeTo
   );
 
+  const label = rangeOptions?.label || RANGE_OPTIONS.last_7_days.label;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className={className}>
-        <Button variant="outline">{rangeOptions?.label}</Button>
+        <Button variant="outline">{label}</Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent>
@@ -90,6 +92,7 @@ export default function ChartDataDropdownMenu({
                 selected={dateRange}
                 defaultMonth={subDays(new Date(), 29)}
                 onSelect={setDateRange}
+                min={3}
                 numberOfMonths={2}
               />
 
