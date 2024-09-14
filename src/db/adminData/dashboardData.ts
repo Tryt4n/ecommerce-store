@@ -104,7 +104,10 @@ export async function getDashboardData(dateRange: DashboardDateParam) {
       dataArray: ordersData,
       startingDate: salesStartingDate,
       endingDate: salesEndingDate,
-      defaultStartingDate: startOfDay(ordersData[0].createdAt),
+      defaultStartingDate:
+        ordersData.length > 0
+          ? startOfDay(ordersData[0].createdAt)
+          : new Date(),
       dateKey: "createdAt",
       valueKey: "totalSales",
       valueToTransformWith: "pricePaidInCents",
@@ -119,7 +122,10 @@ export async function getDashboardData(dateRange: DashboardDateParam) {
       dataArray: usersCreationDates,
       startingDate: customersStartingDate,
       endingDate: customersEndingDate,
-      defaultStartingDate: startOfDay(ordersData[0].createdAt),
+      defaultStartingDate:
+        ordersData.length > 0
+          ? startOfDay(ordersData[0].createdAt)
+          : new Date(),
       dateKey: "createdAt",
       valueKey: "totalUsers",
     });
