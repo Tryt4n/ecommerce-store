@@ -10,10 +10,11 @@ import type {
 } from "@/lib/zod/productSchema";
 import type { z } from "zod";
 import type { Product } from "@prisma/client";
+import type { SortingType } from "@/types/sort";
 
 export async function getAllProducts(
   orderBy: keyof Product = "name",
-  type: "asc" | "desc" = "asc"
+  type: SortingType = "asc"
 ) {
   try {
     const products = await db.product.findMany({
@@ -30,7 +31,14 @@ export async function getAllProducts(
       orderBy: { [orderBy]: type },
     });
 
-    return products;
+    // return products;
+    // Convert the query result so that _count is a number
+    const transformedProducts = products.map((product) => ({
+      ...product,
+      _count: product._count.orders,
+    }));
+
+    return transformedProducts;
   } catch (error) {
     console.error(`Can't get products. Error: ${error}`);
   }
