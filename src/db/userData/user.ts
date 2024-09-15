@@ -5,6 +5,7 @@ import { createDownloadVerification } from "@/app/_actions/download";
 import { sendPurchaseEmail } from "@/lib/resend/emails";
 import { updateDiscountCode } from "./discountCodes";
 import type { DiscountCode, Product, User } from "@prisma/client";
+import type { SortingType } from "@/types/sort";
 
 export async function createOrEditUser(
   email: string,
@@ -75,7 +76,7 @@ export async function getUser(email: string) {
 
 export async function getUsers(
   orderBy: keyof User = "createdAt",
-  type: "asc" | "desc" = "desc"
+  type: SortingType = "desc"
 ) {
   try {
     return db.user.findMany({

@@ -3,6 +3,7 @@
 import db from "../init";
 import { cache } from "@/lib/cache";
 import type { Product } from "@prisma/client";
+import type { SortingType } from "@/types/sort";
 
 export const getMostPopularProducts = cache(
   async (numberOfProducts: number = 6) => {
@@ -62,7 +63,7 @@ export async function getProduct(id: Product["id"]) {
 }
 
 export const getAllAvailableForPurchaseProducts = cache(
-  async (orderBy: keyof Product = "name", type: "asc" | "desc" = "asc") => {
+  async (orderBy: keyof Product = "name", type: SortingType = "asc") => {
     try {
       const products = await db.product.findMany({
         where: { isAvailableForPurchase: true },

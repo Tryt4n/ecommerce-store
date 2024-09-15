@@ -5,6 +5,7 @@ import db from "@/db/init";
 import type { z } from "zod";
 import type { addDiscountSchema } from "@/lib/zod/discount";
 import type { DiscountCode, Prisma } from "@prisma/client";
+import type { SortingType } from "@/types/sort";
 
 export async function createDiscountCode(
   data: z.infer<typeof addDiscountSchema>
@@ -52,7 +53,7 @@ const SELECT_FIELDS: Prisma.DiscountCodeSelect = {
 
 export async function getDiscountCodes(
   orderBy: keyof DiscountCode = "createdAt",
-  type: "asc" | "desc" = "asc"
+  type: SortingType = "asc"
 ) {
   try {
     const [unexpiredDiscountCodes, expiredDiscountCodes] =
