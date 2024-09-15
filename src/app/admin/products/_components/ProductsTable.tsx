@@ -1,4 +1,8 @@
+"use client";
+
 import React from "react";
+import useProductsContext from "../_hooks/useProductsContext";
+import { formatCurrency, formatNumber } from "@/lib/formatters";
 import {
   Table,
   TableBody,
@@ -7,15 +11,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAllProducts } from "@/db/adminData/products";
-import { formatCurrency, formatNumber } from "@/lib/formatters";
+import TableHeadSortingButton from "../../_components/TableHeadSortingButton";
 import ProductDropdownMenu from "./ProductDropdownMenu";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
-export default async function ProductsTable() {
-  const products = await getAllProducts("createdAt");
+export default function ProductsTable() {
+  const { products } = useProductsContext();
 
   if (!products) {
-    return <p>Loading products...</p>;
+    return <LoadingSpinner size={64} aria-label="Loading products ..." />;
   }
 
   if (products.length === 0) {
@@ -29,9 +33,18 @@ export default async function ProductsTable() {
           <TableHead className="w-0">
             <span className="sr-only">Available For Purchase</span>
           </TableHead>
-          <TableHead>Name</TableHead>
-          <TableHead className="text-center">Price</TableHead>
-          <TableHead className="text-center">Orders</TableHead>
+          <TableHeadSortingButton title="Name" sortingField="name" />
+          <TableHeadSortingButton
+            title="Price"
+            className="text-center"
+            sortingField="priceInCents"
+          />
+          <TableHeadSortingButton
+            title="Orders"
+            className="text-center"
+            sortingField="_count"
+            sortingType="desc"
+          />
           <TableHead className="w-0">
             <span className="sr-only">Actions</span>
           </TableHead>
@@ -64,7 +77,7 @@ export default async function ProductsTable() {
             </TableCell>
 
             <TableCell align="center" className="text-nowrap">
-              {formatNumber(product._count.orders)}
+              {formatNumber(product._count)}
             </TableCell>
 
             <TableCell
