@@ -1,10 +1,6 @@
 import React from "react";
-import { Loader2 } from "lucide-react";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function AdminLoading() {
-  return (
-    <div className="flex justify-center">
-      <Loader2 className="size-24 animate-spin" />
-    </div>
-  );
+  return <LoadingSpinner size={96} aria-label="Loading page..." />;
 }
