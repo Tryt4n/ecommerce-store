@@ -1,6 +1,8 @@
+"use client";
+
 import React from "react";
-import { getOrders } from "../_actions/orders";
-import { deleteOrder } from "@/db/adminData/orders";
+import { useAdminContext } from "../../_hooks/useAdminContext";
+import { deleteOrder, type getOrders } from "@/db/adminData/orders";
 import { formatCurrency } from "@/lib/formatters";
 import {
   Table,
@@ -11,10 +13,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import AdminDropdownMenu from "../../_components/AdminDropdownMenu";
+import TableHeadSortingButton from "../../_components/TableHeadSortingButton";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { Minus } from "lucide-react";
 
-export default async function OrdersTable() {
-  const orders = await getOrders();
+export default function OrdersTable() {
+  const { data: orders, sortData: sortOrders } =
+    useAdminContext<typeof getOrders>();
+
+  if (!orders) {
+    return <LoadingSpinner size={64} aria-label="Loading products..." />;
+  }
 
   if (orders?.length === 0 || !orders) return <p>No sales found</p>;
 
@@ -22,9 +31,20 @@ export default async function OrdersTable() {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Product</TableHead>
-          <TableHead className="text-center">Customer</TableHead>
-          <TableHead className="text-center">Price Paid</TableHead>
+          <TableHeadSortingButton
+            title="Product"
+            sortingFn={() => sortOrders("product.name", "asc")}
+          />
+          <TableHeadSortingButton
+            className="text-center"
+            title="Customer"
+            sortingFn={() => sortOrders("user.email", "asc")}
+          />
+          <TableHeadSortingButton
+            className="text-center"
+            title="Price Paid"
+            sortingFn={() => sortOrders("pricePaidInCents", "asc")}
+          />
           <TableHead className="text-center">Coupon</TableHead>
           <TableHead className="w-0">
             <span className="sr-only">Orders Actions</span>
