@@ -2,10 +2,11 @@ import type { SortingType } from "@/types/sort";
 
 /**
  * Sorts an array of objects based on a specified field and sorting order.
+ * Supports nested fields using dot notation.
  *
  * @template T - The type of objects contained in the array.
  * @param {T[]} array - The array of objects to be sorted.
- * @param {keyof T} sortingField - The field of the objects to sort by.
+ * @param {keyof T[] | string} sortingField - The field of the objects to sort by. Supports nested fields using dot notation.
  * @param {SortingType} sortingType - The sorting order, either "asc" for ascending or "desc" for descending.
  * @returns {T[]} - A new array with the objects sorted based on the specified field and order.
  *
@@ -36,21 +37,46 @@ import type { SortingType } from "@/types/sort";
  * //   { name: 'John', age: 25 },
  * //   { name: 'Jane', age: 22 }
  * // ]
+ *
+ * @example
+ * // Sorting an array of objects by the nested 'address.city' field in ascending order
+ * const data = [
+ *   { name: 'John', address: { city: 'New York' } },
+ *   { name: 'Jane', address: { city: 'Los Angeles' } },
+ *   { name: 'Alice', address: { city: 'Chicago' } }
+ * ];
+ * const sortedByCityAsc = sortArray(data, 'address.city', 'asc');
+ * // sortedByCityAsc = [
+ * //   { name: 'Alice', address: { city: 'Chicago' } },
+ * //   { name: 'Jane', address: { city: 'Los Angeles' } },
+ * //   { name: 'John', address: { city: 'New York' } }
+ * // ]
  */
 export function sortArray<T>(
   array: T[],
-  sortingField: keyof T,
+  sortingField: keyof T[] | string,
   sortingType: SortingType
 ): T[] {
   return [...array].sort((a, b) => {
-    if (a[sortingField] < b[sortingField]) {
+    const aValue = getNestedValue(a, sortingField as string);
+    const bValue = getNestedValue(b, sortingField as string);
+
+    if (aValue < bValue) {
       return sortingType === "asc" ? -1 : 1;
     }
-    if (a[sortingField] > b[sortingField]) {
+    if (aValue > bValue) {
       return sortingType === "asc" ? 1 : -1;
     }
     return 0;
   });
+}
+
+function getNestedValue<T>(obj: T, keys: string | (keyof T)[]) {
+  if (typeof keys === "string") {
+    keys = keys.split(".") as (keyof T)[];
+  }
+
+  return keys.reduce((value, key) => (value as never)[key], obj);
 }
 
 /**
