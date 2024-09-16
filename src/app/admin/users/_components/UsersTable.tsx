@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { useAdminContext } from "../../_hooks/useAdminContext";
 import { getUsers } from "@/db/userData/user";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
 import { deleteUser } from "@/db/adminData/users";
@@ -11,9 +14,16 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import AdminDropdownMenu from "../../_components/AdminDropdownMenu";
+import TableHeadSortingButton from "../../_components/TableHeadSortingButton";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
-export default async function UsersTable() {
-  const users = await getUsers();
+export default function UsersTable() {
+  const { data: users, sortData: sortUsers } =
+    useAdminContext<typeof getUsers>();
+
+  if (!users) {
+    return <LoadingSpinner size={64} aria-label="Loading customers..." />;
+  }
 
   if (users?.length === 0 || !users) return <p>No customers found</p>;
 
@@ -21,9 +31,21 @@ export default async function UsersTable() {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Email</TableHead>
-          <TableHead>Orders</TableHead>
-          <TableHead>Value</TableHead>
+          <TableHeadSortingButton
+            title="Email"
+            className="text-center"
+            sortingFn={() => sortUsers("email", "asc")}
+          />
+          <TableHeadSortingButton
+            title="Orders"
+            className="text-center"
+            sortingFn={() => sortUsers("orders", "desc")}
+          />
+          <TableHeadSortingButton
+            title="Value"
+            className="text-center"
+            sortingFn={() => sortUsers("ordersValue", "desc")}
+          />
           <TableHead className="w-0">
             <span className="sr-only">Actions</span>
           </TableHead>
@@ -33,15 +55,14 @@ export default async function UsersTable() {
       <TableBody>
         {users.map((user) => (
           <TableRow key={user.id}>
-            <TableCell>{user.email}</TableCell>
-            <TableCell>{formatNumber(user.orders.length)}</TableCell>
-            <TableCell>
-              {formatCurrency(
-                user.orders.reduce((sum, o) => o.pricePaidInCents + sum, 0) /
-                  100
-              )}
+            <TableCell align="center">{user.email}</TableCell>
+            <TableCell align="center">
+              {formatNumber(user.orders?.length || 0)}
             </TableCell>
-            <TableCell className="text-center">
+            <TableCell align="center">
+              {formatCurrency(user.ordersValue / 100)}
+            </TableCell>
+            <TableCell align="right">
               <AdminDropdownMenu
                 id={user.id}
                 name={user.email}
