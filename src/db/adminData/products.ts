@@ -31,7 +31,6 @@ export async function getAllProducts(
       orderBy: { [orderBy]: type },
     });
 
-    // return products;
     // Convert the query result so that _count is a number
     const transformedProducts = products.map((product) => ({
       ...product,
