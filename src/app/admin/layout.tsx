@@ -1,4 +1,5 @@
 import React from "react";
+import AdminContextProvider from "./_context/AdminContext";
 import { Nav, NavLink } from "../../layout/Nav";
 
 export const dynamic = "force-dynamic"; // Force NextJS to not cache any of admin pages
@@ -9,7 +10,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
+    <AdminContextProvider>
       <Nav>
         <NavLink href="/">Home</NavLink>
         <NavLink href="/admin">Dashboard</NavLink>
@@ -19,6 +20,6 @@ export default function AdminLayout({
         <NavLink href="/admin/discount-codes">Coupons</NavLink>
       </Nav>
       <main className="container mx-auto my-6 px-6 sm:px-0">{children}</main>
-    </>
+    </AdminContextProvider>
   );
 }
