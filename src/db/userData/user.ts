@@ -79,7 +79,7 @@ export async function getUsers(
   type: SortingType = "desc"
 ) {
   try {
-    return db.user.findMany({
+    const users = await db.user.findMany({
       select: {
         id: true,
         email: true,
@@ -94,6 +94,16 @@ export async function getUsers(
       },
       orderBy: { [orderBy]: type },
     });
+
+    const usersOrdersValue = users.map((user) => ({
+      ...user,
+      ordersValue: user.orders.reduce(
+        (sum, order) => sum + order.pricePaidInCents,
+        0
+      ),
+    }));
+
+    return usersOrdersValue;
   } catch (error) {
     console.error(`Can't get users. Error: ${error}`);
   }
