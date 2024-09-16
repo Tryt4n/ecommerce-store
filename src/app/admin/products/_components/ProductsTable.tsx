@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import useProductsContext from "../_hooks/useProductsContext";
+import { useAdminContext } from "../../_hooks/useAdminContext";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
 import {
   Table,
@@ -14,12 +14,14 @@ import {
 import TableHeadSortingButton from "../../_components/TableHeadSortingButton";
 import ProductDropdownMenu from "./ProductDropdownMenu";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import type { getAllProducts } from "@/db/adminData/products";
 
 export default function ProductsTable() {
-  const { products } = useProductsContext();
+  const { data: products, sortData: sortProducts } =
+    useAdminContext<typeof getAllProducts>();
 
   if (!products) {
-    return <LoadingSpinner size={64} aria-label="Loading products ..." />;
+    return <LoadingSpinner size={64} aria-label="Loading products..." />;
   }
 
   if (products.length === 0) {
@@ -33,17 +35,19 @@ export default function ProductsTable() {
           <TableHead className="w-0">
             <span className="sr-only">Available For Purchase</span>
           </TableHead>
-          <TableHeadSortingButton title="Name" sortingField="name" />
+          <TableHeadSortingButton
+            title="Name"
+            sortingFn={() => sortProducts("name", "asc")}
+          />
           <TableHeadSortingButton
             title="Price"
             className="text-center"
-            sortingField="priceInCents"
+            sortingFn={() => sortProducts("priceInCents", "asc")}
           />
           <TableHeadSortingButton
             title="Orders"
             className="text-center"
-            sortingField="_count"
-            sortingType="desc"
+            sortingFn={() => sortProducts("_count", "desc")}
           />
           <TableHead className="w-0">
             <span className="sr-only">Actions</span>
