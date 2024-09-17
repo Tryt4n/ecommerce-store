@@ -8,7 +8,9 @@ import { getUsers } from "@/db/adminData/users";
 import { getDiscountCodes } from "@/db/adminData/discountCodes";
 import { arraysEqual, sortArray } from "@/lib/sort";
 import { setSortingSearchParams } from "@/lib/searchParams";
+import { getRangeOption, RANGE_OPTIONS } from "@/lib/rangeOptions";
 import type { SortingType } from "@/types/sort";
+import type { DateRange } from "@/types/ranges";
 
 export type NestedKeyOf<ObjectType extends object> = {
   [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
@@ -43,30 +45,50 @@ export default function AdminContextProvider<Data extends object[]>({
   const params = new URLSearchParams(searchParams);
   const currentSortBy = searchParams.get("sortBy") as NestedKeyOf<Data[number]>;
   const currentSortType = searchParams.get("sortType") as null | SortingType;
+  const dateRange = searchParams.get("dateRange") as undefined | string;
+  const dateRangeFrom = searchParams.get("dateRangeFrom") as undefined | string;
+  const dateRangeTo = searchParams.get("dateRangeTo") as undefined | string;
 
   const fetchData = useCallback(async () => {
     let fetchedData;
+    const range =
+      getRangeOption(dateRange, dateRangeFrom, dateRangeTo) ||
+      RANGE_OPTIONS.all_time;
+    const rangeOptions: DateRange = {
+      createdAfter: range.startDate,
+      createdBefore: range.endDate,
+    };
 
     if (pathname.includes("/admin/orders")) {
-      fetchedData = await getOrders("createdAt").then((res) => {
-        if (!currentSortBy || !currentSortType || !res) return res;
+      fetchedData = await getOrders("createdAt", "desc", rangeOptions).then(
+        (res) => {
+          if (!currentSortBy || !currentSortType || !res) return res;
 
-        return sortArray(res, currentSortBy, currentSortType);
-      });
+          return sortArray(res, currentSortBy, currentSortType);
+        }
+      );
     } else if (pathname.includes("/admin/products")) {
-      fetchedData = await getAllProducts("createdAt").then((res) => {
-        if (!currentSortBy || !currentSortType || !res) return res;
+      fetchedData = await getAllProducts("createdAt", "asc", rangeOptions).then(
+        (res) => {
+          if (!currentSortBy || !currentSortType || !res) return res;
 
-        return sortArray(res, currentSortBy, currentSortType);
-      });
+          return sortArray(res, currentSortBy, currentSortType);
+        }
+      );
     } else if (pathname.includes("/admin/users")) {
-      fetchedData = await getUsers("createdAt").then((res) => {
-        if (!currentSortBy || !currentSortType || !res) return res;
+      fetchedData = await getUsers("createdAt", "desc", rangeOptions).then(
+        (res) => {
+          if (!currentSortBy || !currentSortType || !res) return res;
 
-        return sortArray(res, currentSortBy, currentSortType);
-      });
+          return sortArray(res, currentSortBy, currentSortType);
+        }
+      );
     } else if (pathname.includes("/admin/discount-codes")) {
-      fetchedData = await getDiscountCodes("createdAt").then((res) => {
+      fetchedData = await getDiscountCodes(
+        "createdAt",
+        "desc",
+        rangeOptions
+      ).then((res) => {
         if (!currentSortBy || !currentSortType || !res) return res;
 
         const expiredDiscountCodes = sortArray(
@@ -88,7 +110,14 @@ export default function AdminContextProvider<Data extends object[]>({
     }
 
     setData(fetchedData as Data);
-  }, [currentSortBy, currentSortType, pathname]);
+  }, [
+    currentSortBy,
+    currentSortType,
+    dateRange,
+    dateRangeFrom,
+    dateRangeTo,
+    pathname,
+  ]);
 
   useEffect(() => {
     fetchData();
