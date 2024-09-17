@@ -33,7 +33,7 @@ export default function DiscountCodesSections() {
       </section>
 
       <section className="mt-8">
-        <h2 className="text-xl font-bold">Expired Coupons</h2>
+        <h2 className="mb-4 text-2xl">Expired Coupons</h2>
 
         {discountCodes?.expiredDiscountCodes ? (
           <DiscountCodesTable
