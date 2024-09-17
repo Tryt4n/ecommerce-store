@@ -45,7 +45,11 @@ export default function OrdersTable() {
             title="Price Paid"
             sortingFn={() => sortOrders("pricePaidInCents", "asc")}
           />
-          <TableHead className="text-center">Coupon</TableHead>
+          <TableHeadSortingButton
+            className="text-center"
+            title="Coupon"
+            sortingFn={() => sortOrders("discountCode", "desc")}
+          />
           <TableHead className="w-0">
             <span className="sr-only">Orders Actions</span>
           </TableHead>
