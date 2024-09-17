@@ -18,15 +18,15 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import type { DateRange } from "react-day-picker";
 
-type ChartDataDropdownMenuProps = {
+type DateRangeDropdownMenuProps = {
   queryKey: string;
   className?: ComponentProps<typeof DropdownMenuTrigger>["className"];
 };
 
-export default function ChartDataDropdownMenu({
+export default function DateRangeDropdownMenu({
   queryKey,
   className,
-}: ChartDataDropdownMenuProps) {
+}: DateRangeDropdownMenuProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -43,9 +43,25 @@ export default function ChartDataDropdownMenu({
     } else {
       if (!range.from || !range.to) return;
 
+      // Set start of day
+      const startDate = new Date(range.from);
+      startDate.setHours(0, 0, 0, 0);
+
+      // Set end of day
+      const endDate = new Date(range.to);
+      endDate.setHours(23, 59, 59, 999);
+
+      // Converting dates to UTC time
+      const startDateUTC = new Date(
+        startDate.getTime() - startDate.getTimezoneOffset() * 60000
+      );
+      const endDateUTC = new Date(
+        endDate.getTime() - endDate.getTimezoneOffset() * 60000
+      );
+
       params.delete(queryKey);
-      params.set(`${queryKey}From`, range.from.toISOString());
-      params.set(`${queryKey}To`, range.to.toISOString());
+      params.set(`${queryKey}From`, startDateUTC.toISOString());
+      params.set(`${queryKey}To`, endDateUTC.toISOString());
     }
 
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
