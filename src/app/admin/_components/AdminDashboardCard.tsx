@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import ChartDataDropdownMenu from "./ChartDataDropdownMenu";
+import DateRangeDropdownMenu from "./DateRangeDropdownMenu";
 
 type DashboardCardProps = {
   title: string;
@@ -32,7 +32,7 @@ export default function AdminDashboardCard({
         {subtitle && <CardDescription>{subtitle}</CardDescription>}
 
         {queryKey && (
-          <ChartDataDropdownMenu
+          <DateRangeDropdownMenu
             className="absolute right-4 top-2.5"
             queryKey={queryKey}
           />
