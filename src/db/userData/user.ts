@@ -4,8 +4,7 @@ import db from "../init";
 import { createDownloadVerification } from "@/app/_actions/download";
 import { sendPurchaseEmail } from "@/lib/resend/emails";
 import { updateDiscountCode } from "./discountCodes";
-import type { DiscountCode, Product, User } from "@prisma/client";
-import type { SortingType } from "@/types/sort";
+import type { DiscountCode, Product } from "@prisma/client";
 
 export async function createOrEditUser(
   email: string,
@@ -71,40 +70,5 @@ export async function getUser(email: string) {
     });
   } catch (error) {
     console.error(`Can't get user. Error: ${error}`);
-  }
-}
-
-export async function getUsers(
-  orderBy: keyof User = "createdAt",
-  type: SortingType = "desc"
-) {
-  try {
-    const users = await db.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        orders: {
-          select: {
-            id: true,
-            pricePaidInCents: true,
-            product: true,
-            productId: true,
-          },
-        },
-      },
-      orderBy: { [orderBy]: type },
-    });
-
-    const usersOrdersValue = users.map((user) => ({
-      ...user,
-      ordersValue: user.orders.reduce(
-        (sum, order) => sum + order.pricePaidInCents,
-        0
-      ),
-    }));
-
-    return usersOrdersValue;
-  } catch (error) {
-    console.error(`Can't get users. Error: ${error}`);
   }
 }
