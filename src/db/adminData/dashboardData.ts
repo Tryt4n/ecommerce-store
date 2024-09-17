@@ -9,11 +9,7 @@ import {
 } from "@/lib/dashboardDataHelpers";
 import { startOfDay } from "date-fns";
 import type { Prisma } from "@prisma/client";
-
-export type DateRange = {
-  createdAfter: Date | null;
-  createdBefore: Date | null;
-};
+import type { DateRange } from "@/types/ranges";
 
 export type ChartsDateRange = {
   salesDataRangeData: DateRange;
