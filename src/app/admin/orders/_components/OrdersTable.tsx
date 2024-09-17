@@ -3,7 +3,7 @@
 import React from "react";
 import { useAdminContext } from "../../_hooks/useAdminContext";
 import { deleteOrder, type getOrders } from "@/db/adminData/orders";
-import { formatCurrency } from "@/lib/formatters";
+import { dateFormatter, formatCurrency } from "@/lib/formatters";
 import {
   Table,
   TableBody,
@@ -25,14 +25,20 @@ export default function OrdersTable() {
     return <LoadingSpinner size={64} aria-label="Loading products..." />;
   }
 
-  if (orders?.length === 0 || !orders) return <p>No sales found</p>;
+  if (orders?.length === 0) return <p>No sales found</p>;
 
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHeadSortingButton
+            title="Date"
+            className="text-center"
+            sortingFn={() => sortOrders("createdAt", "desc")}
+          />
+          <TableHeadSortingButton
             title="Product"
+            className="text-center"
             sortingFn={() => sortOrders("product.name", "asc")}
           />
           <TableHeadSortingButton
@@ -59,7 +65,13 @@ export default function OrdersTable() {
       <TableBody>
         {orders.map((order) => (
           <TableRow key={order.id}>
-            <TableCell className="text-nowrap">{order.product.name}</TableCell>
+            <TableCell align="center" className="text-nowrap">
+              {dateFormatter(order.createdAt)}
+            </TableCell>
+
+            <TableCell align="center" className="text-nowrap">
+              {order.product.name}
+            </TableCell>
 
             <TableCell align="center" className="text-nowrap">
               {order.user.email}
