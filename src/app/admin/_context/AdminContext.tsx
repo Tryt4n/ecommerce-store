@@ -1,15 +1,16 @@
 "use client";
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getOrders } from "@/db/adminData/orders";
 import { getAllProducts } from "@/db/adminData/products";
 import { getUsers } from "@/db/userData/user";
+import { getDiscountCodes } from "@/db/adminData/discountCodes";
 import { arraysEqual, sortArray } from "@/lib/sort";
 import { setSortingSearchParams } from "@/lib/searchParams";
 import type { SortingType } from "@/types/sort";
 
-type NestedKeyOf<ObjectType extends object> = {
+export type NestedKeyOf<ObjectType extends object> = {
   [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
     ? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
     : `${Key}`;
@@ -17,11 +18,12 @@ type NestedKeyOf<ObjectType extends object> = {
 
 export type ContextType<Data extends object[]> = {
   data: Data | undefined;
-  sortData: (
-    sortingField: NestedKeyOf<Data[number]>,
+  sortData: <T extends Data[number]>(
+    sortingField: NestedKeyOf<T>,
     sortingType: SortingType,
     dataToSort?: Data
   ) => void;
+  refetchData: () => void;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,37 +44,58 @@ export default function AdminContextProvider<Data extends object[]>({
   const currentSortBy = searchParams.get("sortBy") as NestedKeyOf<Data[number]>;
   const currentSortType = searchParams.get("sortType") as null | SortingType;
 
-  useEffect(() => {
-    async function fetchData() {
-      let fetchedData;
-      if (pathname.includes("/admin/orders")) {
-        fetchedData = await getOrders("createdAt").then((res) => {
-          if (!currentSortBy || !currentSortType || !res) return res;
+  const fetchData = useCallback(async () => {
+    let fetchedData;
 
-          return sortArray(res, currentSortBy, currentSortType);
-        });
-      } else if (pathname.includes("/admin/products")) {
-        fetchedData = await getAllProducts("createdAt").then((res) => {
-          if (!currentSortBy || !currentSortType || !res) return res;
+    if (pathname.includes("/admin/orders")) {
+      fetchedData = await getOrders("createdAt").then((res) => {
+        if (!currentSortBy || !currentSortType || !res) return res;
 
-          return sortArray(res, currentSortBy, currentSortType);
-        });
-      } else if (pathname.includes("/admin/users")) {
-        fetchedData = await getUsers("createdAt").then((res) => {
-          if (!currentSortBy || !currentSortType || !res) return res;
+        return sortArray(res, currentSortBy, currentSortType);
+      });
+    } else if (pathname.includes("/admin/products")) {
+      fetchedData = await getAllProducts("createdAt").then((res) => {
+        if (!currentSortBy || !currentSortType || !res) return res;
 
-          return sortArray(res, currentSortBy, currentSortType);
-        });
-      }
+        return sortArray(res, currentSortBy, currentSortType);
+      });
+    } else if (pathname.includes("/admin/users")) {
+      fetchedData = await getUsers("createdAt").then((res) => {
+        if (!currentSortBy || !currentSortType || !res) return res;
 
-      setData(fetchedData as Data);
+        return sortArray(res, currentSortBy, currentSortType);
+      });
+    } else if (pathname.includes("/admin/discount-codes")) {
+      fetchedData = await getDiscountCodes("createdAt").then((res) => {
+        if (!currentSortBy || !currentSortType || !res) return res;
+
+        const expiredDiscountCodes = sortArray(
+          res.expiredDiscountCodes,
+          currentSortBy,
+          currentSortType
+        );
+        const unexpiredDiscountCodes = sortArray(
+          res.unexpiredDiscountCodes,
+          currentSortBy,
+          currentSortType
+        );
+
+        return {
+          expiredDiscountCodes: expiredDiscountCodes,
+          unexpiredDiscountCodes: unexpiredDiscountCodes,
+        };
+      });
     }
 
-    fetchData();
+    setData(fetchedData as Data);
   }, [currentSortBy, currentSortType, pathname]);
 
-  function sortData(
-    sortingField: NestedKeyOf<Data[number]>,
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  function sortData<T extends Data[number]>(
+    sortingField: NestedKeyOf<T>,
     sortingType: SortingType,
     dataToSort = data
   ) {
@@ -103,6 +126,7 @@ export default function AdminContextProvider<Data extends object[]>({
   const contextValue: ContextType<Data> = {
     data,
     sortData,
+    refetchData: fetchData,
   };
 
   return (
