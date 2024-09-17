@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useAdminContext } from "../_hooks/useAdminContext";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export default function ActiveToggleDropdownMenuItem({
@@ -14,7 +14,7 @@ export default function ActiveToggleDropdownMenuItem({
   isActive: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const { refetchData } = useAdminContext();
 
   return (
     <DropdownMenuItem
@@ -22,8 +22,7 @@ export default function ActiveToggleDropdownMenuItem({
       disabled={isPending}
       onClick={() =>
         startTransition(async () => {
-          await promiseFn(id, !isActive);
-          router.refresh();
+          await promiseFn(id, !isActive).then(() => refetchData());
         })
       }
     >
