@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useAdminContext } from "../_hooks/useAdminContext";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export default function DeleteDropdownItem({
@@ -14,7 +14,7 @@ export default function DeleteDropdownItem({
   disabled?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const { refetchData } = useAdminContext();
 
   return (
     <DropdownMenuItem
@@ -23,8 +23,7 @@ export default function DeleteDropdownItem({
       disabled={disabled || isPending}
       onClick={() =>
         startTransition(async () => {
-          await promiseFn(id);
-          router.refresh();
+          await promiseFn(id).then(() => refetchData());
         })
       }
     >
