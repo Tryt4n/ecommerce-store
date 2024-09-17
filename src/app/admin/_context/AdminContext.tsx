@@ -4,7 +4,7 @@ import { createContext, useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getOrders } from "@/db/adminData/orders";
 import { getAllProducts } from "@/db/adminData/products";
-import { getUsers } from "@/db/userData/user";
+import { getUsers } from "@/db/adminData/users";
 import { getDiscountCodes } from "@/db/adminData/discountCodes";
 import { arraysEqual, sortArray } from "@/lib/sort";
 import { setSortingSearchParams } from "@/lib/searchParams";

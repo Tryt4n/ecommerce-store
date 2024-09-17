@@ -2,9 +2,8 @@
 
 import React from "react";
 import { useAdminContext } from "../../_hooks/useAdminContext";
-import { getUsers } from "@/db/userData/user";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
-import { deleteUser } from "@/db/adminData/users";
+import { deleteUser, type getUsers } from "@/db/adminData/users";
 import {
   Table,
   TableRow,
