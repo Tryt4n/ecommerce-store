@@ -164,7 +164,7 @@ export default function DiscountCodesTable({
               {formatNumber(discount._count.orders)}
             </TableCell>
 
-            <TableCell align="center">
+            <TableCell align="center" width="100%">
               {discount.allProducts ? (
                 <Globe />
               ) : (
