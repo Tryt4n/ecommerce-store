@@ -2,17 +2,27 @@
 
 import { notFound } from "next/navigation";
 import db from "../init";
-import type { Order } from "@prisma/client";
+import { getCreatedAtQuery } from "@/lib/dashboardDataHelpers";
+import type { Order, Prisma } from "@prisma/client";
 import type { SortingType } from "@/types/sort";
+import type { DateRange } from "@/types/ranges";
 
 export async function getOrders(
   orderBy: keyof Order = "createdAt",
-  type: SortingType = "asc"
+  type: SortingType = "desc",
+  dateRange?: DateRange
 ) {
   try {
+    let createdAtQuery: Prisma.DateTimeFilter | undefined;
+
+    if (dateRange) {
+      createdAtQuery = getCreatedAtQuery(dateRange);
+    }
+
     return db.order.findMany({
       select: {
         id: true,
+        createdAt: true,
         pricePaidInCents: true,
         product: true,
         user: true,
@@ -21,6 +31,7 @@ export async function getOrders(
         },
       },
       orderBy: { [orderBy]: type },
+      where: { createdAt: createdAtQuery },
     });
   } catch (error) {
     console.error(`Can't get orders. Error: ${error}`);

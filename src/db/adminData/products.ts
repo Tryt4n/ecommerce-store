@@ -8,15 +8,24 @@ import type {
   editProductSchema,
   productAddSchema,
 } from "@/lib/zod/productSchema";
+import { getCreatedAtQuery } from "@/lib/dashboardDataHelpers";
 import type { z } from "zod";
-import type { Product } from "@prisma/client";
+import type { Prisma, Product } from "@prisma/client";
 import type { SortingType } from "@/types/sort";
+import type { DateRange } from "@/types/ranges";
 
 export async function getAllProducts(
   orderBy: keyof Product = "name",
-  type: SortingType = "asc"
+  type: SortingType = "asc",
+  dateRange?: DateRange
 ) {
   try {
+    let createdAtQuery: Prisma.DateTimeFilter | undefined;
+
+    if (dateRange) {
+      createdAtQuery = getCreatedAtQuery(dateRange);
+    }
+
     const products = await db.product.findMany({
       select: {
         id: true,
@@ -29,6 +38,7 @@ export async function getAllProducts(
         _count: { select: { orders: true } },
       },
       orderBy: { [orderBy]: type },
+      where: { createdAt: createdAtQuery },
     });
 
     // Convert the query result so that _count is a number

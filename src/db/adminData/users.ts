@@ -2,8 +2,10 @@
 
 import { notFound } from "next/navigation";
 import db from "../init";
-import type { User } from "@prisma/client";
+import { getCreatedAtQuery } from "@/lib/dashboardDataHelpers";
+import type { Prisma, User } from "@prisma/client";
 import type { SortingType } from "@/types/sort";
+import type { DateRange } from "@/types/ranges";
 
 export async function deleteUser(id: User["id"]) {
   try {
@@ -17,9 +19,16 @@ export async function deleteUser(id: User["id"]) {
 
 export async function getUsers(
   orderBy: keyof User = "createdAt",
-  type: SortingType = "desc"
+  type: SortingType = "desc",
+  dateRange?: DateRange
 ) {
   try {
+    let createdAtQuery: Prisma.DateTimeFilter | undefined;
+
+    if (dateRange) {
+      createdAtQuery = getCreatedAtQuery(dateRange);
+    }
+
     const users = await db.user.findMany({
       select: {
         id: true,
@@ -34,6 +43,7 @@ export async function getUsers(
         },
       },
       orderBy: { [orderBy]: type },
+      where: { createdAt: createdAtQuery },
     });
 
     const usersOrdersValue = users.map((user) => ({

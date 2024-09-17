@@ -6,6 +6,8 @@ import type { z } from "zod";
 import type { addDiscountSchema } from "@/lib/zod/discount";
 import type { DiscountCode, Prisma } from "@prisma/client";
 import type { SortingType } from "@/types/sort";
+import { getCreatedAtQuery } from "@/lib/dashboardDataHelpers";
+import type { DateRange } from "@/types/ranges";
 
 export async function createDiscountCode(
   data: z.infer<typeof addDiscountSchema>
@@ -53,18 +55,25 @@ const SELECT_FIELDS: Prisma.DiscountCodeSelect = {
 
 export async function getDiscountCodes(
   orderBy: keyof DiscountCode = "createdAt",
-  type: SortingType = "asc"
+  type: SortingType = "desc",
+  dateRange?: DateRange
 ) {
   try {
+    let createdAtQuery: Prisma.DateTimeFilter | undefined;
+
+    if (dateRange) {
+      createdAtQuery = getCreatedAtQuery(dateRange);
+    }
+
     const [unexpiredDiscountCodes, expiredDiscountCodes] =
       await db.$transaction([
         db.discountCode.findMany({
-          where: { NOT: WHERE_EXPIRED },
+          where: { NOT: WHERE_EXPIRED, createdAt: createdAtQuery },
           select: SELECT_FIELDS,
           orderBy: { [orderBy]: type },
         }),
         db.discountCode.findMany({
-          where: WHERE_EXPIRED,
+          where: { ...WHERE_EXPIRED, createdAt: createdAtQuery },
           select: SELECT_FIELDS,
           orderBy: { [orderBy]: type },
         }),
