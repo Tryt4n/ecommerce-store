@@ -1,8 +1,7 @@
 import type { SortingType } from "@/types/sort";
-
 /**
  * Sorts an array of objects based on a specified field and sorting order.
- * Supports nested fields using dot notation.
+ * Supports nested fields using dot notation and handles null values.
  *
  * @template T - The type of objects contained in the array.
  * @param {T[]} array - The array of objects to be sorted.
@@ -51,6 +50,20 @@ import type { SortingType } from "@/types/sort";
  * //   { name: 'Jane', address: { city: 'Los Angeles' } },
  * //   { name: 'John', address: { city: 'New York' } }
  * // ]
+ *
+ * @example
+ * // Sorting an array of objects by the 'discountCode' field in ascending order, handling null values
+ * const data = [
+ *   { name: 'John', discountCode: null },
+ *   { name: 'Jane', discountCode: { code: 'DISCOUNT10' } },
+ *   { name: 'Alice', discountCode: { code: 'DISCOUNT20' } }
+ * ];
+ * const sortedByDiscountCodeAsc = sortArray(data, 'discountCode', 'asc');
+ * // sortedByDiscountCodeAsc = [
+ * //   { name: 'John', discountCode: null },
+ * //   { name: 'Jane', discountCode: { code: 'DISCOUNT10' } },
+ * //   { name: 'Alice', discountCode: { code: 'DISCOUNT20' } }
+ * // ]
  */
 export function sortArray<T>(
   array: T[],
@@ -60,6 +73,16 @@ export function sortArray<T>(
   return [...array].sort((a, b) => {
     const aValue = getNestedValue(a, sortingField as string);
     const bValue = getNestedValue(b, sortingField as string);
+
+    if (aValue === null && bValue !== null) {
+      return sortingType === "asc" ? -1 : 1;
+    }
+    if (aValue !== null && bValue === null) {
+      return sortingType === "asc" ? 1 : -1;
+    }
+    if (aValue === null && bValue === null) {
+      return 0;
+    }
 
     if (aValue < bValue) {
       return sortingType === "asc" ? -1 : 1;
