@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { useAdminContext } from "../../_hooks/useAdminContext";
 import {
   dateFormatter,
   formatDiscountCode,
@@ -12,9 +15,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import TableHeadSortingButton from "../../_components/TableHeadSortingButton";
 import DiscountDropdownMenu from "./DiscountDropdownMenu";
 import { Globe, Infinity, Minus } from "lucide-react";
 import type { getDiscountCodes } from "@/db/adminData/discountCodes";
+import type { NestedKeyOf } from "../../_context/AdminContext";
 
 type DiscountCodesTableProps = {
   discountCodes: NonNullable<
@@ -29,6 +34,9 @@ export default function DiscountCodesTable({
   isInactive = false,
   canDeactivate = false,
 }: DiscountCodesTableProps) {
+  const { data, sortData: sortDiscountCodes } =
+    useAdminContext<typeof getDiscountCodes>();
+
   return (
     <Table className="overflow-x-auto">
       <TableHeader>
@@ -36,12 +44,72 @@ export default function DiscountCodesTable({
           <TableHead className="w-0">
             <span className="sr-only">Is Active</span>
           </TableHead>
-          <TableHead className="text-center">Code</TableHead>
-          <TableHead className="text-center">Discount</TableHead>
-          <TableHead className="text-center">Expires</TableHead>
-          <TableHead className="text-center">Remaining Uses</TableHead>
-          <TableHead className="text-center">Orders</TableHead>
-          <TableHead className="text-center">Products</TableHead>
+          <TableHeadSortingButton
+            title="Code"
+            className="text-center"
+            sortingFn={() =>
+              sortDiscountCodes(
+                "code" as NestedKeyOf<(typeof discountCodes)[number]>,
+                "asc",
+                discountCodes as unknown as typeof data
+              )
+            }
+          />
+          <TableHeadSortingButton
+            title="Discount"
+            className="text-center"
+            sortingFn={() =>
+              sortDiscountCodes(
+                "discountAmount" as NestedKeyOf<(typeof discountCodes)[number]>,
+                "asc",
+                discountCodes as unknown as typeof data
+              )
+            }
+          />
+          <TableHeadSortingButton
+            title="Expires"
+            className="text-center"
+            sortingFn={() =>
+              sortDiscountCodes(
+                "expiresAt" as NestedKeyOf<(typeof discountCodes)[number]>,
+                "asc",
+                discountCodes as unknown as typeof data
+              )
+            }
+          />
+          <TableHeadSortingButton
+            title="Remaining Uses"
+            className="text-center"
+            sortingFn={() =>
+              sortDiscountCodes(
+                "limit" as NestedKeyOf<(typeof discountCodes)[number]>,
+                "asc",
+                discountCodes as unknown as typeof data
+              )
+            }
+          />
+          <TableHeadSortingButton
+            title="Orders"
+            className="text-center"
+            sortingFn={() =>
+              sortDiscountCodes(
+                "_count.orders" as NestedKeyOf<(typeof discountCodes)[number]>,
+                "desc",
+                discountCodes as unknown as typeof data
+              )
+            }
+          />
+          <TableHeadSortingButton
+            title="Products"
+            className="text-center"
+            sortingFn={() =>
+              sortDiscountCodes(
+                "allProducts" as NestedKeyOf<(typeof discountCodes)[number]>,
+                "desc",
+                discountCodes as unknown as typeof data
+              )
+            }
+          />
           <TableHead className="w-0">
             <span className="sr-only">Actions</span>
           </TableHead>
