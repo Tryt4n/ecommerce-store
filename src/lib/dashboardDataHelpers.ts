@@ -17,9 +17,9 @@ import { dateFormatter } from "./formatters";
 import type {
   DashboardDateParam,
   ChartsDateRange,
-  DateRange,
 } from "@/db/adminData/dashboardData";
 import type { Prisma } from "@prisma/client";
+import type { DateRange } from "@/types/ranges";
 
 type CreateAndUpdateDaysArrayParams<T> = {
   dataArray: T[];
