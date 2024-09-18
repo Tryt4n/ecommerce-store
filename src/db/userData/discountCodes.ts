@@ -2,9 +2,9 @@
 
 import db from "../init";
 import { usableDiscountCodeWhere } from "@/lib/discountCodeHelpers";
-import type { DiscountCode, Prisma, Product } from "@prisma/client";
+import type { DiscountCode, Product } from "@prisma/client";
 
-export async function getDiscountCode(
+export async function checkDiscountCode(
   coupon: DiscountCode["code"],
   productId: Product["id"]
 ) {
@@ -20,19 +20,5 @@ export async function getDiscountCode(
     });
   } catch (error) {
     console.error(`Error getting discount code. Error: ${error}`);
-  }
-}
-
-export async function updateDiscountCode(
-  discountCodeId: DiscountCode["id"],
-  data: Prisma.DiscountCodeUpdateInput
-) {
-  try {
-    return await db.discountCode.update({
-      where: { id: discountCodeId },
-      data,
-    });
-  } catch (error) {
-    console.error(`Error updating discount code. Error: ${error}`);
   }
 }
