@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import {
   deleteDiscountCode,
   toggleDiscountCodeActive,
@@ -7,6 +8,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -42,6 +44,12 @@ export default function DiscountDropdownMenu({
             <DropdownMenuSeparator />
           </>
         )}
+
+        <DropdownMenuItem asChild>
+          <Link href={`/admin/discount-codes/${discount.code}/edit`}>Edit</Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
 
         <DeleteDropdownItem
           id={discount.id}
