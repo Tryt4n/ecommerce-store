@@ -9,6 +9,7 @@ type SubmitButtonProps = {
   pendingText?: string;
   className?: string;
   size?: ComponentProps<typeof Button>["size"];
+  edit?: boolean;
 };
 
 export default function SubmitButton({
@@ -16,6 +17,7 @@ export default function SubmitButton({
   pendingText,
   className,
   size,
+  edit,
 }: SubmitButtonProps) {
   const { pending } = useFormStatus();
 
@@ -30,10 +32,14 @@ export default function SubmitButton({
       {pending
         ? pendingText
           ? pendingText
-          : "Saving..."
+          : edit
+            ? "Editing..."
+            : "Saving..."
         : initialText
           ? initialText
-          : "Save"}
+          : edit
+            ? "Edit"
+            : "Save"}
     </Button>
   );
 }
