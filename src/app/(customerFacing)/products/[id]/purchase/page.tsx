@@ -1,7 +1,7 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import { getProduct } from "@/db/userData/products";
-import { getDiscountCode } from "@/db/userData/discountCodes";
+import { checkDiscountCode } from "@/db/userData/discountCodes";
 import CheckoutForm from "./_components/CheckoutForm";
 
 export default async function PurchasePage({
@@ -16,7 +16,7 @@ export default async function PurchasePage({
   if (product == null) notFound();
 
   const discountCode = coupon
-    ? await getDiscountCode(coupon, product.id)
+    ? await checkDiscountCode(coupon, product.id)
     : undefined;
 
   return (

@@ -3,7 +3,7 @@
 import { getUser } from "@/db/userData/user";
 import { getProduct } from "@/db/userData/products";
 import { userOrderExist } from "@/db/userData/orders";
-import { getDiscountCode } from "@/db/userData/discountCodes";
+import { checkDiscountCode } from "@/db/userData/discountCodes";
 import { emailSchema } from "@/lib/zod/emailSchema";
 import { sendEmailWithOrderHistory } from "@/lib/resend/emails";
 import { createDownloadVerification } from "./download";
@@ -73,7 +73,7 @@ export async function createPaymentIntent(
 
   const discountCode =
     discountCouponCode &&
-    (await getDiscountCode(discountCouponCode, product.id));
+    (await checkDiscountCode(discountCouponCode, product.id));
   if (!discountCode == null && discountCouponCode != null) {
     return { error: "Coupon has expired." };
   }

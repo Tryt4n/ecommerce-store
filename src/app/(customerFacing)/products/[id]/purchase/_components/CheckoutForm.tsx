@@ -7,12 +7,12 @@ import { getDiscountedAmount } from "@/lib/discountCodeHelpers";
 import { formatCurrency } from "@/lib/formatters";
 import StripePaymentForm from "./StripePaymentForm";
 import Image from "next/image";
-import type { getDiscountCode } from "@/db/userData/discountCodes";
+import type { checkDiscountCode } from "@/db/userData/discountCodes";
 import type { getProduct } from "@/db/userData/products";
 
 type CheckoutFormProps = {
   product: NonNullable<Awaited<ReturnType<typeof getProduct>>>;
-  discountCode: Awaited<ReturnType<typeof getDiscountCode>>;
+  discountCode: Awaited<ReturnType<typeof checkDiscountCode>>;
 };
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
