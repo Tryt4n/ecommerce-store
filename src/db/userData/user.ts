@@ -3,7 +3,7 @@
 import db from "../init";
 import { createDownloadVerification } from "@/app/_actions/download";
 import { sendPurchaseEmail } from "@/lib/resend/emails";
-import { updateDiscountCode } from "./discountCodes";
+import { updateDiscountCode } from "../adminData/discountCodes";
 import type { DiscountCode, Product } from "@prisma/client";
 
 export async function createOrEditUser(
