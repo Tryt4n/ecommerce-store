@@ -15,7 +15,7 @@ export default async function AdminEditProductPage({
 
   return (
     <>
-      <AdminPageHeader>Edit Product</AdminPageHeader>
+      <AdminPageHeader withDateRange={false}>Edit Product</AdminPageHeader>
 
       <ProductForm product={product} />
     </>
