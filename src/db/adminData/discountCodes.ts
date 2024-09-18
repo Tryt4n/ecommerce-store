@@ -2,11 +2,11 @@
 
 import { notFound } from "next/navigation";
 import db from "@/db/init";
+import { getCreatedAtQuery } from "@/lib/dashboardDataHelpers";
 import type { z } from "zod";
 import type { addDiscountSchema } from "@/lib/zod/discount";
 import type { DiscountCode, Prisma } from "@prisma/client";
 import type { SortingType } from "@/types/sort";
-import { getCreatedAtQuery } from "@/lib/dashboardDataHelpers";
 import type { DateRange } from "@/types/ranges";
 
 export async function createDiscountCode(
@@ -113,5 +113,51 @@ export async function deleteDiscountCode(id: DiscountCode["id"]) {
     if (discountCode == null) return notFound();
   } catch (error) {
     console.error(`Error deleting discount code. Error: ${error}`);
+  }
+}
+
+export async function getDiscountCode(code: DiscountCode["code"]) {
+  try {
+    return await db.discountCode.findUnique({
+      where: { code },
+      select: SELECT_FIELDS,
+    });
+  } catch (error) {
+    console.error(`Error getting discount code. Error: ${error}`);
+  }
+}
+
+export async function updateDiscountCode(
+  id: DiscountCode["id"],
+  data: Partial<
+    z.infer<typeof addDiscountSchema> & Prisma.DiscountCodeUpdateInput
+  >
+) {
+  try {
+    const { productIds, ...restData } = data;
+
+    return await db.$transaction([
+      // Disconnect all existing products
+      db.discountCode.update({
+        where: { id },
+        data: {
+          products: { set: [] },
+        },
+      }),
+      // Update the discount code with new data and connect new products
+      db.discountCode.update({
+        where: { id },
+        data: {
+          ...restData,
+          products: data.allProducts
+            ? undefined
+            : productIds != null
+              ? { connect: productIds.map((id) => ({ id })) }
+              : undefined,
+        },
+      }),
+    ]);
+  } catch (error) {
+    console.error(`Error updating discount code. Error: ${error}`);
   }
 }
