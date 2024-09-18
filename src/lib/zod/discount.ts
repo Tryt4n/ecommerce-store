@@ -3,7 +3,12 @@ import { DiscountCodeType } from "@prisma/client";
 
 export const addDiscountSchema = z
   .object({
-    code: z.string().min(5),
+    code: z
+      .string()
+      .min(5)
+      .refine((value) => !/\s/.test(value.trim()), {
+        message: "Code cannot contain spaces",
+      }),
     discountAmount: z.coerce.number().int().min(1),
     discountType: z.nativeEnum(DiscountCodeType),
     allProducts: z.coerce.boolean(),
