@@ -15,6 +15,7 @@ export const productAddSchema = z.object({
   image: imageSchema.refine((file) => file.size > 0, {
     message: "Please select a image.",
   }),
+  categories: z.array(z.string()).nonempty().max(3),
 });
 
 export const editProductSchema = productAddSchema.extend({
