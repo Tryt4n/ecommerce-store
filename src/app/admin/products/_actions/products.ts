@@ -7,10 +7,7 @@ import {
 } from "@/db/adminData/products";
 import { editProductSchema, productAddSchema } from "@/lib/zod/productSchema";
 import { getProduct } from "@/db/userData/products";
-
-type FormDataEntries = {
-  [key: string]: FormDataEntryValue | string[];
-};
+import type { FormDataEntries } from "@/types/formData";
 
 export async function addProduct(prevState: unknown, formData: FormData) {
   const data: FormDataEntries = Object.fromEntries(formData.entries());
