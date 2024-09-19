@@ -1,6 +1,7 @@
 import React from "react";
 import { getAllProducts } from "@/db/adminData/products";
 import { getDiscountCode } from "@/db/adminData/discountCodes";
+import { getCategories } from "@/db/userData/categories";
 import AdminPageHeader from "@/app/admin/_components/AdminPageHeader";
 import DiscountCodeForm from "../../_components/DiscountCodeForm";
 
@@ -9,9 +10,10 @@ export default async function AdminEditDiscountCodePage({
 }: {
   params: { code: string };
 }) {
-  const [products, discountCode] = await Promise.all([
+  const [products, discountCode, categories] = await Promise.all([
     getAllProducts(),
     getDiscountCode(code),
+    getCategories(),
   ]);
 
   return (
@@ -21,6 +23,7 @@ export default async function AdminEditDiscountCodePage({
       <DiscountCodeForm
         products={products}
         discountCode={discountCode || undefined}
+        categories={categories}
       />
     </>
   );
