@@ -2,28 +2,42 @@
 
 import React, { useState } from "react";
 import { useFormState } from "react-dom";
+import { formatCurrency } from "@/lib/formatters";
+import { addProduct, updateProduct } from "../../_actions/products";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import SubmitButton from "@/components/SubmitButton";
 import ErrorMessage from "@/components/ErrorMessage";
+import MultipleSelector, {
+  type Option,
+} from "@/components/ui/multiple-selector";
 import Image from "next/image";
-import { formatCurrency } from "@/lib/formatters";
-import { addProduct, updateProduct } from "../../_actions/products";
-import type { Product } from "@prisma/client";
+import type { Category, Product } from "@prisma/client";
 
-export default function ProductForm({
-  product,
-}: {
-  product?: Partial<Product> & NonNullable<Pick<Product, "id">>;
-}) {
+type ProductFormProps = {
+  product?: Partial<Product> &
+    NonNullable<Pick<Product, "id">> & { categories: Category["name"][] };
+  categories?: string[];
+};
+
+export default function ProductForm({ product, categories }: ProductFormProps) {
   const [error, action] = useFormState(
     product == null ? addProduct : updateProduct.bind(null, product.id),
     {}
   );
+  const [selectedCategories, setSelectedCategories] = useState<
+    ProductFormProps["categories"]
+  >(product?.categories || []);
   const [priceInCents, setPriceInCents] = useState<number | undefined>(
     product?.priceInCents
   );
+
+  const OPTIONS: Option[] =
+    categories?.map((category) => ({
+      label: category,
+      value: category,
+    })) || [];
 
   return (
     <form action={action} className="space-y-8">
@@ -55,6 +69,36 @@ export default function ProductForm({
           {formatCurrency((priceInCents || 0) / 100)}
         </div>
         {error?.priceInCents && <ErrorMessage error={error.priceInCents} />}
+      </div>
+
+      <div className="space-y-2">
+        <MultipleSelector
+          defaultOptions={OPTIONS}
+          placeholder="Select product's categories"
+          commandProps={{ className: "capitalize" }}
+          hidePlaceholderWhenSelected
+          maxSelected={3}
+          onMaxSelected={() => alert("You can only select up to 3 categories.")} //TODO: Add toast notification
+          creatable
+          value={selectedCategories?.map((category) => ({
+            label: category,
+            value: category,
+          }))}
+          onChange={(selected) =>
+            setSelectedCategories(selected.map((category) => category.value))
+          }
+          emptyIndicator={
+            <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+              no results found.
+            </p>
+          }
+        />
+        <Input
+          type="hidden"
+          id="categories"
+          name="categories"
+          value={selectedCategories}
+        />
       </div>
 
       <div className="space-y-2">
@@ -92,7 +136,7 @@ export default function ProductForm({
         {error?.image && <ErrorMessage error={error.image} />}
       </div>
 
-      <SubmitButton />
+      <SubmitButton edit={product ? true : false} />
     </form>
   );
 }
