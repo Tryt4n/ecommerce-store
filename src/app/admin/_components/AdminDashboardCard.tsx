@@ -35,6 +35,7 @@ export default function AdminDashboardCard({
           <DateRangeDropdownMenu
             className="absolute right-4 top-2.5"
             queryKey={queryKey}
+            defaultRangeLabel="Last 7 days"
           />
         )}
       </CardHeader>
