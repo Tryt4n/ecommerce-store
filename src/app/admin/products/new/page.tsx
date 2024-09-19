@@ -8,7 +8,7 @@ export default async function AdminNewProductPage() {
 
   return (
     <>
-      <AdminPageHeader>Add Product</AdminPageHeader>
+      <AdminPageHeader withDateRange={false}>Add Product</AdminPageHeader>
 
       <ProductForm categories={productCategories} />
     </>
