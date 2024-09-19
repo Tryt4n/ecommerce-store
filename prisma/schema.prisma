@@ -27,11 +27,12 @@ model Product {
 }
 
 model Category {
-  id        String            @id @default(uuid())
-  name      String            @unique
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  products  ProductCategory[]
+  id            String            @id @default(uuid())
+  name          String            @unique
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  products      ProductCategory[]
+  discountCodes DiscountCode[]    @relation("DiscountCodeCategories")
 }
 
 model ProductCategory {
@@ -85,6 +86,7 @@ model DiscountCode {
   limit          Int?
   expiresAt      DateTime?
   products       Product[]
+  categories     Category[]       @relation("DiscountCodeCategories")
   orders         Order[]
 }
 
