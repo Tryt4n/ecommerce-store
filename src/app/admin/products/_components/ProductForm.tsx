@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useFormState } from "react-dom";
 import { formatCurrency } from "@/lib/formatters";
-import { addProduct, updateProduct } from "../../_actions/products";
+import { addProduct, updateProduct } from "../_actions/products";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
