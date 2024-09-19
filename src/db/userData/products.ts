@@ -53,10 +53,20 @@ export async function getProduct(id: Product["id"]) {
         isAvailableForPurchase: true,
         filePath: true,
         imagePath: true,
+        categories: {
+          select: { category: { select: { name: true } } },
+        },
       },
     });
 
-    return product;
+    if (!product) return null;
+
+    const productWithFilteredCategories = {
+      ...product,
+      categories: product?.categories.map((category) => category.category.name),
+    };
+
+    return productWithFilteredCategories;
   } catch (error) {
     console.error(`Can't get product. Error: ${error}`);
   }
