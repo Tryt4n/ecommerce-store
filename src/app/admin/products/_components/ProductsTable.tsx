@@ -44,6 +44,7 @@ export default function ProductsTable() {
             className="text-center"
             sortingFn={() => sortProducts("priceInCents", "asc")}
           />
+          <TableHead className="text-center">Categories</TableHead>
           <TableHeadSortingButton
             title="Orders"
             className="text-center"
@@ -78,6 +79,10 @@ export default function ProductsTable() {
 
             <TableCell align="center" className="text-nowrap">
               {formatCurrency(product.priceInCents / 100)}
+            </TableCell>
+
+            <TableCell align="center" className="w-full text-nowrap capitalize">
+              {product.categories.map((item) => item.category.name).join(", ")}
             </TableCell>
 
             <TableCell align="center" className="text-nowrap">
