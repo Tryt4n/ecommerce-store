@@ -110,6 +110,17 @@ export default function DiscountCodesTable({
               )
             }
           />
+          <TableHeadSortingButton
+            title="Categories"
+            className="text-center"
+            sortingFn={() =>
+              sortDiscountCodes(
+                "categories" as NestedKeyOf<(typeof discountCodes)[number]>,
+                "desc",
+                discountCodes as unknown as typeof data
+              )
+            }
+          />
           <TableHead className="w-0">
             <span className="sr-only">Actions</span>
           </TableHead>
@@ -169,6 +180,14 @@ export default function DiscountCodesTable({
                 <Globe />
               ) : (
                 discount.products.map((product) => product.name).join(", ")
+              )}
+            </TableCell>
+
+            <TableCell align="center" width="100%" className="capitalize">
+              {discount.categories.length > 0 ? (
+                discount.categories.map((category) => category.name).join(", ")
+              ) : (
+                <Minus />
               )}
             </TableCell>
 
