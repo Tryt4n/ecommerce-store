@@ -19,9 +19,15 @@ export async function createDiscountCode(
         discountAmount: data.discountAmount,
         discountType: data.discountType,
         allProducts: data.allProducts,
+        // Connect all products
         products:
           data.productIds != null
             ? { connect: data.productIds.map((id) => ({ id })) }
+            : undefined,
+        // Connect all categories
+        categories:
+          data.categories != null
+            ? { connect: data.categories.map((name) => ({ name })) }
             : undefined,
         expiresAt: data.expiresAt,
         limit: data.limit,
@@ -50,6 +56,7 @@ const SELECT_FIELDS: Prisma.DiscountCodeSelect = {
   uses: true,
   isActive: true,
   products: { select: { name: true, id: true }, orderBy: { name: "asc" } },
+  categories: { select: { name: true, id: true }, orderBy: { name: "asc" } },
   _count: { select: { orders: true } },
 };
 
@@ -134,25 +141,30 @@ export async function updateDiscountCode(
   >
 ) {
   try {
-    const { productIds, ...restData } = data;
+    const { productIds, categories, ...restData } = data;
 
     return await db.$transaction([
-      // Disconnect all existing products
+      // Disconnect all existing products and categories
       db.discountCode.update({
         where: { id },
         data: {
           products: { set: [] },
+          categories: { set: [] },
         },
       }),
-      // Update the discount code with new data and connect new products
+      // Update the discount code with new data and connect new products and categories
       db.discountCode.update({
         where: { id },
         data: {
           ...restData,
           products: data.allProducts
             ? undefined
-            : productIds != null
+            : productIds && productIds.length > 0
               ? { connect: productIds.map((id) => ({ id })) }
+              : undefined,
+          categories:
+            categories && categories.length > 0
+              ? { connect: categories.map((name) => ({ name })) }
               : undefined,
         },
       }),
