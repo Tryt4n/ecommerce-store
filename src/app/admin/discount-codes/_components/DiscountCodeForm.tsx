@@ -9,19 +9,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import MultipleSelector from "@/components/ui/multiple-selector";
 import ErrorMessage from "@/components/ErrorMessage";
 import SubmitButton from "@/components/SubmitButton";
 import type { getAllProducts } from "@/db/adminData/products";
 import type { getDiscountCode } from "@/db/adminData/discountCodes";
+import type { getCategories } from "@/db/userData/categories";
 
 type DiscountCodeFormProps = {
   products: Awaited<ReturnType<typeof getAllProducts>>;
   discountCode?: NonNullable<Awaited<ReturnType<typeof getDiscountCode>>>;
+  categories?: Awaited<ReturnType<typeof getCategories>>;
 };
 
 export default function DiscountCodeForm({
   products,
   discountCode,
+  categories,
 }: DiscountCodeFormProps) {
   const [error, action] = useFormState(
     discountCode
@@ -32,13 +36,24 @@ export default function DiscountCodeForm({
   const [allProducts, setAllProducts] = useState<boolean>(
     discountCode?.allProducts ?? true
   );
+  const [selectedProducts, setSelectedProducts] = useState(
+    discountCode?.products.map((product) => ({
+      id: product.id,
+      name: product.name,
+    }))
+  );
+
+  const [selectedCategories, setSelectedCategories] = useState<
+    DiscountCodeFormProps["categories"]
+  >(discountCode?.categories?.map((category) => category.name));
+
   const today = new Date();
   today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
 
   const isAlreadyUsed = discountCode && discountCode?.uses > 0 ? true : false;
 
   return (
-    <form action={action} className="space-y-8 overflow-y-hidden px-1">
+    <form action={action} className="space-y-8 px-1">
       <div className="space-y-2">
         <Label htmlFor="code">Code</Label>
         <Input
@@ -152,41 +167,113 @@ export default function DiscountCodeForm({
         </div>
       </fieldset>
 
-      <fieldset className="space-y-2">
-        <legend>Allowed Products</legend>
-        {error?.allProducts && <ErrorMessage error={error.allProducts} />}
-        {error?.productIds && <ErrorMessage error={error.productIds} />}
+      <div className="flex flex-col gap-8 lg:flex-row lg:justify-between">
+        <fieldset className="flex-grow space-y-2">
+          <legend>Allowed Products</legend>
 
-        <div className="max-h-96 space-y-2 overflow-y-auto py-2">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="allProducts"
-              name="allProducts"
-              checked={allProducts}
-              onCheckedChange={(e) => setAllProducts(e === true)}
-            />
-            <Label htmlFor="allProducts">All Products</Label>
+          <div className="flex flex-row items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="allProducts"
+                name="allProducts"
+                checked={allProducts}
+                disabled={selectedCategories && selectedCategories.length > 0}
+                onCheckedChange={(e) => setAllProducts(e === true)}
+              />
+              <Label htmlFor="allProducts">All Products</Label>
+            </div>
+
+            {products && (
+              <div className="flex-grow">
+                <MultipleSelector
+                  disabled={
+                    allProducts ||
+                    (selectedCategories && selectedCategories.length > 0)
+                  }
+                  defaultOptions={products.map((product) => ({
+                    label: product.name,
+                    value: product.id,
+                  }))}
+                  placeholder={
+                    allProducts
+                      ? `Disabled when "All Products" is enabled.`
+                      : "Select the products for which the coupon will be valid."
+                  }
+                  commandProps={{ className: "capitalize" }}
+                  hidePlaceholderWhenSelected
+                  value={selectedProducts?.map((product) => ({
+                    label: product.name,
+                    value: product.id,
+                  }))}
+                  onChange={(selected) =>
+                    setSelectedProducts(
+                      selected.map((product) => ({
+                        id: product.value,
+                        name: product.label,
+                      }))
+                    )
+                  }
+                  emptyIndicator={
+                    <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                      no results found.
+                    </p>
+                  }
+                />
+                <Input
+                  type="hidden"
+                  name="productIds"
+                  id="productIds"
+                  value={selectedProducts?.map((product) => product.id)}
+                />
+              </div>
+            )}
           </div>
 
-          {products &&
-            products.map((product) => (
-              <div key={product.id} className="flex items-center gap-2">
-                <Checkbox
-                  id={product.id}
-                  name="productIds"
-                  disabled={allProducts}
-                  value={product.id}
-                  defaultChecked={discountCode?.products.some(
-                    (p) => p.id === product.id
-                  )}
-                />
-                <Label htmlFor={product.id}>{product.name}</Label>
-              </div>
-            ))}
-        </div>
-      </fieldset>
+          {error?.allProducts && <ErrorMessage error={error.allProducts} />}
+          {error?.productIds && <ErrorMessage error={error.productIds} />}
+        </fieldset>
 
-      <SubmitButton className="w-full text-base" size={"lg"} edit />
+        <fieldset className="flex-grow space-y-2">
+          <legend>Allowed Categories</legend>
+
+          <MultipleSelector
+            defaultOptions={categories?.map((category) => ({
+              label: category,
+              value: category,
+            }))}
+            placeholder="Select the categories for which the coupon will be valid."
+            commandProps={{ className: "capitalize" }}
+            hidePlaceholderWhenSelected
+            creatable
+            value={selectedCategories?.map((category) => ({
+              label: category,
+              value: category,
+            }))}
+            onChange={(selected) =>
+              setSelectedCategories(selected.map((category) => category.value))
+            }
+            emptyIndicator={
+              <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                no results found.
+              </p>
+            }
+          />
+          <Input
+            type="hidden"
+            id="categories"
+            name="categories"
+            value={selectedCategories}
+          />
+
+          {error?.categories && <ErrorMessage error={error.categories} />}
+        </fieldset>
+      </div>
+
+      <SubmitButton
+        className="w-full text-base"
+        size={"lg"}
+        edit={discountCode ? true : false}
+      />
     </form>
   );
 }
