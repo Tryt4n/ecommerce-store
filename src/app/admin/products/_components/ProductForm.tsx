@@ -14,11 +14,12 @@ import MultipleSelector, {
 } from "@/components/ui/multiple-selector";
 import Image from "next/image";
 import type { Category, Product } from "@prisma/client";
+import type { getCategories } from "@/db/userData/categories";
 
 type ProductFormProps = {
   product?: Partial<Product> &
     NonNullable<Pick<Product, "id">> & { categories: Category["name"][] };
-  categories?: string[];
+  categories?: Awaited<ReturnType<typeof getCategories>>;
 };
 
 export default function ProductForm({ product, categories }: ProductFormProps) {
