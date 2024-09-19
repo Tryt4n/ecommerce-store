@@ -13,6 +13,7 @@ export const addDiscountSchema = z
     discountType: z.nativeEnum(DiscountCodeType),
     allProducts: z.coerce.boolean(),
     productIds: z.array(z.string()).optional(),
+    categories: z.array(z.string()).optional(),
     expiresAt: z.preprocess(
       (value) => (value === "" ? undefined : value),
       z.coerce.date().min(new Date()).optional()
