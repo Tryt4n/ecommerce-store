@@ -8,18 +8,23 @@ import {
 import { editProductSchema, productAddSchema } from "@/lib/zod/productSchema";
 import { getProduct } from "@/db/userData/products";
 
+type FormDataEntries = {
+  [key: string]: FormDataEntryValue | string[];
+};
+
 export async function addProduct(prevState: unknown, formData: FormData) {
-  const result = productAddSchema.safeParse(
-    Object.fromEntries(formData.entries())
-  );
+  const data: FormDataEntries = Object.fromEntries(formData.entries());
+  if (typeof data.categories === "string") {
+    data.categories = data.categories.split(",");
+  }
+
+  const result = productAddSchema.safeParse(data);
 
   if (result.success === false) {
     return result.error.formErrors.fieldErrors;
   }
 
-  const data = result.data;
-
-  await createProduct(data).then(() => {
+  await createProduct(result.data).then(() => {
     redirect("/admin/products");
   });
 }
@@ -29,20 +34,22 @@ export async function updateProduct(
   prevState: unknown,
   formData: FormData
 ) {
-  const result = editProductSchema.safeParse(
-    Object.fromEntries(formData.entries())
-  );
+  const data: FormDataEntries = Object.fromEntries(formData.entries());
+  if (typeof data.categories === "string") {
+    data.categories = data.categories.split(",");
+  }
+
+  const result = editProductSchema.safeParse(data);
 
   if (result.success === false) {
     return result.error.formErrors.fieldErrors;
   }
 
-  const data = result.data;
   const product = await getProduct(id);
 
   if (product == null) return notFound();
 
-  await updateProductInDB(data, product).then(() => {
+  await updateProductInDB(result.data, product).then(() => {
     redirect("/admin/products");
   });
 }
