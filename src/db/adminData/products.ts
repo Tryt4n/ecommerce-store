@@ -9,6 +9,7 @@ import type {
   productAddSchema,
 } from "@/lib/zod/productSchema";
 import { getCreatedAtQuery } from "@/lib/dashboardDataHelpers";
+import { getCategoryIds } from "../userData/categories";
 import type { z } from "zod";
 import type { Prisma, Product } from "@prisma/client";
 import type { SortingType } from "@/types/sort";
@@ -35,6 +36,10 @@ export async function getAllProducts(
         description: true,
         filePath: true,
         imagePath: true,
+        categories: {
+          select: { category: { select: { name: true } } },
+          orderBy: { category: { name: "asc" } },
+        },
         _count: { select: { orders: true } },
       },
       orderBy: { [orderBy]: type },
@@ -66,15 +71,26 @@ export async function createProduct(data: z.infer<typeof productAddSchema>) {
       Buffer.from(await data.image.arrayBuffer())
     );
 
-    await db.product.create({
-      data: {
-        isAvailableForPurchase: false,
-        name: data.name,
-        description: data.description,
-        priceInCents: data.priceInCents,
-        filePath,
-        imagePath,
-      },
+    await db.$transaction(async (tx) => {
+      // Find all categories IDs
+      const categoryIds = await getCategoryIds(tx, data.categories);
+
+      // Create the product
+      await tx.product.create({
+        data: {
+          isAvailableForPurchase: false,
+          name: data.name,
+          description: data.description,
+          priceInCents: data.priceInCents,
+          filePath,
+          imagePath,
+          categories: {
+            create: categoryIds.map((categoryId) => ({
+              categoryId,
+            })),
+          },
+        },
+      });
     });
 
     revalidatePath("/");
@@ -86,10 +102,11 @@ export async function createProduct(data: z.infer<typeof productAddSchema>) {
 
 export async function updateProduct(
   data: z.infer<typeof editProductSchema>,
-  product: Partial<Product> & {
-    filePath: NonNullable<Product["filePath"]>;
-    imagePath: NonNullable<Product["imagePath"]>;
-  }
+  product: Partial<Product> &
+    Required<Pick<Product, "id">> & {
+      filePath: NonNullable<Product["filePath"]>;
+      imagePath: NonNullable<Product["imagePath"]>;
+    }
 ) {
   try {
     let filePath = product.filePath;
@@ -110,15 +127,68 @@ export async function updateProduct(
       );
     }
 
-    await db.product.update({
-      where: { id: product.id },
-      data: {
-        name: data.name,
-        description: data.description,
-        priceInCents: data.priceInCents,
-        filePath,
-        imagePath,
-      },
+    await db.$transaction(async (tx) => {
+      // Find current product categories
+      const currentCategories = await tx.productCategory.findMany({
+        where: { productId: product.id },
+        select: { category: { select: { name: true } } },
+      });
+
+      const currentCategoryNames = currentCategories.map(
+        (category) => category.category.name
+      );
+
+      // Create a set of new categories
+      const newCategoryNames = data.categories;
+
+      // Add new categories that are not yet assigned to the product
+      const categoriesToAdd = newCategoryNames.filter(
+        (name) => !currentCategoryNames.includes(name)
+      );
+
+      // Find all categories IDs
+      const categoryIdsToAdd = await getCategoryIds(tx, categoriesToAdd);
+
+      // Assign new categories to the product
+      await Promise.all(
+        categoryIdsToAdd.map((categoryId) =>
+          tx.productCategory.create({
+            data: {
+              productId: product.id,
+              categoryId,
+            },
+          })
+        )
+      );
+
+      // Remove categories that are no longer assigned to the product
+      const categoriesToRemove = currentCategoryNames.filter(
+        (name) => !newCategoryNames.includes(name)
+      );
+
+      // Remove categories from the product
+      await Promise.all(
+        categoriesToRemove.map((categoryName) =>
+          tx.productCategory.deleteMany({
+            where: {
+              productId: product.id,
+              category: { name: categoryName },
+            },
+          })
+        )
+      );
+
+      // Update the product
+      await tx.product.update({
+        where: { id: product.id },
+        data: {
+          name: data.name,
+          description: data.description,
+          priceInCents: data.priceInCents,
+          filePath,
+          imagePath,
+        },
+      });
     });
 
     revalidatePath("/");
