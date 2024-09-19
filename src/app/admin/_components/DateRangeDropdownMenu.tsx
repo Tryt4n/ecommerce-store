@@ -21,11 +21,13 @@ import type { DateRange } from "react-day-picker";
 type DateRangeDropdownMenuProps = {
   queryKey: string;
   className?: ComponentProps<typeof DropdownMenuTrigger>["className"];
+  defaultRangeLabel?: (typeof RANGE_OPTIONS)[keyof typeof RANGE_OPTIONS]["label"];
 };
 
 export default function DateRangeDropdownMenu({
   queryKey,
   className,
+  defaultRangeLabel = "All time",
 }: DateRangeDropdownMenuProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -77,7 +79,7 @@ export default function DateRangeDropdownMenu({
     currentRangeTo
   );
 
-  const label = rangeOptions?.label || RANGE_OPTIONS.last_7_days.label;
+  const label = rangeOptions?.label || defaultRangeLabel;
 
   return (
     <DropdownMenu>
