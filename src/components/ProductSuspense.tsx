@@ -21,6 +21,7 @@ export default async function ProductSuspense({
           priceInCents={product.priceInCents}
           description={product.description}
           imagePath={product.imagePath}
+          categories={product.categories}
         />
       ))}
     </>
