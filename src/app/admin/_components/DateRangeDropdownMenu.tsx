@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import type { DateRange } from "react-day-picker";
+import { ChevronDown } from "lucide-react";
 
 type DateRangeDropdownMenuProps = {
   queryKey: string;
@@ -84,7 +85,10 @@ export default function DateRangeDropdownMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className={className}>
-        <Button variant="outline">{label}</Button>
+        <Button variant="outline" className="flex gap-2">
+          <span>{label}</span>
+          <ChevronDown size={16} />
+        </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent>
