@@ -13,21 +13,25 @@ export async function createDiscountCode(
   data: z.infer<typeof addDiscountSchema>
 ) {
   try {
+    const { productIds, categories } = data;
+
     return await db.discountCode.create({
       data: {
         code: data.code,
         discountAmount: data.discountAmount,
         discountType: data.discountType,
-        allProducts: data.allProducts,
+        // Make sure allProducts is false if categories are selected
+        allProducts:
+          categories && categories.length > 0 ? false : data.allProducts,
         // Connect all products
         products:
-          data.productIds != null
-            ? { connect: data.productIds.map((id) => ({ id })) }
+          productIds != null
+            ? { connect: productIds.map((id) => ({ id })) }
             : undefined,
         // Connect all categories
         categories:
-          data.categories != null
-            ? { connect: data.categories.map((name) => ({ name })) }
+          categories != null
+            ? { connect: categories.map((name) => ({ name })) }
             : undefined,
         expiresAt: data.expiresAt,
         limit: data.limit,
@@ -157,6 +161,8 @@ export async function updateDiscountCode(
         where: { id },
         data: {
           ...restData,
+          allProducts:
+            categories && categories.length > 0 ? false : data.allProducts,
           products: data.allProducts
             ? undefined
             : productIds && productIds.length > 0
