@@ -156,7 +156,9 @@ export default function StripePaymentForm({
                     "coupon",
                     discountCodeRef.current?.value.trim() || ""
                   );
-                  router.push(`${pathname}?${params.toString()}`);
+                  router.push(`${pathname}?${params.toString()}`, {
+                    scroll: false,
+                  });
                 }}
               >
                 Apply
