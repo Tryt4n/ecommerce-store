@@ -3,11 +3,18 @@ import ProductsSectionHeader from "./ProductsSectionHeader";
 import ListGrid from "@/layout/ListGrid";
 import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import ProductSuspense from "@/components/ProductSuspense";
-import type { Product } from "@prisma/client";
+import type {
+  getAllAvailableForPurchaseProducts,
+  getMostPopularProducts,
+  getNewestProducts,
+} from "@/db/userData/products";
 
 type ProductsGridSectionProps = {
   title: string;
-  productsFetcher: () => Promise<Product[] | undefined>;
+  productsFetcher:
+    | typeof getMostPopularProducts
+    | typeof getNewestProducts
+    | typeof getAllAvailableForPurchaseProducts;
 };
 
 export default function ProductsGridSection({
