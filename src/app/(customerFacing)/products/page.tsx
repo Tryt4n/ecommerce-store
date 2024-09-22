@@ -1,9 +1,8 @@
-import React, { Suspense, type ComponentProps } from "react";
+import React, { Suspense } from "react";
 import ListGrid from "@/layout/ListGrid";
 import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import ProductSuspense from "@/components/ProductSuspense";
 import { getAllAvailableForPurchaseProducts } from "@/db/userData/products";
-import type ProductsGridSection from "../_components/ProductsGridSection";
 
 export default function ProductsPage() {
   return (
@@ -27,11 +26,7 @@ export default function ProductsPage() {
             }
           >
             <ProductSuspense
-              productsFetcher={
-                getAllAvailableForPurchaseProducts as ComponentProps<
-                  typeof ProductsGridSection
-                >["productsFetcher"] // type assertion because `getAllAvailableForPurchaseProducts` is not assignable to type `() => Promise<Product[] | undefined>` but it has the same signature and all required properties
-              }
+              productsFetcher={getAllAvailableForPurchaseProducts}
             />
           </Suspense>
         </ListGrid>
