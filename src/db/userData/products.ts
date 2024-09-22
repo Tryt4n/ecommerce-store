@@ -8,13 +8,16 @@ import type { SortingType } from "@/types/sort";
 export const getMostPopularProducts = cache(
   async (numberOfProducts: number = 6) => {
     try {
-      const products = db.product.findMany({
+      const products = await db.product.findMany({
         where: { isAvailableForPurchase: true },
         orderBy: { orders: { _count: "desc" } },
         take: numberOfProducts,
+        include: {
+          categories: { select: { category: { select: { name: true } } } },
+        },
       });
 
-      return products;
+      return filterProductCategories(products);
     } catch (error) {
       console.error(`Can't get most popular products. Error: ${error}`);
     }
@@ -26,13 +29,16 @@ export const getMostPopularProducts = cache(
 export const getNewestProducts = cache(
   async (numberOfProducts: number = 6) => {
     try {
-      const products = db.product.findMany({
+      const products = await db.product.findMany({
         where: { isAvailableForPurchase: true },
         orderBy: { createdAt: "desc" },
         take: numberOfProducts,
+        include: {
+          categories: { select: { category: { select: { name: true } } } },
+        },
       });
 
-      return products;
+      return filterProductCategories(products);
     } catch (error) {
       console.error(`Can't get newest products. Error: ${error}`);
     }
@@ -61,12 +67,7 @@ export async function getProduct(id: Product["id"]) {
 
     if (!product) return null;
 
-    const productWithFilteredCategories = {
-      ...product,
-      categories: product?.categories.map((category) => category.category.name),
-    };
-
-    return productWithFilteredCategories;
+    return filterProductCategories([product])[0];
   } catch (error) {
     console.error(`Can't get product. Error: ${error}`);
   }
@@ -86,14 +87,24 @@ export const getAllAvailableForPurchaseProducts = cache(
           filePath: true,
           imagePath: true,
           _count: { select: { orders: true } },
+          categories: { select: { category: { select: { name: true } } } },
         },
         orderBy: { [orderBy]: type },
       });
 
-      return products;
+      return filterProductCategories(products);
     } catch (error) {
       console.error(`Can't get products. Error: ${error}`);
     }
   },
   ["/products", "getAllAvailableForPurchaseProducts"]
 );
+
+function filterProductCategories<
+  T extends { categories: { category: { name: string } }[] },
+>(products: T[]) {
+  return products.map((product) => ({
+    ...product,
+    categories: product.categories.map((category) => category.category.name),
+  }));
+}
