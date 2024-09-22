@@ -176,7 +176,7 @@ export default function DiscountCodesTable({
             </TableCell>
 
             <TableCell align="center" width="100%">
-              {discount.allProducts ? (
+              {discount.allProducts || discount.categories.length > 0 ? (
                 <Globe />
               ) : (
                 discount.products.map((product) => product.name).join(", ")
