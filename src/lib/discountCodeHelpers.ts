@@ -1,12 +1,28 @@
 import db from "@/db/init";
 import type { DiscountCode, Prisma, Product } from "@prisma/client";
 
-export function usableDiscountCodeWhere(productId: Product["id"]) {
+export function usableDiscountCodeWhere(
+  productId: Product["id"],
+  productCategories: string[]
+) {
   return {
     isActive: true,
     AND: [
       {
-        OR: [{ allProducts: true }, { products: { some: { id: productId } } }],
+        OR: [
+          { categories: { some: { name: { in: productCategories } } } },
+          {
+            AND: [
+              { allProducts: true },
+              {
+                NOT: {
+                  categories: { some: { name: { in: productCategories } } },
+                },
+              },
+            ],
+          },
+          { products: { some: { id: productId } } },
+        ],
       },
       {
         OR: [{ limit: null }, { limit: { gt: db.discountCode.fields.uses } }],

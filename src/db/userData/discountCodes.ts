@@ -6,11 +6,15 @@ import type { DiscountCode, Product } from "@prisma/client";
 
 export async function checkDiscountCode(
   coupon: DiscountCode["code"],
-  productId: Product["id"]
+  productId: Product["id"],
+  productCategories: string[]
 ) {
   try {
     return await db.discountCode.findUnique({
-      where: { ...usableDiscountCodeWhere(productId), code: coupon },
+      where: {
+        ...usableDiscountCodeWhere(productId, productCategories),
+        code: coupon,
+      },
       select: {
         id: true,
         code: true,

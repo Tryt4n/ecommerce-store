@@ -73,7 +73,11 @@ export async function createPaymentIntent(
 
   const discountCode =
     discountCouponCode &&
-    (await checkDiscountCode(discountCouponCode, product.id));
+    (await checkDiscountCode(
+      discountCouponCode,
+      product.id,
+      product.categories
+    ));
   if (!discountCode == null && discountCouponCode != null) {
     return { error: "Coupon has expired." };
   }
