@@ -10,7 +10,7 @@ import {
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { formatCurrency } from "@/lib/formatters";
-import type { Product } from "@prisma/client";
+import type { Category, Product } from "@prisma/client";
 
 type ProductCardProps = {
   id: Product["id"];
@@ -18,6 +18,7 @@ type ProductCardProps = {
   priceInCents: Product["priceInCents"];
   description: Product["description"];
   imagePath: Product["imagePath"];
+  categories: Category["name"][];
 };
 
 export default function ProductCard({
@@ -26,6 +27,7 @@ export default function ProductCard({
   priceInCents,
   description,
   imagePath,
+  categories,
 }: ProductCardProps) {
   return (
     <li className="overflow-hidden">
@@ -36,6 +38,9 @@ export default function ProductCard({
 
         <CardHeader>
           <CardTitle>{name}</CardTitle>
+          <CardDescription className="capitalize">
+            {`${categories.length > 1 ? "Categories" : "Category"}: ${categories.join(" / ")}`}
+          </CardDescription>
           <CardDescription>
             {formatCurrency(priceInCents / 100)}
           </CardDescription>
