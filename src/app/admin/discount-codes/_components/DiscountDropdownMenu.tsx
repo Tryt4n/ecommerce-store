@@ -53,7 +53,7 @@ export default function DiscountDropdownMenu({
 
         <DeleteDropdownItem
           id={discount.id}
-          disabled={discount._count.orders > 0}
+          disabled={discount.uses > 0}
           promiseFn={deleteDiscountCode}
         />
       </DropdownMenuContent>
