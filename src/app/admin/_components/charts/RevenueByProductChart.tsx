@@ -30,7 +30,7 @@ export default function RevenueByProductChart({
           </PieChart>
         </ResponsiveContainer>
       ) : (
-        <p>No data found</p>
+        <p className="text-center">No data found</p>
       )}
     </>
   );
