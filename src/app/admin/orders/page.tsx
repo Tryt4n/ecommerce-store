@@ -5,7 +5,7 @@ import OrdersTable from "./_components/OrdersTable";
 export default function AdminOrdersPage() {
   return (
     <>
-      <AdminPageHeader>Sales</AdminPageHeader>
+      <AdminPageHeader searchable>Sales</AdminPageHeader>
       <OrdersTable />
     </>
   );

@@ -6,6 +6,7 @@ export default function AdminProductsPage() {
   return (
     <>
       <AdminPageHeader
+        searchable
         withLink={{ label: "Add Product", href: "/admin/products/new" }}
       >
         Products

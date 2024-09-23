@@ -5,7 +5,7 @@ import UsersTable from "./_components/UsersTable";
 export default function AdminUsersPage() {
   return (
     <>
-      <AdminPageHeader>Customers</AdminPageHeader>
+      <AdminPageHeader searchable>Customers</AdminPageHeader>
       <UsersTable />
     </>
   );
