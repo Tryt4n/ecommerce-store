@@ -5,6 +5,7 @@ import { useAdminContext } from "../../_hooks/useAdminContext";
 import DiscountCodesTable from "../_components/DiscountCodesTable";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import type { getDiscountCodes } from "@/db/adminData/discountCodes";
+import { Separator } from "@/components/ui/separator";
 
 export default function DiscountCodesSections() {
   const { data: discountCodes } = useAdminContext<typeof getDiscountCodes>();
@@ -18,32 +19,34 @@ export default function DiscountCodesSections() {
   }
 
   return (
-    <>
+    <div className="my-8">
       <section>
-        <h2 className="sr-only">Active Coupons</h2>
+        <h2 className="mb-4 text-2xl">Active Coupons</h2>
 
-        {discountCodes?.unexpiredDiscountCodes ? (
+        {discountCodes?.unexpiredDiscountCodes.length > 0 ? (
           <DiscountCodesTable
             discountCodes={discountCodes.unexpiredDiscountCodes}
             canDeactivate
           />
         ) : (
-          <p>No active coupons</p>
+          <p className="text-center">No active coupons</p>
         )}
       </section>
 
-      <section className="mt-8">
+      <Separator className="my-10 -ml-[2.5%] w-[105%]" />
+
+      <section>
         <h2 className="mb-4 text-2xl">Expired Coupons</h2>
 
-        {discountCodes?.expiredDiscountCodes ? (
+        {discountCodes?.expiredDiscountCodes.length > 0 ? (
           <DiscountCodesTable
             discountCodes={discountCodes.expiredDiscountCodes}
             isInactive
           />
         ) : (
-          <p>No expired coupons</p>
+          <p className="text-center">No expired coupons</p>
         )}
       </section>
-    </>
+    </div>
   );
 }
