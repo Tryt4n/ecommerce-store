@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 export default function AdminPageHeader({
   children,
   withDateRange = true,
+  searchable,
   withLink,
 }: {
   children: React.ReactNode;
   withDateRange?: boolean;
+  searchable?: boolean;
   withLink?: { href: string; label: string };
 }) {
   return (
@@ -23,7 +25,7 @@ export default function AdminPageHeader({
       <div className="my-4 flex flex-row gap-4">
         {withDateRange && <DateRangeDropdownMenu queryKey="dateRange" />}
 
-        <SearchInput />
+        {searchable && <SearchInput />}
       </div>
     </>
   );
