@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import AdminDropdownMenu from "../../_components/AdminDropdownMenu";
 import TableHeadSortingButton from "../../_components/TableHeadSortingButton";
+import TextWithSearchOption from "@/components/TextWithSearchOption";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 export default function UsersTable() {
@@ -24,7 +25,8 @@ export default function UsersTable() {
     return <LoadingSpinner size={64} aria-label="Loading customers..." />;
   }
 
-  if (users?.length === 0 || !users) return <p>No customers found</p>;
+  if (users?.length === 0 || !users)
+    return <p className="text-center">No customers found</p>;
 
   return (
     <Table>
@@ -38,7 +40,7 @@ export default function UsersTable() {
           <TableHeadSortingButton
             title="Orders"
             className="text-center"
-            sortingFn={() => sortUsers("orders", "desc")}
+            sortingFn={() => sortUsers("ordersCount", "desc")}
           />
           <TableHeadSortingButton
             title="Value"
@@ -54,13 +56,22 @@ export default function UsersTable() {
       <TableBody>
         {users.map((user) => (
           <TableRow key={user.id}>
-            <TableCell align="center">{user.email}</TableCell>
             <TableCell align="center">
-              {formatNumber(user.orders?.length || 0)}
+              <TextWithSearchOption text={user.email} />
             </TableCell>
+
             <TableCell align="center">
-              {formatCurrency(user.ordersValue / 100)}
+              <TextWithSearchOption
+                text={formatNumber(user.ordersCount || 0)}
+              />
             </TableCell>
+
+            <TableCell align="center">
+              <TextWithSearchOption
+                text={formatCurrency(user.ordersValue / 100)}
+              />
+            </TableCell>
+
             <TableCell align="right">
               <AdminDropdownMenu
                 id={user.id}

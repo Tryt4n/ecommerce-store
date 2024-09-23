@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import TableHeadSortingButton from "../../_components/TableHeadSortingButton";
 import ProductDropdownMenu from "./ProductDropdownMenu";
+import TextWithSearchOption from "@/components/TextWithSearchOption";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import type { getAllProducts } from "@/db/adminData/products";
 
@@ -25,7 +26,7 @@ export default function ProductsTable() {
   }
 
   if (products.length === 0) {
-    return <p>No products found</p>;
+    return <p className="text-center">No products found</p>;
   }
 
   return (
@@ -74,19 +75,21 @@ export default function ProductsTable() {
             </TableCell>
 
             <TableCell align="left" className="text-nowrap">
-              {product.name}
+              <TextWithSearchOption text={product.name} />
             </TableCell>
 
             <TableCell align="center" className="text-nowrap">
-              {formatCurrency(product.priceInCents / 100)}
+              <TextWithSearchOption
+                text={formatCurrency(product.priceInCents / 100)}
+              />
             </TableCell>
 
             <TableCell align="center" className="w-full text-nowrap capitalize">
-              {product.categories.map((item) => item.category.name).join(", ")}
+              {product.categories.join(", ")}
             </TableCell>
 
             <TableCell align="center" className="text-nowrap">
-              {formatNumber(product._count)}
+              <TextWithSearchOption text={formatNumber(product._count)} />
             </TableCell>
 
             <TableCell

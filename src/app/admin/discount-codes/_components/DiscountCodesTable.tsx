@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import TableHeadSortingButton from "../../_components/TableHeadSortingButton";
 import DiscountDropdownMenu from "./DiscountDropdownMenu";
+import TextWithSearchOption from "@/components/TextWithSearchOption";
 import { Globe, Infinity, Minus } from "lucide-react";
 import type { getDiscountCodes } from "@/db/adminData/discountCodes";
 import type { NestedKeyOf } from "../../_context/AdminContext";
@@ -93,7 +94,7 @@ export default function DiscountCodesTable({
             className="text-center"
             sortingFn={() =>
               sortDiscountCodes(
-                "_count.orders" as NestedKeyOf<(typeof discountCodes)[number]>,
+                "uses" as NestedKeyOf<(typeof discountCodes)[number]>,
                 "desc",
                 discountCodes as unknown as typeof data
               )
@@ -104,7 +105,7 @@ export default function DiscountCodesTable({
             className="text-center"
             sortingFn={() =>
               sortDiscountCodes(
-                "allProducts" as NestedKeyOf<(typeof discountCodes)[number]>,
+                "products" as NestedKeyOf<(typeof discountCodes)[number]>,
                 "desc",
                 discountCodes as unknown as typeof data
               )
@@ -145,19 +146,23 @@ export default function DiscountCodesTable({
             </TableCell>
 
             <TableCell align="center" className="text-nowrap">
-              {discount.code}
+              <TextWithSearchOption text={discount.code} />
             </TableCell>
 
             <TableCell align="center" className="text-nowrap">
-              {formatDiscountCode(
-                discount.discountAmount,
-                discount.discountType
-              )}
+              <TextWithSearchOption
+                text={formatDiscountCode(
+                  discount.discountAmount,
+                  discount.discountType
+                )}
+              />
             </TableCell>
 
             <TableCell align="center" className="text-nowrap">
               {discount.expiresAt ? (
-                dateFormatter(discount.expiresAt)
+                <TextWithSearchOption
+                  text={dateFormatter(discount.expiresAt)}
+                />
               ) : (
                 <Minus />
               )}
@@ -165,27 +170,29 @@ export default function DiscountCodesTable({
 
             <TableCell align="center" className="text-nowrap">
               {discount.limit ? (
-                formatNumber(discount.limit - discount.uses)
+                <TextWithSearchOption
+                  text={formatNumber(discount.limit - discount.uses)}
+                />
               ) : (
                 <Infinity />
               )}
             </TableCell>
 
             <TableCell align="center" className="text-nowrap">
-              {formatNumber(discount._count.orders)}
+              <TextWithSearchOption text={formatNumber(discount.uses)} />
             </TableCell>
 
             <TableCell align="center" width="100%">
               {discount.allProducts || discount.categories.length > 0 ? (
                 <Globe />
               ) : (
-                discount.products.map((product) => product.name).join(", ")
+                <TextWithSearchOption text={discount.products.join(", ")} />
               )}
             </TableCell>
 
             <TableCell align="center" width="100%" className="capitalize">
               {discount.categories.length > 0 ? (
-                discount.categories.map((category) => category.name).join(", ")
+                <TextWithSearchOption text={discount.categories.join(", ")} />
               ) : (
                 <Minus />
               )}
