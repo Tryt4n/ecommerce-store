@@ -85,7 +85,7 @@ export default function ProductsTable() {
             </TableCell>
 
             <TableCell align="center" className="w-full text-nowrap capitalize">
-              {product.categories.join(", ")}
+              <TextWithSearchOption text={product.categories.join(", ")} />
             </TableCell>
 
             <TableCell align="center" className="text-nowrap">
