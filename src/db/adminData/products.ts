@@ -50,6 +50,7 @@ export async function getAllProducts(
     const transformedProducts = products.map((product) => ({
       ...product,
       _count: product._count.orders,
+      categories: product.categories.map((category) => category.category.name),
     }));
 
     return transformedProducts;

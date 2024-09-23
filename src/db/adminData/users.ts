@@ -35,19 +35,19 @@ export async function getUsers(
         email: true,
         orders: {
           select: {
-            id: true,
             pricePaidInCents: true,
-            product: true,
-            productId: true,
           },
         },
+        _count: { select: { orders: true } },
       },
       orderBy: { [orderBy]: type },
       where: { createdAt: createdAtQuery },
     });
 
     const usersOrdersValue = users.map((user) => ({
-      ...user,
+      id: user.id,
+      email: user.email,
+      ordersCount: user._count.orders,
       ordersValue: user.orders.reduce(
         (sum, order) => sum + order.pricePaidInCents,
         0

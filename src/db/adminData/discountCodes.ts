@@ -90,9 +90,31 @@ export async function getDiscountCodes(
         }),
       ]);
 
+    const mapDiscount = (
+      discount: Prisma.DiscountCodeGetPayload<{
+        select: typeof SELECT_FIELDS;
+      }>
+    ) => ({
+      id: discount.id,
+      code: discount.code,
+      discountAmount: discount.discountAmount,
+      discountType: discount.discountType,
+      allProducts: discount.allProducts,
+      expiresAt: discount.expiresAt,
+      limit: discount.limit,
+      uses: discount.uses,
+      isActive: discount.isActive,
+      products: discount.products.map((product) => product.name),
+      categories: discount.categories.map((category) => category.name),
+    });
+
+    const filteredUnexpiredDiscountCodes =
+      unexpiredDiscountCodes.map(mapDiscount);
+    const filteredExpiredDiscountCodes = expiredDiscountCodes.map(mapDiscount);
+
     return {
-      unexpiredDiscountCodes: unexpiredDiscountCodes,
-      expiredDiscountCodes: expiredDiscountCodes,
+      unexpiredDiscountCodes: filteredUnexpiredDiscountCodes,
+      expiredDiscountCodes: filteredExpiredDiscountCodes,
     };
   } catch (error) {
     console.error(`Error getting discount codes. Error: ${error}`);

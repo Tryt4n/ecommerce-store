@@ -19,20 +19,31 @@ export async function getOrders(
       createdAtQuery = getCreatedAtQuery(dateRange);
     }
 
-    return db.order.findMany({
+    const orders = await db.order.findMany({
       select: {
         id: true,
         createdAt: true,
         pricePaidInCents: true,
-        product: true,
+        product: { select: { name: true } },
         user: true,
         discountCode: {
-          select: { code: true, discountType: true, discountAmount: true },
+          select: { code: true },
         },
       },
       orderBy: { [orderBy]: type },
       where: { createdAt: createdAtQuery },
     });
+
+    const filteredOrders = orders.map((order) => ({
+      id: order.id,
+      createdAt: order.createdAt,
+      pricePaidInCents: order.pricePaidInCents,
+      productName: order.product.name,
+      userEmail: order.user.email,
+      discountCode: order.discountCode?.code,
+    }));
+
+    return filteredOrders;
   } catch (error) {
     console.error(`Can't get orders. Error: ${error}`);
   }
