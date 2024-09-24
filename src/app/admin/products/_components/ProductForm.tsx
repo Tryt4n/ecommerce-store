@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useFormState } from "react-dom";
+import { useToast } from "@/hooks/useToast";
 import { formatCurrency } from "@/lib/formatters";
 import { addProduct, updateProduct } from "../_actions/products";
 import { Input } from "@/components/ui/input";
@@ -9,10 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import SubmitButton from "@/components/SubmitButton";
 import ErrorMessage from "@/components/ErrorMessage";
-import MultipleSelector, {
-  type Option,
-} from "@/components/ui/multiple-selector";
-import Image from "next/image";
+import MultipleSelector from "@/components/ui/multiple-selector";
+import ImageUpload from "@/components/ImageUpload";
 import type { Category, Product } from "@prisma/client";
 import type { getCategories } from "@/db/userData/categories";
 
@@ -33,12 +32,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
   const [priceInCents, setPriceInCents] = useState<number | undefined>(
     product?.priceInCents
   );
-
-  const OPTIONS: Option[] =
-    categories?.map((category) => ({
-      label: category,
-      value: category,
-    })) || [];
+  const { toast } = useToast();
 
   return (
     <form action={action} className="space-y-8">
@@ -74,12 +68,22 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
 
       <div className="space-y-2">
         <MultipleSelector
-          defaultOptions={OPTIONS}
+          defaultOptions={
+            categories?.map((category) => ({
+              label: category,
+              value: category,
+            })) || []
+          }
           placeholder="Select product's categories"
           commandProps={{ className: "capitalize" }}
           hidePlaceholderWhenSelected
           maxSelected={3}
-          onMaxSelected={() => alert("You can only select up to 3 categories.")} //TODO: Add toast notification
+          onMaxSelected={() =>
+            toast({
+              variant: "default",
+              title: "You can only select up to 3 categories.",
+            })
+          }
           creatable
           value={selectedCategories?.map((category) => ({
             label: category,
@@ -94,6 +98,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
             </p>
           }
         />
+        {error?.categories && <ErrorMessage error={error.categories} />}
         <Input
           type="hidden"
           id="categories"
@@ -124,17 +129,8 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="image">Image</Label>
-        <Input type="file" name="image" id="image" required={product == null} />
-        {product != null && product.imagePath && (
-          <Image
-            src={product.imagePath}
-            alt="Current product image"
-            width="400"
-            height="400"
-          />
-        )}
-        {error?.image && <ErrorMessage error={error.image} />}
+        <ImageUpload productImages={product?.images} />
+        {error?.images && <ErrorMessage error={error.images} />}
       </div>
 
       <SubmitButton edit={product ? true : false} />
