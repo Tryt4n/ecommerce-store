@@ -8,20 +8,17 @@ import {
 import { editProductSchema, productAddSchema } from "@/lib/zod/productSchema";
 import { getProduct } from "@/db/userData/products";
 import type { FormDataEntries } from "@/types/formData";
+import type { z, ZodRawShape } from "zod";
 
 export async function addProduct(prevState: unknown, formData: FormData) {
-  const data: FormDataEntries = Object.fromEntries(formData.entries());
-  if (typeof data.categories === "string") {
-    data.categories = data.categories.split(",");
+  const data = processFormData(formData);
+  const validationResult = validateAndParseData(data, productAddSchema);
+
+  if ("error" in validationResult) {
+    return validationResult.error;
   }
 
-  const result = productAddSchema.safeParse(data);
-
-  if (result.success === false) {
-    return result.error.formErrors.fieldErrors;
-  }
-
-  await createProduct(result.data).then(() => {
+  await createProduct(validationResult.data).then(() => {
     redirect("/admin/products");
   });
 }
@@ -31,22 +28,45 @@ export async function updateProduct(
   prevState: unknown,
   formData: FormData
 ) {
-  const data: FormDataEntries = Object.fromEntries(formData.entries());
-  if (typeof data.categories === "string") {
-    data.categories = data.categories.split(",");
-  }
+  const data = processFormData(formData);
+  const validationResult = validateAndParseData(data, editProductSchema);
 
-  const result = editProductSchema.safeParse(data);
-
-  if (result.success === false) {
-    return result.error.formErrors.fieldErrors;
+  if ("error" in validationResult) {
+    return validationResult.error;
   }
 
   const product = await getProduct(id);
 
   if (product == null) return notFound();
 
-  await updateProductInDB(result.data, product).then(() => {
+  await updateProductInDB(validationResult.data, product).then(() => {
     redirect("/admin/products");
   });
+}
+
+function processFormData(formData: FormData): FormDataEntries {
+  const data: FormDataEntries = Object.fromEntries(formData.entries());
+
+  if (typeof data.categories === "string" && data.categories !== "") {
+    data.categories = data.categories.split(",");
+  }
+
+  if (typeof data.images === "string") {
+    data.images = data.images.split(",");
+  }
+
+  return data;
+}
+
+function validateAndParseData<T extends ZodRawShape>(
+  data: FormDataEntries,
+  schema: z.ZodObject<T>
+) {
+  const result = schema.safeParse(data);
+
+  if (result.success === false) {
+    return { error: result.error.formErrors.fieldErrors };
+  }
+
+  return { data: { ...result.data } };
 }
