@@ -1,9 +1,6 @@
 import { z } from "zod";
 
 const fileSchema = z.instanceof(File, { message: "Please select a file." });
-const imageSchema = fileSchema.refine(
-  (file) => file.size === 0 || file.type.startsWith("image/")
-);
 
 export const productAddSchema = z.object({
   name: z.string().min(1),
@@ -12,13 +9,19 @@ export const productAddSchema = z.object({
   file: fileSchema.refine((file) => file.size > 0, {
     message: "Please select a file.",
   }),
-  image: imageSchema.refine((file) => file.size > 0, {
-    message: "Please select a image.",
-  }),
-  categories: z.array(z.string()).nonempty().max(3),
+  images: z
+    .array(z.string(), {
+      message: "Upload at least one image for the product.",
+    })
+    .nonempty(),
+  categories: z
+    .array(z.string(), {
+      message: "You must select at least one category for the product.",
+    })
+    .nonempty()
+    .max(3),
 });
 
 export const editProductSchema = productAddSchema.extend({
   file: fileSchema.optional(),
-  image: imageSchema.optional(),
 });

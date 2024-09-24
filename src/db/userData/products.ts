@@ -59,6 +59,7 @@ export async function getProduct(id: Product["id"]) {
         isAvailableForPurchase: true,
         filePath: true,
         imagePath: true,
+        images: true,
         categories: {
           select: { category: { select: { name: true } } },
         },

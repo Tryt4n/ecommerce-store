@@ -65,13 +65,6 @@ export async function createProduct(data: z.infer<typeof productAddSchema>) {
     const filePath = `products/${crypto.randomUUID()}-${data.file.name}`;
     await fs.writeFile(filePath, Buffer.from(await data.file.arrayBuffer()));
 
-    await fs.mkdir("public/products", { recursive: true });
-    const imagePath = `/products/${crypto.randomUUID()}-${data.image.name}`;
-    await fs.writeFile(
-      `public${imagePath}`,
-      Buffer.from(await data.image.arrayBuffer())
-    );
-
     await db.$transaction(async (tx) => {
       // Find all categories IDs
       const categoryIds = await getCategoryIds(tx, data.categories);
@@ -84,7 +77,8 @@ export async function createProduct(data: z.infer<typeof productAddSchema>) {
           description: data.description,
           priceInCents: data.priceInCents,
           filePath,
-          imagePath,
+          imagePath: data.images[0],
+          images: data.images,
           categories: {
             create: categoryIds.map((categoryId) => ({
               categoryId,
@@ -107,25 +101,16 @@ export async function updateProduct(
     Required<Pick<Product, "id">> & {
       filePath: NonNullable<Product["filePath"]>;
       imagePath: NonNullable<Product["imagePath"]>;
+      images: NonNullable<Product["images"]>;
     }
 ) {
   try {
     let filePath = product.filePath;
-    let imagePath = product.imagePath;
 
     if (data.file != null && data.file.size > 0) {
       await fs.unlink(product.filePath);
       filePath = `products/${crypto.randomUUID()}-${data.file.name}`;
       await fs.writeFile(filePath, Buffer.from(await data.file.arrayBuffer()));
-    }
-
-    if (data.image != null && data.image.size > 0) {
-      await fs.unlink(`public${product.imagePath}`);
-      imagePath = `/products/${crypto.randomUUID()}-${data.image.name}`;
-      await fs.writeFile(
-        `public${imagePath}`,
-        Buffer.from(await data.image.arrayBuffer())
-      );
     }
 
     await db.$transaction(async (tx) => {
@@ -187,13 +172,15 @@ export async function updateProduct(
           description: data.description,
           priceInCents: data.priceInCents,
           filePath,
-          imagePath,
+          imagePath: data.images[0],
+          images: data.images,
         },
       });
     });
 
     revalidatePath("/");
     revalidatePath("/products");
+    revalidatePath(`/products/${product.id}`);
   } catch (error) {
     console.error(`Can't update product. Error: ${error}`);
   }
