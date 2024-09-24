@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import Image from "next/image";
+import Image from "./Image";
 import { Button } from "./ui/button";
 import { formatCurrency } from "@/lib/formatters";
 import type { Category, Product } from "@prisma/client";
@@ -33,7 +33,11 @@ export default function ProductCard({
     <li className="overflow-hidden">
       <Card className="flex h-full flex-col">
         <div className="relative aspect-video h-auto w-full">
-          <Image src={imagePath} fill alt={name} className="object-cover" />
+          <Image
+            src={imagePath}
+            alt={name}
+            transformation={[{ raw: "ar-16-9,w-500" }]}
+          />
         </div>
 
         <CardHeader>
