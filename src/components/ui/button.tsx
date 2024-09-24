@@ -59,8 +59,8 @@ const Button = React.forwardRef<
   return (
     <Comp
       className={cn(
-        buttonVariants({ variant, size, className }),
-        "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+        "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500",
+        buttonVariants({ variant, size, className })
       )}
       ref={ref}
       href={href}
