@@ -16,6 +16,7 @@ model Product {
   priceInCents           Int
   filePath               String
   imagePath              String
+  images                 String[]               @default([])
   description            String
   isAvailableForPurchase Boolean                @default(true)
   createdAt              DateTime               @default(now())
