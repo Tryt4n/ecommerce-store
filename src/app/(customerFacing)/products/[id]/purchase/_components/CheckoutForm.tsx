@@ -6,7 +6,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { getDiscountedAmount } from "@/lib/discountCodeHelpers";
 import { formatCurrency } from "@/lib/formatters";
 import StripePaymentForm from "./StripePaymentForm";
-import Image from "next/image";
+import Image from "@/components/Image";
 import type { checkDiscountCode } from "@/db/userData/discountCodes";
 import type { getProduct } from "@/db/userData/products";
 
@@ -35,12 +35,7 @@ export default function CheckoutForm({
     <div className="mx-auto max-w-5xl space-y-8">
       <section className="flex items-center gap-4">
         <div className="relative aspect-video w-1/3 flex-shrink-0">
-          <Image
-            src={product.imagePath}
-            fill
-            alt={product.name}
-            className="object-cover"
-          />
+          <Image src={product.imagePath} alt={product.name} />
         </div>
 
         <div>

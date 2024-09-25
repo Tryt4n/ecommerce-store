@@ -1,6 +1,6 @@
 import React from "react";
-import Image from "next/image";
 import Stripe from "stripe";
+import Image from "@/components/Image";
 import { notFound } from "next/navigation";
 import { getProduct } from "@/db/userData/products";
 import { Button } from "@/components/ui/button";
@@ -34,12 +34,7 @@ export default async function SuccessPurchasePage({
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="relative aspect-video w-full sm:w-1/3 sm:flex-shrink-0">
-            <Image
-              src={product.imagePath}
-              fill
-              alt={product.name}
-              className="object-cover"
-            />
+            <Image src={product.imagePath} alt={product.name} />
           </div>
 
           <div>
