@@ -1,10 +1,11 @@
 import React from "react";
 import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
+import type { UploadedImage } from "@/lib/imagekit/type";
 
 type SortableProps = {
-  items: string[];
-  setItems: React.Dispatch<React.SetStateAction<string[]>>;
+  items: UploadedImage[];
+  setItems: React.Dispatch<React.SetStateAction<UploadedImage[]>>;
   children: React.ReactNode;
 };
 
@@ -14,8 +15,12 @@ export default function Sortable({ items, setItems, children }: SortableProps) {
 
     if (over && active.id !== over.id) {
       setItems((items) => {
-        const oldIndex = items.indexOf(active.id.toString());
-        const newIndex = items.indexOf(over.id.toString());
+        const oldIndex = items.findIndex(
+          (item) => item.id === active.id.toString()
+        );
+        const newIndex = items.findIndex(
+          (item) => item.id === over.id.toString()
+        );
 
         return arrayMove(items, oldIndex, newIndex);
       });
@@ -24,7 +29,9 @@ export default function Sortable({ items, setItems, children }: SortableProps) {
 
   return (
     <DndContext onDragEnd={onDragEnd}>
-      <SortableContext items={items}>{children}</SortableContext>
+      <SortableContext items={items.map((item) => item.id)}>
+        {children}
+      </SortableContext>
     </DndContext>
   );
 }

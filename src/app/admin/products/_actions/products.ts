@@ -52,7 +52,7 @@ function processFormData(formData: FormData): FormDataEntries {
   }
 
   if (typeof data.images === "string") {
-    data.images = data.images.split(",");
+    data.images = JSON.parse(data.images);
   }
 
   return data;

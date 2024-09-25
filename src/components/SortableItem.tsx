@@ -4,16 +4,17 @@ import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "./ui/button";
+import type { UploadedImage } from "@/lib/imagekit/type";
 
 export default function SortableItem({
   item,
   children,
 }: {
-  item: string;
+  item: UploadedImage;
   children: React.ReactNode;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: item });
+    useSortable({ id: item.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
