@@ -14,6 +14,7 @@ import type { z } from "zod";
 import type { Prisma, Product } from "@prisma/client";
 import type { SortingType } from "@/types/sort";
 import type { DateRange } from "@/types/ranges";
+import type { UploadedImage } from "@/lib/imagekit/type";
 
 export async function getAllProducts(
   orderBy: keyof Product = "name",
@@ -77,8 +78,8 @@ export async function createProduct(data: z.infer<typeof productAddSchema>) {
           description: data.description,
           priceInCents: data.priceInCents,
           filePath,
-          imagePath: data.images[0],
-          images: data.images,
+          imagePath: data.images[0].url,
+          images: { create: data.images },
           categories: {
             create: categoryIds.map((categoryId) => ({
               categoryId,
@@ -101,7 +102,7 @@ export async function updateProduct(
     Required<Pick<Product, "id">> & {
       filePath: NonNullable<Product["filePath"]>;
       imagePath: NonNullable<Product["imagePath"]>;
-      images: NonNullable<Product["images"]>;
+      images: UploadedImage[];
     }
 ) {
   try {
@@ -164,6 +165,24 @@ export async function updateProduct(
         )
       );
 
+      // Find current product images
+      const currentImages = await tx.image.findMany({
+        where: { productId: product.id },
+      });
+
+      const currentImageIds = currentImages.map((image) => image.id);
+      const newImageIds = data.images.map((image) => image.id);
+
+      // Images to disconnect
+      const imagesToDisconnect = currentImageIds.filter(
+        (id) => !newImageIds.includes(id)
+      );
+
+      // Images to create
+      const imagesToCreate = data.images.filter(
+        (image) => !currentImageIds.includes(image.id)
+      );
+
       // Update the product
       await tx.product.update({
         where: { id: product.id },
@@ -172,8 +191,11 @@ export async function updateProduct(
           description: data.description,
           priceInCents: data.priceInCents,
           filePath,
-          imagePath: data.images[0],
-          images: data.images,
+          imagePath: data.images[0].url,
+          images: {
+            disconnect: imagesToDisconnect.map((id) => ({ id })),
+            create: imagesToCreate,
+          },
         },
       });
     });
@@ -212,9 +234,10 @@ export async function deleteProduct(id: Product["id"]) {
 
     if (product == null) return notFound();
 
+    //TODO: Delete images from ImageKit as well
+
     Promise.all([
       await fs.unlink(product.filePath),
-      await fs.unlink(`public${product.imagePath}`),
       await db.product.delete({ where: { id } }),
     ]);
 
