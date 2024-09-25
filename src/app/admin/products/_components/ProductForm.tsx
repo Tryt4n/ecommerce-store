@@ -12,12 +12,11 @@ import SubmitButton from "@/components/SubmitButton";
 import ErrorMessage from "@/components/ErrorMessage";
 import MultipleSelector from "@/components/ui/multiple-selector";
 import ImageUpload from "@/components/ImageUpload";
-import type { Category, Product } from "@prisma/client";
 import type { getCategories } from "@/db/userData/categories";
+import type { getProduct } from "@/db/userData/products";
 
 type ProductFormProps = {
-  product?: Partial<Product> &
-    NonNullable<Pick<Product, "id">> & { categories: Category["name"][] };
+  product?: Awaited<ReturnType<typeof getProduct>>;
   categories?: Awaited<ReturnType<typeof getCategories>>;
 };
 
