@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+const uploadedImageSchema = z.object({
+  id: z.string(),
+  url: z.string().url(),
+});
 const fileSchema = z.instanceof(File, { message: "Please select a file." });
 
 export const productAddSchema = z.object({
@@ -10,7 +14,7 @@ export const productAddSchema = z.object({
     message: "Please select a file.",
   }),
   images: z
-    .array(z.string(), {
+    .array(uploadedImageSchema, {
       message: "Upload at least one image for the product.",
     })
     .nonempty(),
