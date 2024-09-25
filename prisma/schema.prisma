@@ -16,15 +16,22 @@ model Product {
   priceInCents           Int
   filePath               String
   imagePath              String
-  images                 String[]               @default([])
   description            String
   isAvailableForPurchase Boolean                @default(true)
   createdAt              DateTime               @default(now())
   updatedAt              DateTime               @updatedAt
+  images                 Image[]
   orders                 Order[]
   downloadVerifications  DownloadVerification[]
   discountCodes          DiscountCode[]
   categories             ProductCategory[]
+}
+
+model Image {
+  id        String   @id @unique
+  url       String
+  productId String?
+  Product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Category {
