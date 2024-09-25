@@ -15,6 +15,7 @@ import type { Prisma, Product } from "@prisma/client";
 import type { SortingType } from "@/types/sort";
 import type { DateRange } from "@/types/ranges";
 import type { UploadedImage } from "@/lib/imagekit/type";
+import { deleteImage } from "@/lib/imagekit/uploadFiles";
 
 export async function getAllProducts(
   orderBy: keyof Product = "name",
@@ -229,15 +230,18 @@ export async function deleteProduct(id: Product["id"]) {
   try {
     const product = await db.product.findUnique({
       where: { id },
-      select: { filePath: true, imagePath: true },
+      select: {
+        filePath: true,
+        imagePath: true,
+        images: { select: { id: true } },
+      },
     });
 
     if (product == null) return notFound();
 
-    //TODO: Delete images from ImageKit as well
-
     Promise.all([
       await fs.unlink(product.filePath),
+      product.images.map(async (image) => await deleteImage(image.id)),
       await db.product.delete({ where: { id } }),
     ]);
 
