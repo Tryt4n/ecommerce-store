@@ -4,9 +4,9 @@ import React, { useRef, useState } from "react";
 import { useToast } from "@/hooks/useToast";
 import {
   authenticator,
-  deleteImage,
-  uploadFiles,
-} from "@/lib/imagekit/uploadFiles";
+  uploadFilesToImagekit,
+  deleteImageInImageKit,
+} from "@/lib/imagekit/files";
 import { ImageKitProvider } from "imagekitio-next";
 import Image from "./Image";
 import { Label } from "./ui/label";
@@ -68,7 +68,7 @@ export default function ImageUpload({
 
     try {
       setProgress(0);
-      const uploadedImages = await uploadFiles(files, setProgress);
+      const uploadedImages = await uploadFilesToImagekit(files, setProgress);
 
       setImages((prevImages) => [...prevImages, ...uploadedImages]);
       toast({
@@ -90,8 +90,9 @@ export default function ImageUpload({
     try {
       setIsImageDeleting(true);
 
-      await deleteImage(imageId);
-
+      // Delete image in imagekit if product is not saved
+      !productImages && (await deleteImageInImageKit(imageId));
+      // else update state which will be used to delete image in imagekit after form submission
       setImages(images.filter((image) => image.id !== imageId));
 
       toast({
