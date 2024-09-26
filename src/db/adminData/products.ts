@@ -2,20 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
-import fs from "fs/promises";
 import db from "@/db/init";
-import type {
-  editProductSchema,
-  productAddSchema,
-} from "@/lib/zod/productSchema";
 import { getCreatedAtQuery } from "@/lib/dashboardDataHelpers";
 import { getCategoryIds } from "../userData/categories";
-import type { z } from "zod";
+import { deleteImageInImageKit } from "@/lib/imagekit/files";
 import type { Prisma, Product } from "@prisma/client";
+import type { z } from "zod";
+import type { productAddSchema } from "@/lib/zod/productSchema";
+import type { UploadedFile, UploadedImage } from "@/lib/imagekit/type";
 import type { SortingType } from "@/types/sort";
 import type { DateRange } from "@/types/ranges";
-import type { UploadedImage } from "@/lib/imagekit/type";
-import { deleteImage } from "@/lib/imagekit/uploadFiles";
 
 export async function getAllProducts(
   orderBy: keyof Product = "name",
@@ -36,8 +32,7 @@ export async function getAllProducts(
         priceInCents: true,
         isAvailableForPurchase: true,
         description: true,
-        filePath: true,
-        imagePath: true,
+        images: { take: 1, select: { url: true, id: true } },
         categories: {
           select: { category: { select: { name: true } } },
           orderBy: { category: { name: "asc" } },
@@ -63,13 +58,19 @@ export async function getAllProducts(
 
 export async function createProduct(data: z.infer<typeof productAddSchema>) {
   try {
-    await fs.mkdir("products", { recursive: true });
-    const filePath = `products/${crypto.randomUUID()}-${data.file.name}`;
-    await fs.writeFile(filePath, Buffer.from(await data.file.arrayBuffer()));
+    // await fs.mkdir("products", { recursive: true });
+    // const filePath = `products/${crypto.randomUUID()}-${data.file.name}`;
+    // await fs.writeFile(filePath, Buffer.from(await data.file.arrayBuffer()));
 
     await db.$transaction(async (tx) => {
       // Find all categories IDs
       const categoryIds = await getCategoryIds(tx, data.categories);
+
+      // Make sure only the first image is the main one
+      const images = data.images.map((image, index) => ({
+        ...image,
+        isMainForProduct: index === 0,
+      }));
 
       // Create the product
       await tx.product.create({
@@ -78,9 +79,8 @@ export async function createProduct(data: z.infer<typeof productAddSchema>) {
           name: data.name,
           description: data.description,
           priceInCents: data.priceInCents,
-          filePath,
-          imagePath: data.images[0].url,
-          images: { create: data.images },
+          images: { create: images },
+          productFile: { create: data.productFile },
           categories: {
             create: categoryIds.map((categoryId) => ({
               categoryId,
@@ -98,22 +98,21 @@ export async function createProduct(data: z.infer<typeof productAddSchema>) {
 }
 
 export async function updateProduct(
-  data: z.infer<typeof editProductSchema>,
+  data: z.infer<typeof productAddSchema>,
   product: Partial<Product> &
     Required<Pick<Product, "id">> & {
-      filePath: NonNullable<Product["filePath"]>;
-      imagePath: NonNullable<Product["imagePath"]>;
       images: UploadedImage[];
+      productFile: UploadedFile;
     }
 ) {
   try {
-    let filePath = product.filePath;
+    // let filePath = product.filePath;
 
-    if (data.file != null && data.file.size > 0) {
-      await fs.unlink(product.filePath);
-      filePath = `products/${crypto.randomUUID()}-${data.file.name}`;
-      await fs.writeFile(filePath, Buffer.from(await data.file.arrayBuffer()));
-    }
+    // if (data.file != null && data.file.size > 0) {
+    //   await fs.unlink(product.filePath);
+    //   filePath = `products/${crypto.randomUUID()}-${data.file.name}`;
+    //   await fs.writeFile(filePath, Buffer.from(await data.file.arrayBuffer()));
+    // }
 
     await db.$transaction(async (tx) => {
       // Find current product categories
@@ -184,6 +183,11 @@ export async function updateProduct(
         (image) => !currentImageIds.includes(image.id)
       );
 
+      // Delete images from imagekit
+      Promise.all([
+        imagesToDisconnect.map(async (id) => await deleteImageInImageKit(id)),
+      ]);
+
       // Update the product
       await tx.product.update({
         where: { id: product.id },
@@ -191,11 +195,20 @@ export async function updateProduct(
           name: data.name,
           description: data.description,
           priceInCents: data.priceInCents,
-          filePath,
-          imagePath: data.images[0].url,
+          productFile: {
+            disconnect: product.productFile
+              ? { id: product.productFile.id }
+              : undefined,
+            create: data.productFile,
+          },
           images: {
-            disconnect: imagesToDisconnect.map((id) => ({ id })),
+            deleteMany: imagesToDisconnect.map((id) => ({ id })),
             create: imagesToCreate,
+            // Make sure only the first image is the main one
+            updateMany: data.images.map((image, index) => ({
+              where: { id: image.id },
+              data: { isMainForProduct: index === 0 },
+            })),
           },
         },
       });
@@ -231,18 +244,21 @@ export async function deleteProduct(id: Product["id"]) {
     const product = await db.product.findUnique({
       where: { id },
       select: {
-        filePath: true,
-        imagePath: true,
+        productFile: { select: { id: true } },
         images: { select: { id: true } },
       },
     });
 
     if (product == null) return notFound();
 
-    Promise.all([
-      await fs.unlink(product.filePath),
-      product.images.map(async (image) => await deleteImage(image.id)),
-      await db.product.delete({ where: { id } }),
+    await Promise.all([
+      // await fs.unlink(product.filePath),
+      //TODO: delete productFile
+      product.images.map(
+        async (image) => await deleteImageInImageKit(image.id)
+      ),
+      db.image.deleteMany({ where: { productId: id } }),
+      db.product.delete({ where: { id } }),
     ]);
 
     revalidatePath("/");

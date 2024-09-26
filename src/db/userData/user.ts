@@ -5,11 +5,11 @@ import { createDownloadVerification } from "@/app/_actions/download";
 import { sendPurchaseEmail } from "@/lib/resend/emails";
 import { updateDiscountCode } from "../adminData/discountCodes";
 import type { DiscountCode, Product } from "@prisma/client";
+import type { getProduct } from "./products";
 
 export async function createOrEditUser(
   email: string,
-  product: Partial<Product> &
-    Required<Pick<Product, "id" | "name" | "description" | "imagePath">>,
+  product: NonNullable<Awaited<ReturnType<typeof getProduct>>>,
   pricePaidInCents: Product["priceInCents"],
   discountCodeId?: DiscountCode["id"]
 ) {
@@ -60,8 +60,8 @@ export async function getUser(email: string) {
                 id: true,
                 name: true,
                 description: true,
-                imagePath: true,
-                filePath: true,
+                images: { select: { id: true, url: true } },
+                productFile: { select: { id: true, name: true, url: true } },
               },
             },
           },

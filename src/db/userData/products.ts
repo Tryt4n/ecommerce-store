@@ -14,6 +14,7 @@ export const getMostPopularProducts = cache(
         take: numberOfProducts,
         include: {
           categories: { select: { category: { select: { name: true } } } },
+          images: { take: 1, select: { url: true } },
         },
       });
 
@@ -35,6 +36,7 @@ export const getNewestProducts = cache(
         take: numberOfProducts,
         include: {
           categories: { select: { category: { select: { name: true } } } },
+          images: { take: 1, select: { url: true } },
         },
       });
 
@@ -57,9 +59,8 @@ export async function getProduct(id: Product["id"]) {
         description: true,
         priceInCents: true,
         isAvailableForPurchase: true,
-        filePath: true,
-        imagePath: true,
         images: { select: { id: true, url: true } },
+        productFile: { select: { id: true, name: true, url: true } },
         categories: {
           select: { category: { select: { name: true } } },
         },
@@ -85,10 +86,9 @@ export const getAllAvailableForPurchaseProducts = cache(
           priceInCents: true,
           isAvailableForPurchase: true,
           description: true,
-          filePath: true,
-          imagePath: true,
           _count: { select: { orders: true } },
           categories: { select: { category: { select: { name: true } } } },
+          images: { take: 1, select: { url: true } },
         },
         orderBy: { [orderBy]: type },
       });

@@ -120,11 +120,11 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
 
       <div className="space-y-2">
         <Label htmlFor="file">File</Label>
-        <Input type="file" name="file" id="file" required={product == null} />
-        {product != null && product.filePath && (
-          <p className="text-muted-foreground">{product.filePath}</p>
+        <Input type="file" name="file" id="file" />
+        {product != null && product.productFile && (
+          <p className="text-muted-foreground">{product.productFile.name}</p>
         )}
-        {error?.file && <ErrorMessage error={error.file} />}
+        {error?.productFile && <ErrorMessage error={error.productFile} />}
       </div>
 
       <div className="space-y-2">
