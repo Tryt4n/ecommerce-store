@@ -5,14 +5,13 @@ import {
   createProduct,
   updateProduct as updateProductInDB,
 } from "@/db/adminData/products";
-import { editProductSchema, productAddSchema } from "@/lib/zod/productSchema";
+import { productAddSchema } from "@/lib/zod/productSchema";
 import { getProduct } from "@/db/userData/products";
 import type { FormDataEntries } from "@/types/formData";
-import type { z, ZodRawShape } from "zod";
 
 export async function addProduct(prevState: unknown, formData: FormData) {
   const data = processFormData(formData);
-  const validationResult = validateAndParseData(data, productAddSchema);
+  const validationResult = validateAndParseData(data);
 
   if ("error" in validationResult) {
     return validationResult.error;
@@ -29,7 +28,7 @@ export async function updateProduct(
   formData: FormData
 ) {
   const data = processFormData(formData);
-  const validationResult = validateAndParseData(data, editProductSchema);
+  const validationResult = validateAndParseData(data);
 
   if ("error" in validationResult) {
     return validationResult.error;
@@ -58,11 +57,8 @@ function processFormData(formData: FormData): FormDataEntries {
   return data;
 }
 
-function validateAndParseData<T extends ZodRawShape>(
-  data: FormDataEntries,
-  schema: z.ZodObject<T>
-) {
-  const result = schema.safeParse(data);
+function validateAndParseData(data: FormDataEntries) {
+  const result = productAddSchema.safeParse(data);
 
   if (result.success === false) {
     return { error: result.error.formErrors.fieldErrors };
