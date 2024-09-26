@@ -31,8 +31,12 @@ OrderHistoryEmail.PreviewProps = {
       pricePaidInCents: 10000,
       product: {
         name: "Product Name",
-        imagePath:
-          "/products/9a4116b0-82e7-46ac-b2a7-2cd2b318af80-05 - Metadata.jpg",
+        images: [
+          {
+            id: "1",
+            url: "/products/9a4116b0-82e7-46ac-b2a7-2cd2b318af80-05 - Metadata.jpg",
+          },
+        ],
         description: "Product Description",
       },
       downloadVerification: {
@@ -48,8 +52,12 @@ OrderHistoryEmail.PreviewProps = {
       pricePaidInCents: 20000,
       product: {
         name: "Second Product Name",
-        imagePath:
-          "/products/87e8bd8f-9359-4fa0-9251-cd3f1a1ac73a-06 - Loading & Errors.jpg",
+        images: [
+          {
+            id: "2",
+            url: "/products/87e8bd8f-9359-4fa0-9251-cd3f1a1ac73a-06 - Loading & Errors.jpg",
+          },
+        ],
         description: "Second Product Description",
       },
       downloadVerification: {

@@ -9,11 +9,17 @@ import {
   Tailwind,
 } from "@react-email/components";
 import OrderInformation from "./OrderInformation";
-import type { Order, Product } from "../types";
+import type { Order } from "../types";
 import type { DownloadVerification } from "@prisma/client";
+import type { getProduct } from "@/db/userData/products";
 
-type PurchaseReceiptEmailProps = {
-  product: Product;
+export type PurchaseReceiptEmailProps = {
+  product: Required<
+    Pick<
+      NonNullable<Awaited<ReturnType<typeof getProduct>>>,
+      "name" | "description" | "images"
+    >
+  >;
   order: Order;
   downloadVerification: DownloadVerification;
 };
@@ -22,8 +28,12 @@ type PurchaseReceiptEmailProps = {
 PurchaseReceiptEmail.PreviewProps = {
   product: {
     name: "Product Name",
-    imagePath:
-      "/products/9a4116b0-82e7-46ac-b2a7-2cd2b318af80-05 - Metadata.jpg",
+    images: [
+      {
+        id: "1",
+        url: "/products/9a4116b0-82e7-46ac-b2a7-2cd2b318af80-05 - Metadata.jpg",
+      },
+    ],
     description: "Product Description",
   },
   order: {
