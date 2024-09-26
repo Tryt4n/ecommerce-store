@@ -5,7 +5,10 @@ import { notFound } from "next/navigation";
 import db from "@/db/init";
 import { getCreatedAtQuery } from "@/lib/dashboardDataHelpers";
 import { getCategoryIds } from "../userData/categories";
-import { deleteImageInImageKit } from "@/lib/imagekit/files";
+import {
+  deleteFolderInImageKit,
+  deleteImageInImageKit,
+} from "@/lib/imagekit/files";
 import type { Prisma, Product } from "@prisma/client";
 import type { z } from "zod";
 import type { productAddSchema } from "@/lib/zod/productSchema";
@@ -244,6 +247,7 @@ export async function deleteProduct(id: Product["id"]) {
     const product = await db.product.findUnique({
       where: { id },
       select: {
+        name: true,
         productFile: { select: { id: true } },
         images: { select: { id: true } },
       },
@@ -252,11 +256,9 @@ export async function deleteProduct(id: Product["id"]) {
     if (product == null) return notFound();
 
     await Promise.all([
-      // await fs.unlink(product.filePath),
       //TODO: delete productFile
-      product.images.map(
-        async (image) => await deleteImageInImageKit(image.id)
-      ),
+      // await fs.unlink(product.filePath),
+      deleteFolderInImageKit(product.name.replace(" ", "_")),
       db.image.deleteMany({ where: { productId: id } }),
       db.product.delete({ where: { id } }),
     ]);
