@@ -12,7 +12,7 @@ const envVariables = z.object({
   RESEND_FROM_EMAIL: z.string().min(1),
   NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY: z.string().min(1),
   NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT: z.string().min(1),
-  IMAGEKIT_PRIVATE_KEY: z.string().min(1),
+  NEXT_PUBLIC_IMAGEKIT_PRIVATE_KEY: z.string().min(1),
 });
 
 envVariables.parse(process.env);
