@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import crypto from "crypto";
 
-const privateKey = process.env.IMAGEKIT_PRIVATE_KEY;
+const privateKey = process.env.NEXT_PUBLIC_IMAGEKIT_PRIVATE_KEY;
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
