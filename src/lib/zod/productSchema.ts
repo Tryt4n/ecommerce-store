@@ -3,16 +3,22 @@ import { z } from "zod";
 const uploadedImageSchema = z.object({
   id: z.string(),
   url: z.string().url(),
+  isMainForProduct: z.boolean().default(false),
 });
-const fileSchema = z.instanceof(File, { message: "Please select a file." });
+
+const fileSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    url: z.string().url(),
+  })
+  .optional();
 
 export const productAddSchema = z.object({
   name: z.string().min(1),
   description: z.string().min(10),
   priceInCents: z.coerce.number().int().min(1),
-  file: fileSchema.refine((file) => file.size > 0, {
-    message: "Please select a file.",
-  }),
+  productFile: fileSchema,
   images: z
     .array(uploadedImageSchema, {
       message: "Upload at least one image for the product.",
@@ -24,8 +30,4 @@ export const productAddSchema = z.object({
     })
     .nonempty()
     .max(3),
-});
-
-export const editProductSchema = productAddSchema.extend({
-  file: fileSchema.optional(),
 });
