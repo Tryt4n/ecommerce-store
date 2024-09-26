@@ -22,6 +22,7 @@ export async function authenticator() {
 
 export async function uploadFilesToImagekit(
   files: FileList,
+  directoryName: string,
   setProgress: (progress: number) => void
 ) {
   const totalFiles = files.length;
@@ -34,6 +35,7 @@ export async function uploadFilesToImagekit(
     const formData = new FormData();
     formData.append("file", file);
     formData.append("fileName", file.name);
+    formData.append("folder", `Products/${directoryName.replace(" ", "_")}`);
     formData.append("publicKey", process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY);
     formData.append("signature", signature);
     formData.append("expire", expire);
@@ -75,15 +77,37 @@ export async function uploadFilesToImagekit(
 }
 
 export async function deleteImageInImageKit(fileId: string) {
-  const encodedAPIKey = encode(process.env.NEXT_PUBLIC_IMAGEKIT_PRIVATE_KEY);
-
   const url = `https://api.imagekit.io/v1/files/${fileId}`;
   const options = {
     method: "DELETE",
     headers: {
       Accept: "application/json",
-      Authorization: `Basic ${encodedAPIKey}`,
+      Authorization: `Basic ${encode(process.env.NEXT_PUBLIC_IMAGEKIT_PRIVATE_KEY)}`,
     },
+  };
+
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function deleteFolderInImageKit(folderPath: string) {
+  const url = "https://api.imagekit.io/v1/folder";
+  const options = {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Basic ${encode(process.env.NEXT_PUBLIC_IMAGEKIT_PRIVATE_KEY)}`,
+    },
+    body: JSON.stringify({
+      folderPath: `Products/${folderPath.replace(" ", "_")}`,
+    }),
   };
 
   try {
