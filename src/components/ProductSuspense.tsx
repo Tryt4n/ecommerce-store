@@ -20,7 +20,7 @@ export default async function ProductSuspense({
           name={product.name}
           priceInCents={product.priceInCents}
           description={product.description}
-          imagePath={product.imagePath}
+          imageUrl={product.images[0].url}
           categories={product.categories}
         />
       ))}

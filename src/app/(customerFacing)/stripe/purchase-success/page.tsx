@@ -34,7 +34,7 @@ export default async function SuccessPurchasePage({
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="relative aspect-video w-full sm:w-1/3 sm:flex-shrink-0">
-            <Image src={product.imagePath} alt={product.name} />
+            <Image src={product.images[0].url} alt={product.name} />
           </div>
 
           <div>

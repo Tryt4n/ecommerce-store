@@ -9,16 +9,11 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import type { Order, Product } from "../types";
-import type { DownloadVerification } from "@prisma/client";
+import type { PurchaseReceiptEmailProps } from "./PurchaseReceiptEmail";
 
 dotenv.config();
 
-type OrderInformationProps = {
-  order: Order;
-  product: Product;
-  downloadVerification: DownloadVerification;
-};
+type OrderInformationProps = PurchaseReceiptEmailProps;
 
 export default function OrderInformation({
   order,
@@ -55,11 +50,7 @@ export default function OrderInformation({
       </Section>
 
       <Section className="my-4 rounded-lg border border-solid border-gray-500 p-4 md:p-6">
-        <Img
-          src={`${process.env.NEXT_PUBLIC_SERVER_URL}${product.imagePath}`}
-          alt={product.name}
-          width="100%"
-        />
+        <Img src={product.images[0].url} alt={product.name} width="100%" />
 
         <Row className="mt-8">
           <Column className="align-bottom">
