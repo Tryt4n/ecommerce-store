@@ -11,27 +11,38 @@ datasource db {
 }
 
 model Product {
-  id                     String                 @id @default(uuid())
+  id                     String   @id @default(uuid())
   name                   String
   priceInCents           Int
-  filePath               String
-  imagePath              String
   description            String
-  isAvailableForPurchase Boolean                @default(true)
-  createdAt              DateTime               @default(now())
-  updatedAt              DateTime               @updatedAt
-  images                 Image[]
-  orders                 Order[]
-  downloadVerifications  DownloadVerification[]
-  discountCodes          DiscountCode[]
-  categories             ProductCategory[]
+  isAvailableForPurchase Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  productFileId          String?
+
+  images                Image[]
+  orders                Order[]
+  downloadVerifications DownloadVerification[]
+  discountCodes         DiscountCode[]
+  categories            ProductCategory[]
+  productFile           ProductFile?           @relation(fields: [productFileId], references: [id], onDelete: Cascade)
 }
 
 model Image {
-  id        String   @id @unique
-  url       String
-  productId String?
-  Product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id               String   @id @unique
+  url              String
+  productId        String?
+  product          Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  isMainForProduct Boolean  @default(false)
+
+  @@unique([productId, isMainForProduct], name: "unique_main_image_per_product")
+}
+
+model ProductFile {
+  id      String    @id @unique
+  url     String
+  name    String
+  product Product[]
 }
 
 model Category {
