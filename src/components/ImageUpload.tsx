@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { forwardRef, useState, type ForwardedRef } from "react";
 import { useToast } from "@/hooks/useToast";
 import {
   authenticator,
@@ -24,22 +24,41 @@ import SortableItem from "./SortableItem";
 import { X } from "lucide-react";
 import type { UploadedImage } from "@/lib/imagekit/type";
 
-export default function ImageUpload({
-  productImages,
-}: {
-  productImages?: UploadedImage[];
-}) {
-  const [progress, setProgress] = useState<number | null>(null);
-  const [images, setImages] = useState<UploadedImage[]>(productImages || []);
-  const [isImageDeleting, setIsImageDeleting] = useState(false);
+type ImageUploadProps = {
+  allUploadedImages: UploadedImage[];
+  setAllUploadedImages: React.Dispatch<React.SetStateAction<UploadedImage[]>>;
+  alreadyExistingProductImages?: UploadedImage[];
+  directoryName: string;
+};
 
+export const ImageUpload = forwardRef(ImageUploadInner);
+
+function ImageUploadInner(
+  {
+    allUploadedImages,
+    setAllUploadedImages,
+    directoryName,
+    alreadyExistingProductImages,
+  }: ImageUploadProps,
+  ikUploadRef: ForwardedRef<HTMLInputElement>
+) {
+  const [progress, setProgress] = useState<number | null>(null);
+  const [isImageDeleting, setIsImageDeleting] = useState(false);
   const { toast } = useToast();
 
-  const ikUploadRef = useRef<HTMLInputElement>(null);
+  const isDisabled = directoryName.length >= 5 ? false : true;
+  const uploadInfoState =
+    !alreadyExistingProductImages &&
+    (isDisabled || allUploadedImages.length <= 1);
 
   function resetInput() {
-    if (!ikUploadRef.current) return;
-    ikUploadRef.current.value = "";
+    if (
+      ikUploadRef &&
+      typeof ikUploadRef !== "function" &&
+      ikUploadRef.current
+    ) {
+      ikUploadRef.current.value = "";
+    }
     setProgress(null);
   }
 
@@ -68,9 +87,13 @@ export default function ImageUpload({
 
     try {
       setProgress(0);
-      const uploadedImages = await uploadFilesToImagekit(files, setProgress);
+      const uploadedImages = await uploadFilesToImagekit(
+        files,
+        directoryName,
+        setProgress
+      );
 
-      setImages((prevImages) => [...prevImages, ...uploadedImages]);
+      setAllUploadedImages((prevImages) => [...prevImages, ...uploadedImages]);
       toast({
         title: "Images uploaded successfully",
         variant: "success",
@@ -91,9 +114,11 @@ export default function ImageUpload({
       setIsImageDeleting(true);
 
       // Delete image in imagekit if product is not saved
-      !productImages && (await deleteImageInImageKit(imageId));
+      !alreadyExistingProductImages && (await deleteImageInImageKit(imageId));
       // else update state which will be used to delete image in imagekit after form submission
-      setImages(images.filter((image) => image.id !== imageId));
+      setAllUploadedImages(
+        allUploadedImages.filter((image) => image.id !== imageId)
+      );
 
       toast({
         title: "Image deleted successfully",
@@ -117,40 +142,61 @@ export default function ImageUpload({
       authenticator={authenticator}
     >
       <Label htmlFor="selectImage">Images</Label>
+      {uploadInfoState && (
+        <div
+          id="disabledInfo"
+          className="space-y-2 text-pretty pt-2 text-sm font-semibold italic text-muted-foreground"
+        >
+          {isDisabled && (
+            <p>Before adding images, please provide a product name.</p>
+          )}
+          {allUploadedImages.length < 1 && (
+            <p>
+              Once you&apos;ve uploaded your images, you{" "}
+              <span className="font-bold text-black text-inherit">
+                won&apos;t be able
+              </span>{" "}
+              to change the name of your product.
+            </p>
+          )}
+        </div>
+      )}
       <Input
         type="file"
         id="selectImage"
         name="selectImage"
         ref={ikUploadRef}
         multiple
+        disabled={isDisabled}
+        aria-describedby={isDisabled ? "disabledInfo" : undefined}
         onChange={handleImagesUpload}
       />
 
       {progress !== null && <Progress value={progress} />}
 
-      {images.length > 0 && (
+      {allUploadedImages.length > 0 && (
         <>
           <Input
             type="hidden"
             id="images"
             name="images"
-            value={JSON.stringify(images)}
+            value={JSON.stringify(allUploadedImages)}
           />
 
           <div>
             <p className="pt-4 text-sm font-medium">
               Uploaded Images
-              {images.length > 1 && (
+              {allUploadedImages.length > 1 && (
                 <span className="text-muted-foreground">
                   &nbsp;(Sort images by dragging and dropping)
                 </span>
               )}
             </p>
 
-            <Sortable items={images} setItems={setImages}>
+            <Sortable items={allUploadedImages} setItems={setAllUploadedImages}>
               <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {images.map((image, index) => {
-                  if (images.length > 1) {
+                {allUploadedImages.map((image, index) => {
+                  if (allUploadedImages.length > 1) {
                     return (
                       <SortableItem key={`${index}-${image.id}`} item={image}>
                         <TooltipProvider>
@@ -162,14 +208,15 @@ export default function ImageUpload({
                                   alt={`Uploaded image-${index === 0 ? "main" : index}`}
                                 />
 
-                                {images.length > 1 && index === 0 && (
-                                  <p
-                                    id="main-image"
-                                    className="absolute left-0 top-0 z-10 indent-1 font-bold"
-                                  >
-                                    Main Image
-                                  </p>
-                                )}
+                                {allUploadedImages.length > 1 &&
+                                  index === 0 && (
+                                    <p
+                                      id="main-image"
+                                      className="absolute left-0 top-0 z-10 indent-1 font-bold"
+                                    >
+                                      Main Image
+                                    </p>
+                                  )}
 
                                 <Button
                                   type="button"
