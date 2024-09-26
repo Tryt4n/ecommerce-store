@@ -1,16 +1,17 @@
 import { Resend } from "resend";
 import PurchaseReceiptEmail from "./templates/PurchaseReceiptEmail";
 import OrderHistoryEmail from "./templates/OrderHistoryEmail";
-import type { Order, Product } from "./types";
+import type { Order } from "./types";
 import type { DownloadVerification } from "@prisma/client";
 import type { ComponentProps } from "react";
+import type { getProduct } from "@/db/userData/products";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendPurchaseEmail(
   email: string,
   order: Order,
-  product: Product,
+  product: NonNullable<Awaited<ReturnType<typeof getProduct>>>,
   downloadVerification: DownloadVerification
 ) {
   try {
