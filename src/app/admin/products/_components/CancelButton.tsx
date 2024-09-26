@@ -47,14 +47,12 @@ export default function CancelButton({
       console.error(`Can't cancel. Error: ${error}`);
     } finally {
       setIsCanceling(false);
-      router.back();
     }
   }, [
     canDeleteFolder,
     folderName,
     allUploadedImages,
     alreadyExistingProductImages,
-    router,
   ]);
 
   useEffect(() => {
@@ -88,7 +86,9 @@ export default function CancelButton({
       type="button"
       variant="outline"
       disabled={isCanceling}
-      onClick={handleCancel}
+      onClick={async () => {
+        await handleCancel().then(() => router.back());
+      }}
     >
       {isCanceling ? "Canceling..." : "Cancel"}
     </Button>
