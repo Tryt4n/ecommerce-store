@@ -11,13 +11,14 @@ import Image from "./Image";
 import { Button } from "./ui/button";
 import { formatCurrency } from "@/lib/formatters";
 import type { Category, Product } from "@prisma/client";
+import type { UploadedImage } from "@/lib/imagekit/type";
 
 type ProductCardProps = {
   id: Product["id"];
   name: Product["name"];
   priceInCents: Product["priceInCents"];
   description: Product["description"];
-  imagePath: Product["imagePath"];
+  imageUrl: UploadedImage["url"];
   categories: Category["name"][];
 };
 
@@ -26,7 +27,7 @@ export default function ProductCard({
   name,
   priceInCents,
   description,
-  imagePath,
+  imageUrl,
   categories,
 }: ProductCardProps) {
   return (
@@ -34,7 +35,7 @@ export default function ProductCard({
       <Card className="flex h-full flex-col">
         <div className="relative aspect-video h-auto w-full">
           <Image
-            src={imagePath}
+            src={imageUrl}
             alt={name}
             transformation={[{ raw: "ar-16-9,w-500" }]}
           />
