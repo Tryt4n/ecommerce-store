@@ -1,4 +1,8 @@
-import type { Product as DBProduct, Order as DBOrder } from "@prisma/client";
+import type {
+  Product as DBProduct,
+  Order as DBOrder,
+  Image,
+} from "@prisma/client";
 
 export type Order = {
   id: DBOrder["id"];
@@ -8,6 +12,6 @@ export type Order = {
 
 export type Product = {
   name: DBProduct["name"];
-  imagePath: DBProduct["imagePath"];
+  images: Pick<Image, "id" | "url">[];
   description: DBProduct["description"];
 };
