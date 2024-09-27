@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "tsc": "tsc",
+    "tsc": "tsc --watch",
     "email": "cp .env ./node_modules/react-email && email dev --dir src/lib/resend/templates --port 3001"
   },
   "dependencies": {
