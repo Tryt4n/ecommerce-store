@@ -54,6 +54,23 @@ function processFormData(formData: FormData): FormDataEntries {
     data.images = JSON.parse(data.images);
   }
 
+  if (typeof data.productFile === "string") {
+    data.productFile = JSON.parse(data.productFile);
+  }
+
+  if (
+    data.productFile &&
+    typeof data.productFile === "object" &&
+    "name" in data.productFile &&
+    data.fileName &&
+    data.fileName !== data.productFile.name
+  ) {
+    data.productFile = {
+      ...data.productFile,
+      name: data.fileName,
+    } as FormDataEntries["productFile"];
+  }
+
   return data;
 }
 
