@@ -76,7 +76,7 @@ export async function uploadFilesToImagekit(
   return uploadedImages;
 }
 
-export async function deleteImageInImageKit(fileId: string) {
+export async function deleteFileInImageKit(fileId: string) {
   const url = `https://api.imagekit.io/v1/files/${fileId}`;
   const options = {
     method: "DELETE",

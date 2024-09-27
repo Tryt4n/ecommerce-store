@@ -4,7 +4,7 @@ import React, { forwardRef, useState, type ForwardedRef } from "react";
 import { useToast } from "@/hooks/useToast";
 import {
   uploadFilesToImagekit,
-  deleteImageInImageKit,
+  deleteFileInImageKit,
 } from "@/lib/imagekit/files";
 import Image from "../../../../components/Image";
 import { Label } from "../../../../components/ui/label";
@@ -138,7 +138,7 @@ function ImageUploadInner(
       setIsImageDeleting(true);
 
       // Delete image in imagekit if product is not saved
-      !alreadyExistingProductImages && (await deleteImageInImageKit(imageId));
+      !alreadyExistingProductImages && (await deleteFileInImageKit(imageId));
       // else update state which will be used to delete image in imagekit after form submission
       setAllUploadedImages(
         allUploadedImages.filter((image) => image.id !== imageId)

@@ -7,7 +7,7 @@ import { getCreatedAtQuery } from "@/lib/dashboardDataHelpers";
 import { getCategoryIds } from "../userData/categories";
 import {
   deleteFolderInImageKit,
-  deleteImageInImageKit,
+  deleteFileInImageKit,
 } from "@/lib/imagekit/files";
 import type { Prisma, Product } from "@prisma/client";
 import type { z } from "zod";
@@ -176,7 +176,7 @@ export async function updateProduct(
 
       // Delete images from imagekit
       Promise.all([
-        imagesToDisconnect.map(async (id) => await deleteImageInImageKit(id)),
+        imagesToDisconnect.map(async (id) => await deleteFileInImageKit(id)),
       ]);
 
       // Find current product file
@@ -190,7 +190,7 @@ export async function updateProduct(
           currentProductFile &&
           data.productFile?.url !== currentProductFile.url
         ) {
-          await deleteImageInImageKit(currentProductFile?.id);
+          await deleteFileInImageKit(currentProductFile?.id);
         }
       }
 

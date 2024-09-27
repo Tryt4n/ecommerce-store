@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useToast } from "@/hooks/useToast";
 import {
-  deleteImageInImageKit,
+  deleteFileInImageKit,
   uploadFilesToImagekit,
 } from "@/lib/imagekit/files";
 import { Label } from "@/components/ui/label";
@@ -61,7 +61,7 @@ export function FileUpload({
         uploadedFile.url !== newUploadedFile[0].url &&
         originalUploadedFile.url !== uploadedFile.url
       ) {
-        await deleteImageInImageKit(uploadedFile.id);
+        await deleteFileInImageKit(uploadedFile.id);
       }
 
       if (fileName === "") {

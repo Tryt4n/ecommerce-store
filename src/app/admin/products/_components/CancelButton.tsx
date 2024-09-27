@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "../../../../components/ui/button";
 import {
   deleteFolderInImageKit,
-  deleteImageInImageKit,
+  deleteFileInImageKit,
 } from "@/lib/imagekit/files";
 import type { UploadedFile, UploadedImage } from "@/lib/imagekit/type";
 
@@ -44,7 +44,7 @@ export default function CancelButton({
         );
 
         const promisesToExecute = imagesToDelete.map((image) =>
-          deleteImageInImageKit(image.id)
+          deleteFileInImageKit(image.id)
         );
 
         // If the original file is different from the uploaded file, delete the uploaded file
@@ -54,7 +54,7 @@ export default function CancelButton({
             uploadedFile &&
             originalUploadedFile.id !== uploadedFile.id)
         ) {
-          promisesToExecute.push(deleteImageInImageKit(uploadedFile.id));
+          promisesToExecute.push(deleteFileInImageKit(uploadedFile.id));
         }
 
         await Promise.all(promisesToExecute);
