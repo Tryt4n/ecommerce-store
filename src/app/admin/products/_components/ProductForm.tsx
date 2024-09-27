@@ -12,10 +12,13 @@ import SubmitButton from "@/components/SubmitButton";
 import CancelButton from "./CancelButton";
 import ErrorMessage from "@/components/ErrorMessage";
 import MultipleSelector from "@/components/ui/multiple-selector";
-import { ImageUpload } from "@/app/admin/products/_components/ImageUpload";
+import { ImageUpload } from "./ImageUpload";
+import { FileUpload } from "./FileUpload";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 import type { getCategories } from "@/db/userData/categories";
 import type { getProduct } from "@/db/userData/products";
-import type { UploadedImage } from "@/lib/imagekit/type";
+import type { UploadedFile, UploadedImage } from "@/lib/imagekit/type";
 
 type ProductFormProps = {
   product?: Awaited<ReturnType<typeof getProduct>>;
@@ -35,6 +38,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
     ProductFormProps["categories"]
   >(product?.categories || []);
   const [images, setImages] = useState<UploadedImage[]>(product?.images || []);
+  const [file, setFile] = useState<UploadedFile>(product?.productFile || null);
 
   const { toast } = useToast();
 
@@ -42,7 +46,13 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
 
   const MIN_NAME_LENGTH = 5;
   const nameInputDisabledStatus =
-    name.length >= MIN_NAME_LENGTH && images.length > 0 ? true : false;
+    (name.length >= MIN_NAME_LENGTH && images.length > 0) || file
+      ? true
+      : false;
+
+  const isFileUploadDisabled = name.length >= 5 ? false : true;
+  const uploadInfoState =
+    !product?.images && !file && (isFileUploadDisabled || images.length <= 1);
 
   return (
     <form action={action} className="space-y-8">
@@ -137,11 +147,49 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
         {error?.description && <ErrorMessage error={error.description} />}
       </div>
 
+      {uploadInfoState && (
+        <div
+          id="disabledInfo"
+          className="space-y-2 text-pretty pt-2 text-sm font-semibold italic text-muted-foreground"
+        >
+          {isFileUploadDisabled && (
+            <p>Before adding any files, please provide a product name.</p>
+          )}
+          {(images.length < 1 || file) && (
+            <p>
+              Once the files have been uploaded, you{" "}
+              <span className="font-bold text-black">will not be able</span> to
+              change the product name.
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="space-y-2">
-        <Label htmlFor="file">File</Label>
-        <Input type="file" name="file" id="file" />
-        {product != null && product.productFile && (
-          <p className="text-muted-foreground">{product.productFile.name}</p>
+        <FileUpload
+          uploadedFile={file}
+          setFile={setFile}
+          directoryName={name}
+          originalUploadedFile={product?.productFile}
+        />
+        {file && (
+          <div className="flex flex-row items-center gap-2">
+            <p className="text-sm leading-4 text-muted-foreground">
+              Current File: {file.name}
+            </p>
+
+            <Button
+              type="button"
+              size={"icon"}
+              variant={"ghost"}
+              className="h-[16px] w-[16px]"
+              onClick={() => {
+                setFile(null);
+              }}
+            >
+              <X className="text-red-500" size={16} />
+            </Button>
+          </div>
         )}
         {error?.productFile && <ErrorMessage error={error.productFile} />}
       </div>
@@ -162,9 +210,11 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
 
         <CancelButton
           allUploadedImages={images}
-          alreadyExistingProductImages={product?.images}
+          uploadedFile={file}
           folderName={name}
-          canDeleteFolder={!product && images.length > 0}
+          canDeleteFolder={!product && (images.length > 0 || file != null)}
+          alreadyExistingProductImages={product?.images}
+          originalUploadedFile={product?.productFile}
         />
       </div>
     </form>
