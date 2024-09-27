@@ -61,10 +61,6 @@ export async function getAllProducts(
 
 export async function createProduct(data: z.infer<typeof productAddSchema>) {
   try {
-    // await fs.mkdir("products", { recursive: true });
-    // const filePath = `products/${crypto.randomUUID()}-${data.file.name}`;
-    // await fs.writeFile(filePath, Buffer.from(await data.file.arrayBuffer()));
-
     await db.$transaction(async (tx) => {
       // Find all categories IDs
       const categoryIds = await getCategoryIds(tx, data.categories);
@@ -109,14 +105,6 @@ export async function updateProduct(
     }
 ) {
   try {
-    // let filePath = product.filePath;
-
-    // if (data.file != null && data.file.size > 0) {
-    //   await fs.unlink(product.filePath);
-    //   filePath = `products/${crypto.randomUUID()}-${data.file.name}`;
-    //   await fs.writeFile(filePath, Buffer.from(await data.file.arrayBuffer()));
-    // }
-
     await db.$transaction(async (tx) => {
       // Find current product categories
       const currentCategories = await tx.productCategory.findMany({
@@ -191,6 +179,21 @@ export async function updateProduct(
         imagesToDisconnect.map(async (id) => await deleteImageInImageKit(id)),
       ]);
 
+      // Find current product file
+      if (product.productFile) {
+        const currentProductFile = await tx.productFile.findUnique({
+          where: { id: product.productFile?.id },
+        });
+
+        // If current product file exist then delete it from imagekit if it's different from the new one
+        if (
+          currentProductFile &&
+          data.productFile?.url !== currentProductFile.url
+        ) {
+          await deleteImageInImageKit(currentProductFile?.id);
+        }
+      }
+
       // Update the product
       await tx.product.update({
         where: { id: product.id },
@@ -198,11 +201,9 @@ export async function updateProduct(
           name: data.name,
           description: data.description,
           priceInCents: data.priceInCents,
-          productFile: {
-            disconnect: product.productFile
-              ? { id: product.productFile.id }
-              : undefined,
-            create: data.productFile,
+          // Create or update the product file
+          productFile: data.productFile && {
+            upsert: { create: data.productFile, update: data.productFile },
           },
           images: {
             deleteMany: imagesToDisconnect.map((id) => ({ id })),
@@ -215,6 +216,24 @@ export async function updateProduct(
           },
         },
       });
+
+      // When the product file (data.productFile) is not provided delete record in database
+      if (!data.productFile && product.productFile) {
+        // Make sure to disconnect the product file from the product
+        await tx.product.update({
+          where: { id: product.id },
+          data: {
+            productFile: {
+              disconnect: true,
+            },
+          },
+        });
+
+        // Delete the product file from the database
+        await tx.productFile.delete({
+          where: { id: product.productFile.id },
+        });
+      }
     });
 
     revalidatePath("/");
@@ -256,11 +275,10 @@ export async function deleteProduct(id: Product["id"]) {
     if (product == null) return notFound();
 
     await Promise.all([
-      //TODO: delete productFile
-      // await fs.unlink(product.filePath),
       deleteFolderInImageKit(product.name.replace(" ", "_")),
       db.image.deleteMany({ where: { productId: id } }),
       db.product.delete({ where: { id } }),
+      db.productFile.delete({ where: { id: product.productFile?.id } }),
     ]);
 
     revalidatePath("/");
