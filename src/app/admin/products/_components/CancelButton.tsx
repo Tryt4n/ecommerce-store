@@ -7,20 +7,24 @@ import {
   deleteFolderInImageKit,
   deleteImageInImageKit,
 } from "@/lib/imagekit/files";
-import type { UploadedImage } from "@/lib/imagekit/type";
+import type { UploadedFile, UploadedImage } from "@/lib/imagekit/type";
 
 type CancelButtonProps = {
   allUploadedImages: UploadedImage[];
+  uploadedFile: UploadedFile;
   folderName: string;
-  alreadyExistingProductImages?: UploadedImage[];
   canDeleteFolder?: boolean;
+  alreadyExistingProductImages?: UploadedImage[];
+  originalUploadedFile?: UploadedFile;
 };
 
 export default function CancelButton({
   allUploadedImages,
-  alreadyExistingProductImages,
+  uploadedFile,
   folderName,
   canDeleteFolder,
+  alreadyExistingProductImages,
+  originalUploadedFile,
 }: CancelButtonProps) {
   const [isCanceling, setIsCanceling] = useState(false);
   const router = useRouter();
@@ -39,9 +43,21 @@ export default function CancelButton({
             )
         );
 
-        await Promise.all(
-          imagesToDelete.map((image) => deleteImageInImageKit(image.id))
+        const promisesToExecute = imagesToDelete.map((image) =>
+          deleteImageInImageKit(image.id)
         );
+
+        // If the original file is different from the uploaded file, delete the uploaded file
+        if (
+          (!originalUploadedFile && uploadedFile) ||
+          (originalUploadedFile &&
+            uploadedFile &&
+            originalUploadedFile.id !== uploadedFile.id)
+        ) {
+          promisesToExecute.push(deleteImageInImageKit(uploadedFile.id));
+        }
+
+        await Promise.all(promisesToExecute);
       }
     } catch (error) {
       console.error(`Can't cancel. Error: ${error}`);
@@ -53,6 +69,8 @@ export default function CancelButton({
     folderName,
     allUploadedImages,
     alreadyExistingProductImages,
+    uploadedFile,
+    originalUploadedFile,
   ]);
 
   useEffect(() => {
