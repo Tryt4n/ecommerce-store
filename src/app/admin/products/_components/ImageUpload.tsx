@@ -3,11 +3,9 @@
 import React, { forwardRef, useState, type ForwardedRef } from "react";
 import { useToast } from "@/hooks/useToast";
 import {
-  authenticator,
   uploadFilesToImagekit,
   deleteImageInImageKit,
 } from "@/lib/imagekit/files";
-import { ImageKitProvider } from "imagekitio-next";
 import Image from "../../../../components/Image";
 import { Label } from "../../../../components/ui/label";
 import { Progress } from "../../../../components/ui/progress";
@@ -47,9 +45,6 @@ function ImageUploadInner(
   const { toast } = useToast();
 
   const isDisabled = directoryName.length >= 5 ? false : true;
-  const uploadInfoState =
-    !alreadyExistingProductImages &&
-    (isDisabled || allUploadedImages.length <= 1);
 
   function resetInput() {
     if (
@@ -69,9 +64,13 @@ function ImageUploadInner(
     if (!files || files.length < 1) return;
 
     let areFilesTheCorrectSize = true;
+    let totalFilesSize = 0;
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
+      totalFilesSize += file.size;
+
+      // 3MB
       if (file.size > 3000000) {
         toast({
           title: `File ${file.name} is too large`,
@@ -81,9 +80,34 @@ function ImageUploadInner(
         areFilesTheCorrectSize = false;
         break;
       }
+      return;
     }
 
-    if (!areFilesTheCorrectSize) return;
+    // 20MB
+    if (totalFilesSize > 20000000) {
+      toast({
+        title: `Total files size is too large (${(totalFilesSize / 1000000).toFixed(2)}MB)`,
+        description: "Please upload files that are less than 20MB",
+        variant: "destructive",
+      });
+      resetInput();
+      return;
+    }
+
+    if (files.length > 10) {
+      toast({
+        title: "Too many files",
+        description: "Please upload 15 files or less",
+        variant: "destructive",
+      });
+      resetInput();
+      return;
+    }
+
+    if (!areFilesTheCorrectSize) {
+      resetInput();
+      return;
+    }
 
     try {
       setProgress(0);
@@ -136,31 +160,8 @@ function ImageUploadInner(
   }
 
   return (
-    <ImageKitProvider
-      publicKey={process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY}
-      urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}
-      authenticator={authenticator}
-    >
+    <>
       <Label htmlFor="selectImage">Images</Label>
-      {uploadInfoState && (
-        <div
-          id="disabledInfo"
-          className="space-y-2 text-pretty pt-2 text-sm font-semibold italic text-muted-foreground"
-        >
-          {isDisabled && (
-            <p>Before adding images, please provide a product name.</p>
-          )}
-          {allUploadedImages.length < 1 && (
-            <p>
-              Once you&apos;ve uploaded your images, you{" "}
-              <span className="font-bold text-black text-inherit">
-                won&apos;t be able
-              </span>{" "}
-              to change the name of your product.
-            </p>
-          )}
-        </div>
-      )}
       <Input
         type="file"
         id="selectImage"
@@ -244,6 +245,6 @@ function ImageUploadInner(
           </div>
         </>
       )}
-    </ImageKitProvider>
+    </>
   );
 }
