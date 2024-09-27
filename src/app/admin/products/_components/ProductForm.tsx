@@ -12,7 +12,7 @@ import SubmitButton from "@/components/SubmitButton";
 import CancelButton from "./CancelButton";
 import ErrorMessage from "@/components/ErrorMessage";
 import MultipleSelector from "@/components/ui/multiple-selector";
-import { ImageUpload } from "@/components/ImageUpload";
+import { ImageUpload } from "@/app/admin/products/_components/ImageUpload";
 import type { getCategories } from "@/db/userData/categories";
 import type { getProduct } from "@/db/userData/products";
 import type { UploadedImage } from "@/lib/imagekit/type";

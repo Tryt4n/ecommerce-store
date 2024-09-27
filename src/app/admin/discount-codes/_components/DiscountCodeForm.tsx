@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useFormState } from "react-dom";
 import { DiscountCodeType } from "@prisma/client";
-import { addDiscountCode, updateDiscountCode } from "@/app/_actions/discounts";
+import { addDiscountCode, updateDiscountCode } from "../_actions/discounts";
 import { getUTCDate } from "@/lib/formatters";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
