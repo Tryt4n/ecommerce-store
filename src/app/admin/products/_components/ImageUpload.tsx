@@ -8,19 +8,19 @@ import {
   deleteImageInImageKit,
 } from "@/lib/imagekit/files";
 import { ImageKitProvider } from "imagekitio-next";
-import Image from "./Image";
-import { Label } from "./ui/label";
-import { Progress } from "./ui/progress";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import Image from "../../../../components/Image";
+import { Label } from "../../../../components/ui/label";
+import { Progress } from "../../../../components/ui/progress";
+import { Input } from "../../../../components/ui/input";
+import { Button } from "../../../../components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "./ui/tooltip";
-import Sortable from "./Sortable";
-import SortableItem from "./SortableItem";
+} from "../../../../components/ui/tooltip";
+import Sortable from "../../../../components/Sortable";
+import SortableItem from "../../../../components/SortableItem";
 import { X } from "lucide-react";
 import type { UploadedImage } from "@/lib/imagekit/type";
 
