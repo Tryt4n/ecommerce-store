@@ -194,61 +194,52 @@ function ImageUploadInner(
             </p>
 
             <Sortable items={allUploadedImages} setItems={setAllUploadedImages}>
-              <ul className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {allUploadedImages.map((image, index) => {
-                  if (allUploadedImages.length > 1) {
-                    return (
-                      <SortableItem key={`${index}-${image.id}`} item={image}>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="relative mx-auto flex h-[320px] w-[320px] items-center rounded-md border">
-                                <Image
-                                  src={image.url}
-                                  alt={`Uploaded image-${index === 0 ? "main" : index}`}
-                                />
+              {allUploadedImages.map((image, index) => {
+                if (allUploadedImages.length > 1) {
+                  return (
+                    <SortableItem key={`${index}-${image.id}`} item={image}>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="relative mx-auto flex h-[320px] w-[320px] items-center rounded-md border">
+                              <Image
+                                src={image.url}
+                                alt={`Uploaded image-${index === 0 ? "main" : index}`}
+                              />
 
-                                {allUploadedImages.length > 1 &&
-                                  index === 0 && (
-                                    <p
-                                      id="main-image"
-                                      className="absolute left-0 top-0 z-10 indent-1 font-bold"
-                                    >
-                                      Main Image
-                                    </p>
-                                  )}
-
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  disabled={isImageDeleting}
-                                  className="z-100 absolute right-0 top-0 h-[32px] w-[32px] p-1"
-                                  onClick={() => handleDeleteImage(image.id)}
+                              {allUploadedImages.length > 1 && index === 0 && (
+                                <p
+                                  id="main-image"
+                                  className="absolute left-0 top-0 z-10 indent-1 font-bold"
                                 >
-                                  <X />
-                                </Button>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              {index === 0
-                                ? "Main Image"
-                                : `Image ${index + 1}`}
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </SortableItem>
-                    );
-                  } else {
-                    return (
-                      <Image
-                        key={index}
-                        src={image.url}
-                        alt={`Uploaded image`}
-                      />
-                    );
-                  }
-                })}
-              </ul>
+                                  Main Image
+                                </p>
+                              )}
+
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                disabled={isImageDeleting}
+                                className="z-100 absolute right-0 top-0 h-[32px] w-[32px] p-1"
+                                onClick={() => handleDeleteImage(image.id)}
+                              >
+                                <X />
+                              </Button>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {index === 0 ? "Main Image" : `Image ${index + 1}`}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </SortableItem>
+                  );
+                } else {
+                  return (
+                    <Image key={index} src={image.url} alt={`Uploaded image`} />
+                  );
+                }
+              })}
             </Sortable>
           </div>
         </>
