@@ -5,7 +5,10 @@ import type { Prisma } from "@prisma/client";
 
 export async function getCategories() {
   try {
-    const categories = await db.category.findMany({ select: { name: true } });
+    const categories = await db.category.findMany({
+      select: { name: true },
+      orderBy: { name: "asc" },
+    });
 
     return categories.map((category) => category.name);
   } catch (error) {
