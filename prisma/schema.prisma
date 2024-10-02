@@ -34,8 +34,6 @@ model Image {
   productId        String?
   product          Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   isMainForProduct Boolean  @default(false)
-
-  @@unique([productId, isMainForProduct], name: "unique_main_image_per_product")
 }
 
 model ProductFile {
