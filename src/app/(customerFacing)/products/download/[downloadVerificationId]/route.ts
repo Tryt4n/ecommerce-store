@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getDownloadVerification } from "@/app/_actions/download";
-import { downloadProduct } from "@/lib/downloadProduct";
+// import { downloadProduct } from "@/lib/downloadProduct";
 
 export async function GET(
   req: NextRequest,
@@ -16,5 +16,5 @@ export async function GET(
     );
   }
 
-  return await downloadProduct(data.product);
+  // return await downloadProduct(data.product);
 }

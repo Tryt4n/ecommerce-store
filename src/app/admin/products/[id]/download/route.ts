@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getProduct } from "@/db/userData/products";
-import { downloadProduct } from "@/lib/downloadProduct";
+// import { downloadProduct } from "@/lib/downloadProduct";
 import type { NextRequest } from "next/server";
 
 export async function GET(
@@ -11,5 +11,5 @@ export async function GET(
 
   if (product == null) return notFound();
 
-  return await downloadProduct(product);
+  // return await downloadProduct(product);
 }
