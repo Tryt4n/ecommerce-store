@@ -51,7 +51,9 @@ function processFormData(formData: FormData): FormDataEntries {
   }
 
   if (typeof data.images === "string") {
-    data.images = JSON.parse(data.images);
+    const parsedData = JSON.parse(data.images);
+    parsedData[0].isMainForProduct = true;
+    data.images = parsedData;
   }
 
   if (typeof data.productFile === "string") {
