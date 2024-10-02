@@ -17,9 +17,14 @@ export type PurchaseReceiptEmailProps = {
   product: Required<
     Pick<
       NonNullable<Awaited<ReturnType<typeof getProduct>>>,
-      "name" | "description" | "images"
+      "name" | "description"
     >
-  >;
+  > & {
+    images: Pick<
+      NonNullable<Awaited<ReturnType<typeof getProduct>>>["images"][number],
+      "id" | "url"
+    >[];
+  };
   order: Order;
   downloadVerification: DownloadVerification;
 };
