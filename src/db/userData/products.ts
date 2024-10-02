@@ -59,7 +59,7 @@ export async function getProduct(id: Product["id"]) {
         description: true,
         priceInCents: true,
         isAvailableForPurchase: true,
-        images: { select: { id: true, url: true } },
+        images: { select: { id: true, url: true, isMainForProduct: true } },
         productFile: { select: { id: true, name: true, url: true } },
         categories: {
           select: { category: { select: { name: true } } },
