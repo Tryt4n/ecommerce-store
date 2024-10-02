@@ -14,8 +14,8 @@ import ErrorMessage from "@/components/ErrorMessage";
 import MultipleSelector from "@/components/ui/multiple-selector";
 import { ImageUpload } from "./ImageUpload";
 import { FileUpload } from "./FileUpload";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import CurrentFilePreview from "./CurrentFilePreview";
+import UploadInfo from "./UploadInfo";
 import type { getCategories } from "@/db/userData/categories";
 import type { getProduct } from "@/db/userData/products";
 import type { UploadedFile, UploadedImage } from "@/lib/imagekit/type";
@@ -50,9 +50,9 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
       ? true
       : false;
 
-  const isFileUploadDisabled = name.length >= 5 ? false : true;
+  const isFilesUploadDisabled = name.length >= MIN_NAME_LENGTH ? false : true;
   const uploadInfoState =
-    !product?.images && !file && (isFileUploadDisabled || images.length <= 1);
+    !product?.images && !file && (isFilesUploadDisabled || images.length <= 1);
 
   return (
     <form action={action} className="space-y-8">
@@ -88,9 +88,9 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
           value={priceInCents}
           onChange={(e) => setPriceInCents(Number(e.target.value))}
         />
-        <div className="text-muted-foreground">
+        <p className="text-muted-foreground" aria-label="Entered price">
           {formatCurrency((priceInCents || 0) / 100)}
-        </div>
+        </p>
         {error?.priceInCents && <ErrorMessage error={error.priceInCents} />}
       </div>
 
@@ -148,21 +148,10 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
       </div>
 
       {uploadInfoState && (
-        <div
-          id="disabledInfo"
-          className="space-y-2 text-pretty pt-2 text-sm font-semibold italic text-muted-foreground"
-        >
-          {isFileUploadDisabled && (
-            <p>Before adding any files, please provide a product name.</p>
-          )}
-          {(images.length < 1 || file) && (
-            <p>
-              Once the files have been uploaded, you{" "}
-              <span className="font-bold text-black">will not be able</span> to
-              change the product name.
-            </p>
-          )}
-        </div>
+        <UploadInfo
+          isFilesUploadDisabled={isFilesUploadDisabled}
+          isAnyFileUploaded={images.length < 1 || file ? true : false}
+        />
       )}
 
       <div className="space-y-2">
@@ -171,26 +160,11 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
           setFile={setFile}
           directoryName={name}
           originalUploadedFile={product?.productFile}
+          isDisabled={isFilesUploadDisabled}
         />
-        {file && (
-          <div className="flex flex-row items-center gap-2">
-            <p className="text-sm leading-4 text-muted-foreground">
-              Current File: {file.name}
-            </p>
 
-            <Button
-              type="button"
-              size={"icon"}
-              variant={"ghost"}
-              className="h-[16px] w-[16px]"
-              onClick={() => {
-                setFile(null);
-              }}
-            >
-              <X className="text-red-500" size={16} />
-            </Button>
-          </div>
-        )}
+        {file && <CurrentFilePreview file={file} setFile={setFile} />}
+
         {error?.productFile && <ErrorMessage error={error.productFile} />}
       </div>
 
@@ -201,6 +175,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
           setAllUploadedImages={setImages}
           alreadyExistingProductImages={product?.images}
           directoryName={name}
+          isDisabled={isFilesUploadDisabled}
         />
         {error?.images && <ErrorMessage error={error.images} />}
       </div>
