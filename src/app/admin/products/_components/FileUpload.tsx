@@ -14,6 +14,7 @@ type FileUploadInnerProps = {
   uploadedFile: UploadedFile | null;
   setFile: React.Dispatch<React.SetStateAction<UploadedFile>>;
   originalUploadedFile?: UploadedFile;
+  isDisabled?: boolean;
 };
 
 export function FileUpload({
@@ -21,12 +22,11 @@ export function FileUpload({
   uploadedFile,
   setFile,
   originalUploadedFile,
+  isDisabled = false,
 }: FileUploadInnerProps) {
   const [progress, setProgress] = useState<number | null>(null);
   const [fileName, setFileName] = useState<string>(uploadedFile?.name || "");
   const { toast } = useToast();
-
-  const isDisabled = directoryName.length >= 5 ? false : true;
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
