@@ -10,16 +10,11 @@ import Image from "../../../../components/Image";
 import { Label } from "../../../../components/ui/label";
 import { Progress } from "../../../../components/ui/progress";
 import { Input } from "../../../../components/ui/input";
-import { Button } from "../../../../components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../../../../components/ui/tooltip";
 import Sortable from "../../../../components/Sortable";
 import SortableItem from "../../../../components/SortableItem";
-import { X } from "lucide-react";
+import SortImagesInfo from "./SortImagesInfo";
+import CustomTooltip from "@/components/Tooltip";
+import XButton from "@/components/ui/XButton";
 import type { UploadedImage } from "@/lib/imagekit/type";
 
 type ImageUploadProps = {
@@ -27,6 +22,7 @@ type ImageUploadProps = {
   setAllUploadedImages: React.Dispatch<React.SetStateAction<UploadedImage[]>>;
   alreadyExistingProductImages?: UploadedImage[];
   directoryName: string;
+  isDisabled?: boolean;
 };
 
 export const ImageUpload = forwardRef(ImageUploadInner);
@@ -37,14 +33,13 @@ function ImageUploadInner(
     setAllUploadedImages,
     directoryName,
     alreadyExistingProductImages,
+    isDisabled = false,
   }: ImageUploadProps,
   ikUploadRef: ForwardedRef<HTMLInputElement>
 ) {
   const [progress, setProgress] = useState<number | null>(null);
   const [isImageDeleting, setIsImageDeleting] = useState(false);
   const { toast } = useToast();
-
-  const isDisabled = directoryName.length >= 5 ? false : true;
 
   function resetInput() {
     if (
@@ -80,7 +75,6 @@ function ImageUploadInner(
         areFilesTheCorrectSize = false;
         break;
       }
-      return;
     }
 
     // 20MB
@@ -185,54 +179,40 @@ function ImageUploadInner(
           />
 
           <div>
-            <p className="pt-4 text-sm font-medium">
-              Uploaded Images
-              {allUploadedImages.length > 1 && (
-                <span className="text-muted-foreground">
-                  &nbsp;(Sort images by dragging and dropping)
-                </span>
-              )}
-            </p>
+            <SortImagesInfo length={allUploadedImages.length} />
 
             <Sortable items={allUploadedImages} setItems={setAllUploadedImages}>
               {allUploadedImages.map((image, index) => {
                 if (allUploadedImages.length > 1) {
                   return (
                     <SortableItem key={`${index}-${image.id}`} item={image}>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="relative mx-auto flex h-[320px] w-[320px] items-center rounded-md border">
-                              <Image
-                                src={image.url}
-                                alt={`Uploaded image-${index === 0 ? "main" : index}`}
-                              />
+                      <CustomTooltip
+                        content={
+                          index === 0 ? "Main Image" : `Image ${index + 1}`
+                        }
+                        trigger={
+                          <div className="relative mx-auto flex h-[320px] w-[320px] items-center rounded-md border">
+                            <Image
+                              src={image.url}
+                              alt={`Uploaded image-${index === 0 ? "main" : index}`}
+                            />
 
-                              {allUploadedImages.length > 1 && index === 0 && (
-                                <p
-                                  id="main-image"
-                                  className="absolute left-0 top-0 z-10 indent-1 font-bold"
-                                >
-                                  Main Image
-                                </p>
-                              )}
-
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                disabled={isImageDeleting}
-                                className="z-100 absolute right-0 top-0 h-[32px] w-[32px] p-1"
-                                onClick={() => handleDeleteImage(image.id)}
+                            {allUploadedImages.length > 1 && index === 0 && (
+                              <p
+                                id="main-image"
+                                className="absolute left-0 top-0 z-10 indent-1 font-bold"
                               >
-                                <X />
-                              </Button>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {index === 0 ? "Main Image" : `Image ${index + 1}`}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                                Main Image
+                              </p>
+                            )}
+
+                            <XButton
+                              disabled={isImageDeleting}
+                              onClick={() => handleDeleteImage(image.id)}
+                            />
+                          </div>
+                        }
+                      />
                     </SortableItem>
                   );
                 } else {
