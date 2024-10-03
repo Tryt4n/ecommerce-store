@@ -1,8 +1,9 @@
 import React from "react";
+import { checkPermissions } from "@/lib/checkPermissions";
+import { getRangeOption, RANGE_OPTIONS } from "@/lib/rangeOptions";
+import { getDashboardData } from "@/db/adminData/dashboardData";
 import AdminDashboardCardList from "./_components/AdminDashboardCardList";
 import AdminDashboardCharts from "./_components/AdminDashboardCharts";
-import { getDashboardData } from "@/db/adminData/dashboardData";
-import { getRangeOption, RANGE_OPTIONS } from "@/lib/rangeOptions";
 
 type SearchParams = {
   searchParams: {
@@ -19,6 +20,8 @@ type SearchParams = {
 };
 
 export default async function AdminDashboard({ searchParams }: SearchParams) {
+  await checkPermissions("admin");
+
   const {
     totalSalesRange,
     totalSalesRangeFrom,
