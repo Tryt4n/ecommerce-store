@@ -10,6 +10,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { buttonVariants } from "./ui/button";
+import type { VariantProps } from "class-variance-authority";
 
 type CustomAlertDialogProps = {
   triggerElement: React.ReactNode;
@@ -20,6 +22,8 @@ type CustomAlertDialogProps = {
   actionText?: string;
   onAction?: () => void;
   onCancel?: () => void;
+  actionButtonVariant?: VariantProps<typeof buttonVariants>["variant"];
+  cancelButtonVariant?: VariantProps<typeof buttonVariants>["variant"];
 };
 
 export function CustomAlertDialog({
@@ -31,6 +35,8 @@ export function CustomAlertDialog({
   cancelText,
   onAction,
   onCancel,
+  actionButtonVariant = "default",
+  cancelButtonVariant = "ghost",
 }: CustomAlertDialogProps) {
   return (
     <AlertDialog>
@@ -46,13 +52,18 @@ export function CustomAlertDialog({
         </AlertDialogHeader>
 
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>
+          <AlertDialogCancel
+            className={buttonVariants({ variant: cancelButtonVariant })}
+            disabled={triggerElementDisabled}
+            onClick={onCancel}
+          >
             {cancelText ? cancelText : "Cancel"}
           </AlertDialogCancel>
 
           <AlertDialogAction
-            onClick={onAction}
+            className={buttonVariants({ variant: actionButtonVariant })}
             disabled={triggerElementDisabled}
+            onClick={onAction}
           >
             {actionText ? actionText : "Continue"}
           </AlertDialogAction>
