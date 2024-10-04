@@ -21,7 +21,7 @@ export default function DiscountCodesSections() {
   return (
     <div className="my-8">
       <section>
-        <h2 className="mb-4 text-2xl">Active Coupons</h2>
+        <h2 className="mb-4 text-2xl">Unexpired Coupons</h2>
 
         {discountCodes?.unexpiredDiscountCodes.length > 0 ? (
           <DiscountCodesTable
