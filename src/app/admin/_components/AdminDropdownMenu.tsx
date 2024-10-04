@@ -24,7 +24,7 @@ export default function AdminDropdownMenu({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent>
-        <DeleteDropdownItem id={id} promiseFn={deleteFn} />
+        <DeleteDropdownItem id={id} promiseFn={deleteFn} productName={name} />
       </DropdownMenuContent>
     </DropdownMenu>
   );
