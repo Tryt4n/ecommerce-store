@@ -2,20 +2,24 @@
 
 import React, { useTransition } from "react";
 import { useAdminContext } from "../_hooks/useAdminContext";
+import { useToast } from "@/hooks/useToast";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { CustomAlertDialog } from "@/components/CustomAlertDialog";
 
 export default function DeleteDropdownItem({
   promiseFn,
   id,
+  productName,
   disabled,
 }: {
   promiseFn: (id: string) => Promise<void>;
   id: string;
+  productName: string;
   disabled?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
   const { refetchData } = useAdminContext();
+  const { toast } = useToast();
 
   return (
     <CustomAlertDialog
@@ -26,7 +30,14 @@ export default function DeleteDropdownItem({
       actionButtonVariant={"destructive"}
       onAction={() =>
         startTransition(async () => {
-          await promiseFn(id).then(() => refetchData());
+          await promiseFn(id).then(() => {
+            refetchData();
+            toast({
+              title: "Deleted",
+              description: `${productName} has been deleted.`,
+              variant: "success",
+            });
+          });
         })
       }
       triggerElement={
