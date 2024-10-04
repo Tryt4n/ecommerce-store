@@ -1,20 +1,18 @@
 "use client";
 
 import React, { type ComponentProps } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LoginLink, LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
-import Link from "next/link";
-
-const linkClassNames =
-  "p-4 hover:bg-secondary hover:text-secondary-foreground focus:bg-secondary focus:text-secondary-foreground";
+import { Button } from "@/components/ui/button";
+import { CustomAlertDialog } from "@/components/CustomAlertDialog";
 
 export default function Navbar() {
   const { isAuthenticated, permissions } = useKindeBrowserClient();
+  const router = useRouter();
 
   return (
-    <nav className="flex justify-center bg-primary p-4 px-4 text-primary-foreground">
+    <nav className="flex justify-center bg-primary p-2 px-4 text-primary-foreground">
       <ul
         className="flex flex-grow flex-wrap justify-center gap-x-0.5 gap-y-8"
         aria-label="Page navigation"
@@ -39,25 +37,41 @@ export default function Navbar() {
 
       <div aria-label="Authentication">
         {isAuthenticated ? (
-          <LogoutLink className={linkClassNames}>Logout</LogoutLink>
+          <CustomAlertDialog
+            title="Are you sure you want to logout?"
+            actionText="Logout"
+            onAction={() => router.push("/api/auth/logout")}
+            triggerElement={
+              <Button variant="ghost" type="button" className="text-base">
+                Logout
+              </Button>
+            }
+          />
         ) : (
-          <LoginLink className={linkClassNames}>Sign in</LoginLink>
+          <Button
+            href="/api/auth/login"
+            variant="ghost"
+            type="button"
+            className="text-base"
+          >
+            Sign in
+          </Button>
         )}
       </div>
     </nav>
   );
 }
 
-export function NavLink(props: Omit<ComponentProps<typeof Link>, "className">) {
+export function NavLink(props: ComponentProps<typeof Button>) {
   const pathname = usePathname();
 
   return (
     <li className="">
-      <Link
+      <Button
         {...props}
+        variant="ghost"
         className={cn(
-          "text-wrap text-center",
-          linkClassNames,
+          "text-base",
           pathname === props.href ? "bg-background text-foreground" : ""
         )}
       />
