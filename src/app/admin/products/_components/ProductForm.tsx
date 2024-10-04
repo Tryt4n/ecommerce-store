@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useFormState } from "react-dom";
 import { useToast } from "@/hooks/useToast";
 import { formatCurrency } from "@/lib/formatters";
@@ -40,6 +40,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
   const [images, setImages] = useState<UploadedImage[]>(product?.images || []);
   const [file, setFile] = useState<UploadedFile>(product?.productFile || null);
 
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const { toast } = useToast();
 
   const ikUploadRef = useRef<HTMLInputElement>(null);
@@ -54,8 +55,33 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
   const uploadInfoState =
     !product?.images && !file && (isFilesUploadDisabled || images.length <= 1);
 
+  useEffect(() => {
+    if (!isFormSubmitted) return;
+
+    if (error && Object.values(error).some((field) => field !== undefined)) {
+      toast({
+        title: "Error",
+        description: `There was an error while trying to ${product ? "update" : "add"} the discount code.`,
+        variant: "destructive",
+      });
+
+      setIsFormSubmitted(false);
+      return;
+    }
+
+    toast({
+      title: product ? "Updated" : "Added",
+      description: `Product ${product ? "updated" : "added"} successfully.`,
+      variant: "success",
+    });
+  }, [isFormSubmitted, error, toast, product]);
+
   return (
-    <form action={action} className="space-y-8">
+    <form
+      action={action}
+      onSubmit={() => setIsFormSubmitted(true)}
+      className="space-y-8"
+    >
       <div className="space-y-2">
         <Label htmlFor="name">Name</Label>
         <Input
@@ -181,7 +207,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
       </div>
 
       <div className="flex flex-row gap-4">
-        <SubmitButton edit={product ? true : false} />
+        <SubmitButton size="lg" edit={product ? true : false} />
 
         <CancelButton
           allUploadedImages={images}
