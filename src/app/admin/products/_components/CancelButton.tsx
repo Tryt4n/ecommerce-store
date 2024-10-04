@@ -104,6 +104,7 @@ export default function CancelButton({
       type="button"
       variant="outline"
       disabled={isCanceling}
+      size="lg"
       onClick={async () => {
         await handleCancel().then(() => router.back());
       }}

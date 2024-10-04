@@ -45,6 +45,7 @@ export default function ProductDropdownMenu({
 
         <ActiveToggleDropdownMenuItem
           id={product.id}
+          productName={product.name}
           isActive={product.isAvailableForPurchase}
           promiseFn={toggleProductAvailability}
         />
@@ -53,6 +54,7 @@ export default function ProductDropdownMenu({
 
         <DeleteDropdownItem
           id={product.id}
+          productName={product.name}
           disabled={product._count > 0}
           promiseFn={deleteProduct}
         />

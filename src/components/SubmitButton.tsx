@@ -26,7 +26,7 @@ export default function SubmitButton({
       type="submit"
       size={size}
       disabled={pending}
-      variant={pending ? "ghost" : "default"}
+      variant="default"
       className={className}
     >
       {pending

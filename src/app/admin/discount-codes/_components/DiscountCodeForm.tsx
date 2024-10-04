@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormState } from "react-dom";
+import { useToast } from "@/hooks/useToast";
 import { DiscountCodeType } from "@prisma/client";
 import { addDiscountCode, updateDiscountCode } from "../_actions/discounts";
 import { getUTCDate } from "@/lib/formatters";
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import CancelButton from "@/components/CancelButton";
 import MultipleSelector from "@/components/ui/multiple-selector";
 import ErrorMessage from "@/components/ErrorMessage";
 import SubmitButton from "@/components/SubmitButton";
@@ -47,13 +49,41 @@ export default function DiscountCodeForm({
     DiscountCodeFormProps["categories"]
   >(discountCode?.categories?.map((category) => category.name));
 
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+  const { toast } = useToast();
+
   const today = new Date();
   today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
 
   const isAlreadyUsed = discountCode && discountCode?.uses > 0 ? true : false;
 
+  useEffect(() => {
+    if (!isFormSubmitted) return;
+
+    if (error && Object.values(error).some((field) => field !== undefined)) {
+      toast({
+        title: "Error",
+        description: `There was an error while trying to ${discountCode ? "update" : "add"} the discount code.`,
+        variant: "destructive",
+      });
+
+      setIsFormSubmitted(false);
+      return;
+    }
+
+    toast({
+      title: discountCode ? "Updated" : "Added",
+      description: `Discount code ${discountCode ? "updated" : "added"} successfully.`,
+      variant: "success",
+    });
+  }, [isFormSubmitted, error, toast, discountCode]);
+
   return (
-    <form action={action} className="space-y-8 px-1">
+    <form
+      action={action}
+      onSubmit={() => setIsFormSubmitted(true)}
+      className="space-y-8 px-1"
+    >
       <div className="space-y-2">
         <Label htmlFor="code">Code</Label>
         <Input
@@ -73,7 +103,9 @@ export default function DiscountCodeForm({
           <RadioGroup
             id="discountType"
             name="discountType"
-            defaultValue={DiscountCodeType.PERCENTAGE}
+            defaultValue={
+              discountCode?.discountType || DiscountCodeType.PERCENTAGE
+            }
             disabled={isAlreadyUsed}
           >
             {isAlreadyUsed && (
@@ -269,11 +301,15 @@ export default function DiscountCodeForm({
         </fieldset>
       </div>
 
-      <SubmitButton
-        className="w-full text-base"
-        size={"lg"}
-        edit={discountCode ? true : false}
-      />
+      <div className="flex flex-row gap-4">
+        <SubmitButton
+          className="text-base"
+          size="lg"
+          edit={discountCode ? true : false}
+        />
+
+        <CancelButton />
+      </div>
     </form>
   );
 }

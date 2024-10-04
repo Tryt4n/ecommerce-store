@@ -3,6 +3,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -40,7 +41,7 @@ export interface ButtonProps
 }
 
 export interface AnchorProps
-  extends React.AnchorHTMLAttributes<HTMLAnchorElement>,
+  extends React.AnchorHTMLAttributes<typeof Link>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
@@ -48,22 +49,20 @@ export interface AnchorProps
 type CombinedProps = (ButtonProps | AnchorProps) & { href?: string };
 
 const Button = React.forwardRef<
-  HTMLButtonElement & HTMLAnchorElement,
+  HTMLButtonElement & React.ComponentProps<typeof Link>,
   CombinedProps
 >(({ className, variant, size, asChild = false, href, ...props }, ref) => {
-  let Comp: React.ElementType = asChild ? Slot : "button";
-  if (href) {
-    Comp = "a";
-  }
+  const Comp: React.ElementType = asChild ? Slot : href ? Link : "button";
 
   return (
+    // @ts-expect-error - it works fine
     <Comp
       className={cn(
         "cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500",
         buttonVariants({ variant, size, className })
       )}
       ref={ref}
-      href={href}
+      {...(href ? { href } : {})} // if `href` is present, pass it to the component
       {...props}
     />
   );

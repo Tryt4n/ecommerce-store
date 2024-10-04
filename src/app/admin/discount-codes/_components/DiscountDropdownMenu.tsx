@@ -37,6 +37,7 @@ export default function DiscountDropdownMenu({
           <>
             <ActiveToggleDropdownMenuItem
               id={discount.id}
+              productName={discount.code}
               isActive={discount.isActive}
               promiseFn={toggleDiscountCodeActive}
             />
@@ -53,6 +54,7 @@ export default function DiscountDropdownMenu({
 
         <DeleteDropdownItem
           id={discount.id}
+          productName={discount.code}
           disabled={discount.uses > 0}
           promiseFn={deleteDiscountCode}
         />
