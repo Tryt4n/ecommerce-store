@@ -76,7 +76,12 @@ export async function getProduct(id: Product["id"]) {
 }
 
 export const getAllAvailableForPurchaseProducts = cache(
-  async (orderBy: keyof Product = "name", type: SortingType = "asc") => {
+  async (
+    orderBy: keyof Product = "name",
+    type: SortingType = "asc",
+    skip: number | undefined = undefined,
+    take: number | undefined = undefined
+  ) => {
     try {
       const products = await db.product.findMany({
         where: { isAvailableForPurchase: true },
@@ -90,7 +95,10 @@ export const getAllAvailableForPurchaseProducts = cache(
           categories: { select: { category: { select: { name: true } } } },
           images: { take: 1, select: { url: true } },
         },
-        orderBy: { [orderBy]: type },
+        // Sort by the given `orderBy` and then by `name` in ascending order in case of the same `orderBy` value
+        orderBy: [{ [orderBy]: type }, { name: "asc" }],
+        skip: skip,
+        take: take,
       });
 
       return filterProductCategories(products);
@@ -108,4 +116,12 @@ function filterProductCategories<
     ...product,
     categories: product.categories.map((category) => category.category.name),
   }));
+}
+
+export async function getAllAvailableProductsCount() {
+  try {
+    return await db.product.count({ where: { isAvailableForPurchase: true } });
+  } catch (error) {
+    console.error(`Can't get products count. Error: ${error}`);
+  }
 }
