@@ -58,7 +58,7 @@ export default async function ProductsPage({
           </Suspense>
         </CustomLayoutListGrid>
 
-        <footer className="flex flex-row items-center justify-between gap-4">
+        <footer className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
           <PageNavigation
             searchParams={searchParams}
             productsCount={productsCount}
