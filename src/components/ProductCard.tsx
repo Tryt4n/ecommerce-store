@@ -39,10 +39,12 @@ export default function ProductCard({
   return (
     <li>
       <section className="h-full">
-        <Card className="h-full">
+        <Card
+          className={`h-full overflow-visible border-0 transition-all hover:shadow-xl ${layout === "grid" ? "hover:scale-105" : "hover:scale-[102.5%]"}`}
+        >
           <Link
             href={`/products/${id}`}
-            className={`flex ${layout === "grid" ? "h-full flex-col justify-between" : "flex-row"}`}
+            className={`flex ${layout === "grid" ? "h-full flex-col justify-between" : "flex-row"} overflow-hidden rounded-lg border`}
             onClick={(e) => {
               if (e.target instanceof HTMLButtonElement) {
                 e.preventDefault();
