@@ -55,13 +55,14 @@ export default function PageNavigation({
             onClick={() => handleChangePage(currentPageNumber - 1)}
           >
             &lsaquo;
+            <span className="sr-only">Go to previous page.</span>
           </Button>
         )}
 
         {currentPageNumber >= 3 && (
           // Display the first page button only if there are at least two pages before the current page because the navigation for the first page in this case is displayed separately as the previous page button
           <Button {...commonButtonProps} onClick={() => handleChangePage(1)}>
-            1
+            1<span className="sr-only">Go to first page.</span>
           </Button>
         )}
 
@@ -82,6 +83,7 @@ export default function PageNavigation({
             onClick={() => handleChangePage(lastPageNumber)}
           >
             {lastPageNumber}
+            <span className="sr-only">Go to next page.</span>
           </Button>
         )}
 
@@ -93,6 +95,7 @@ export default function PageNavigation({
             onClick={() => handleChangePage(currentPageNumber + 1)}
           >
             &rsaquo;
+            <span className="sr-only">Go to next page.</span>
           </Button>
         )}
 
