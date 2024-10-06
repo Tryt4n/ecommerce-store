@@ -2,7 +2,7 @@ import React from "react";
 import CustomLayoutProductCard from "./CustomLayoutProductCard";
 import { defaultProductsPerPage } from "../_types/layoutTypes";
 import type { getAllAvailableForPurchaseProducts } from "@/db/userData/products";
-import type { ProductsSearchParams } from "../_context/ProductsContext";
+import type { ProductsSearchParams } from "../page";
 
 type ProductSuspenseProps = {
   productsFetcher: typeof getAllAvailableForPurchaseProducts;

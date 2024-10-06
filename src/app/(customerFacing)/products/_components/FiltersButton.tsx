@@ -2,7 +2,6 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useProductsContext } from "../_hooks/useProductsContext";
 import { createNewSearchParams } from "../_helpers/searchParams";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,9 +19,13 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { FilterIcon } from "lucide-react";
+import type { ProductsSearchParams } from "../page";
 
-export default function FiltersButton() {
-  const { searchParams } = useProductsContext();
+export default function FiltersButton({
+  searchParams,
+}: {
+  searchParams: ProductsSearchParams;
+}) {
   const router = useRouter();
   const pathname = usePathname();
 

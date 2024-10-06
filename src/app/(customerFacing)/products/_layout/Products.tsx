@@ -3,7 +3,7 @@ import { getAllAvailableForPurchaseProducts } from "@/db/userData/products";
 import CustomLayoutListGrid from "../_components/CustomLayoutListGrid";
 import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import CustomProductsSuspense from "../_components/CustomProductsSuspense";
-import type { ProductsSearchParams } from "../_context/ProductsContext";
+import type { ProductsSearchParams } from "../page";
 
 export default function Products({
   searchParams,
