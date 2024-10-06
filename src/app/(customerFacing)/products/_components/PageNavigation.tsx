@@ -108,6 +108,7 @@ export default function PageNavigation({
               type="number"
               className="h-[40px] w-[60px] text-center text-sm font-medium"
               style={{ lineHeight: 0 }}
+              placeholder="..."
               min={currentPageNumber === 1 ? 2 : 1}
               max={
                 lastPageNumber === currentPageNumber
