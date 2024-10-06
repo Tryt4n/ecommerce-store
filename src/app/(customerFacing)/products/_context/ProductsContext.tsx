@@ -1,7 +1,10 @@
 "use client";
 
 import { createContext, useState } from "react";
-import { defaultProductsLayout, type ProductsLayout } from "../_types/layout";
+import {
+  defaultProductsLayout,
+  type ProductsLayout,
+} from "../_types/layoutTypes";
 
 type ProductsContextType = {
   layout: ProductsLayout;

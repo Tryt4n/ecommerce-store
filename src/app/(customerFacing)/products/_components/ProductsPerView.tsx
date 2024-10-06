@@ -6,7 +6,7 @@ import {
   defaultProductsLayout,
   productsPerPageValues,
   type ProductsPerPage,
-} from "../_types/layout";
+} from "../_types/layoutTypes";
 import { usePathname, useRouter } from "next/navigation";
 import type { ProductsSearchParams } from "../page";
 

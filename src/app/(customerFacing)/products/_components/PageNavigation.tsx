@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { defaultProductsPerPage } from "../_types/layout";
+import { defaultProductsPerPage } from "../_types/layoutTypes";
 import type { ProductsSearchParams } from "../page";
 
 export default function PageNavigation({

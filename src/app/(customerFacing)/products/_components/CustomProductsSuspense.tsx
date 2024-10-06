@@ -1,6 +1,6 @@
 import React from "react";
 import CustomLayoutProductCard from "./CustomLayoutProductCard";
-import { defaultProductsPerPage } from "../_types/layout";
+import { defaultProductsPerPage } from "../_types/layoutTypes";
 import type { getAllAvailableForPurchaseProducts } from "@/db/userData/products";
 import type { ProductsSearchParams } from "../page";
 

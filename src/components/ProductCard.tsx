@@ -15,7 +15,7 @@ import PurchaseButton from "@/app/(customerFacing)/products/_components/Purchase
 import { formatCurrency } from "@/lib/formatters";
 import type { Category, Product } from "@prisma/client";
 import type { UploadedImage } from "@/lib/imagekit/type";
-import type { ProductsLayout } from "@/app/(customerFacing)/products/_types/layout";
+import type { ProductsLayout } from "@/app/(customerFacing)/products/_types/layoutTypes";
 
 type ProductCardProps = {
   id: Product["id"];
