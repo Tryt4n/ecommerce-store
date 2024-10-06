@@ -50,7 +50,7 @@ export default function OrderInformation({
       </Section>
 
       <Section className="my-4 rounded-lg border border-solid border-gray-500 p-4 md:p-6">
-        <Img src={product.images[0].url} alt={product.name} width="100%" />
+        <Img src={product.images[0]?.url} alt={product.name} width="100%" />
 
         <Row className="mt-8">
           <Column className="align-bottom">

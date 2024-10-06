@@ -15,6 +15,7 @@ export default function LayoutButton() {
       aria-label="Toggle layout view between list and grid."
     >
       {layout === "list" ? <LayoutList /> : <LayoutGrid />}
+      <span className="sr-only">{`Current layout: ${layout}.`}</span>
     </Button>
   );
 }

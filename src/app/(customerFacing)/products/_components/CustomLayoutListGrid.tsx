@@ -12,8 +12,8 @@ export default function CustomLayoutListGrid({
 
   const layoutClassName =
     layout === "grid"
-      ? "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
-      : "flex flex-col gap-4";
+      ? "grid grid-cols-1 gap-x-4 gap-y-8 md:grid-cols-2 lg:grid-cols-3"
+      : "flex flex-col gap-6";
 
   return <ul className={layoutClassName}>{children}</ul>;
 }
