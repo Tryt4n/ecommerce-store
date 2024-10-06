@@ -2,21 +2,20 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useProductsContext } from "../_hooks/useProductsContext";
+import { createNewSearchParams } from "../_helpers/searchParams";
 import { Button } from "@/components/ui/button";
 import {
   defaultProductsPerPage,
   productsPerPageValues,
   type ProductsPerPage,
 } from "../_types/layoutTypes";
-import type { ProductsSearchParams } from "../page";
 
-export default function ProductsPerView({
-  searchParams,
-}: {
-  searchParams: ProductsSearchParams;
-}) {
+export default function ProductsPerView() {
+  const { searchParams } = useProductsContext();
   const router = useRouter();
   const pathname = usePathname();
+
   const { take } = searchParams;
 
   const isValidProductsPerPage = (value: number): value is ProductsPerPage => {
@@ -29,10 +28,11 @@ export default function ProductsPerView({
   ) as ProductsPerPage;
 
   function changeProductPerPage(value: ProductsPerPage) {
-    const params = new URLSearchParams({
-      ...searchParams,
-      take: value.toString(),
-    });
+    const params = createNewSearchParams(
+      searchParams,
+      "take",
+      value.toString()
+    );
 
     // Update the URL with the new sorting params
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
