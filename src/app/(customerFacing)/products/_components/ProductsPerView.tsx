@@ -39,23 +39,36 @@ export default function ProductsPerView({
   }
 
   return (
-    <div className="flex flex-row gap-1">
-      {productsPerPageValues.map((value) => (
-        <Button
-          key={value}
-          type="button"
-          variant="outline"
-          disabled={productsPerPage === value}
-          aria-label={
-            productsPerPage === value
-              ? "Current number of products displayed on the page."
-              : `Click to display ${value} products per page.`
-          }
-          onClick={() => changeProductPerPage(value)}
-        >
-          {value}
-        </Button>
-      ))}
+    <div>
+      <p
+        id="productsPerPage"
+        className="text-sm font-medium sm:text-end"
+        aria-label="Select number of products per page"
+      >
+        Products per page
+      </p>
+
+      <div
+        className="mt-1 flex flex-row gap-1 sm:justify-end"
+        aria-describedby="productsPerPage"
+      >
+        {productsPerPageValues.map((value) => (
+          <Button
+            key={value}
+            type="button"
+            variant="outline"
+            disabled={productsPerPage === value}
+            aria-label={
+              productsPerPage === value
+                ? "Current number of products displayed on the page."
+                : `Click to display ${value} products per page.`
+            }
+            onClick={() => changeProductPerPage(value)}
+          >
+            {value}
+          </Button>
+        ))}
+      </div>
     </div>
   );
 }
