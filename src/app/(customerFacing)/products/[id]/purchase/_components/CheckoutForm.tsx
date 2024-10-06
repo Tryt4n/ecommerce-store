@@ -35,7 +35,7 @@ export default function CheckoutForm({
     <div className="mx-auto max-w-5xl space-y-8">
       <section className="flex items-center gap-4">
         <div className="relative aspect-video w-1/3 flex-shrink-0">
-          <Image src={product.images[0].url} alt={product.name} />
+          <Image src={product.images[0]?.url} alt={product.name} />
         </div>
 
         <div>
