@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
-  defaultProductsLayout,
+  defaultProductsPerPage,
   productsPerPageValues,
   type ProductsPerPage,
 } from "../_types/layoutTypes";
-import { usePathname, useRouter } from "next/navigation";
 import type { ProductsSearchParams } from "../page";
 
 export default function ProductsPerView({
@@ -25,7 +25,7 @@ export default function ProductsPerView({
 
   // Default to 12 products per page if the query parameter is not provided or invalid
   const productsPerPage = (
-    isValidProductsPerPage(Number(take)) ? Number(take) : defaultProductsLayout
+    isValidProductsPerPage(Number(take)) ? Number(take) : defaultProductsPerPage
   ) as ProductsPerPage;
 
   function changeProductPerPage(value: ProductsPerPage) {
