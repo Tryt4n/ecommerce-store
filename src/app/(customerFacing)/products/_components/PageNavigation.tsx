@@ -2,28 +2,23 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useProductsContext } from "../_hooks/useProductsContext";
 import { createNewSearchParams } from "../_helpers/searchParams";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { defaultProductsPerPage } from "../_types/layoutTypes";
+import type { ProductsSearchParams } from "../page";
 
 export default function PageNavigation({
-  productsCount,
+  searchParams,
+  lastPageNumber,
 }: {
-  productsCount?: number;
+  searchParams: ProductsSearchParams;
+  lastPageNumber?: number;
 }) {
-  const { searchParams } = useProductsContext();
   const router = useRouter();
   const pathname = usePathname();
 
   const currentPageNumber = Number(searchParams.page) || 1;
-  const lastPageNumber =
-    productsCount &&
-    Math.ceil(
-      productsCount / (Number(searchParams.take) || defaultProductsPerPage)
-    );
 
   function handleChangePage(page: number) {
     const params = createNewSearchParams(searchParams, "page", page.toString());

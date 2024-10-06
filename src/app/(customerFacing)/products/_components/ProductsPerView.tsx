@@ -2,7 +2,6 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useProductsContext } from "../_hooks/useProductsContext";
 import { createNewSearchParams } from "../_helpers/searchParams";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,12 +9,17 @@ import {
   productsPerPageValues,
   type ProductsPerPage,
 } from "../_types/layoutTypes";
+import type { ProductsSearchParams } from "../page";
 
-export default function ProductsPerView() {
-  const { searchParams } = useProductsContext();
+export default function ProductsPerView({
+  searchParams,
+  lastPageNumber,
+}: {
+  searchParams: ProductsSearchParams;
+  lastPageNumber?: number;
+}) {
   const router = useRouter();
   const pathname = usePathname();
-
   const { take } = searchParams;
 
   const isValidProductsPerPage = (value: number): value is ProductsPerPage => {
@@ -27,7 +31,7 @@ export default function ProductsPerView() {
     isValidProductsPerPage(Number(take)) ? Number(take) : defaultProductsPerPage
   ) as ProductsPerPage;
 
-  function changeProductPerPage(value: ProductsPerPage) {
+  function changeProductsPerPage(value: ProductsPerPage) {
     const params = createNewSearchParams(
       searchParams,
       "take",
@@ -36,6 +40,20 @@ export default function ProductsPerView() {
 
     // Update the URL with the new sorting params
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+
+  if (
+    searchParams &&
+    lastPageNumber &&
+    Number(searchParams.page) > lastPageNumber
+  ) {
+    const params = createNewSearchParams(
+      searchParams,
+      "page",
+      lastPageNumber.toString()
+    );
+
+    router.push(`${pathname}?${params}`, { scroll: false });
   }
 
   return (
@@ -63,7 +81,7 @@ export default function ProductsPerView() {
                 ? "Current number of products displayed on the page."
                 : `Click to display ${value} products per page.`
             }
-            onClick={() => changeProductPerPage(value)}
+            onClick={() => changeProductsPerPage(value)}
           >
             {value}
           </Button>
