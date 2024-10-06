@@ -12,12 +12,12 @@ export default function HomePage() {
 
       <ProductsGridSection
         title="Most Popular"
-        productsFetcher={() => getMostPopularProducts(3)}
+        productsFetcher={() => getMostPopularProducts(6)}
       />
 
       <ProductsGridSection
         title="Newest"
-        productsFetcher={() => getNewestProducts(3)}
+        productsFetcher={() => getNewestProducts(6)}
       />
     </>
   );

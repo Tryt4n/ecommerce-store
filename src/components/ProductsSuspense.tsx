@@ -2,7 +2,7 @@ import React, { ComponentProps } from "react";
 import ProductCard from "./ProductCard";
 import type ProductsGridSection from "@/app/(customerFacing)/_components/ProductsGridSection";
 
-export default async function ProductSuspense({
+export default async function ProductsSuspense({
   productsFetcher,
 }: {
   productsFetcher: ComponentProps<
@@ -20,7 +20,7 @@ export default async function ProductSuspense({
           name={product.name}
           priceInCents={product.priceInCents}
           description={product.description}
-          imageUrl={product.images[0].url}
+          imageUrl={product.images[0]?.url}
           categories={product.categories}
         />
       ))}

@@ -2,19 +2,15 @@ import React, { Suspense } from "react";
 import ProductsSectionHeader from "./ProductsSectionHeader";
 import ListGrid from "@/layout/ListGrid";
 import ProductCardSkeleton from "@/components/ProductCardSkeleton";
-import ProductSuspense from "@/components/ProductSuspense";
+import ProductsSuspense from "@/components/ProductsSuspense";
 import type {
-  getAllAvailableForPurchaseProducts,
   getMostPopularProducts,
   getNewestProducts,
 } from "@/db/userData/products";
 
 type ProductsGridSectionProps = {
   title: string;
-  productsFetcher:
-    | typeof getMostPopularProducts
-    | typeof getNewestProducts
-    | typeof getAllAvailableForPurchaseProducts;
+  productsFetcher: typeof getMostPopularProducts | typeof getNewestProducts;
 };
 
 export default function ProductsGridSection({
@@ -22,7 +18,7 @@ export default function ProductsGridSection({
   productsFetcher,
 }: ProductsGridSectionProps) {
   return (
-    <section className="space-y-4">
+    <article className="space-y-4">
       <ProductsSectionHeader title={title} />
 
       <ListGrid>
@@ -35,9 +31,9 @@ export default function ProductsGridSection({
             </>
           }
         >
-          <ProductSuspense productsFetcher={productsFetcher} />
+          <ProductsSuspense productsFetcher={productsFetcher} />
         </Suspense>
       </ListGrid>
-    </section>
+    </article>
   );
 }
