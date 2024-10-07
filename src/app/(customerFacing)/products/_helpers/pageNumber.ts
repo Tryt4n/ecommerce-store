@@ -2,7 +2,7 @@ import { defaultProductsPerPage } from "../_types/layoutTypes";
 
 export function getLastPageNumber(
   productsCount?: number | null,
-  value?: string | number
+  value?: string | number | null
 ) {
   if (!productsCount) return null;
 
