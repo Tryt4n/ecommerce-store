@@ -2,7 +2,8 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { createNewSearchParams } from "../_helpers/searchParams";
+import { useProductsContext } from "../_hooks/useProductsContext";
+import { getLastPageNumber } from "../_helpers/pageNumber";
 import { Button } from "@/components/ui/button";
 import {
   defaultProductsPerPage,
@@ -13,11 +14,10 @@ import type { ProductsSearchParams } from "../page";
 
 export default function ProductsPerView({
   searchParams,
-  lastPageNumber,
 }: {
   searchParams: ProductsSearchParams;
-  lastPageNumber?: number;
 }) {
+  const { productsCount } = useProductsContext();
   const router = useRouter();
   const pathname = usePathname();
   const { take } = searchParams;
@@ -32,28 +32,25 @@ export default function ProductsPerView({
   ) as ProductsPerPage;
 
   function changeProductsPerPage(value: ProductsPerPage) {
-    const params = createNewSearchParams(
-      searchParams,
-      "take",
-      value.toString()
-    );
+    // Calculate the last page number based on the new products per page value
+    const lastPageNumber = getLastPageNumber(productsCount, value);
+
+    // If the current page number is greater than the last page number, set the page number to the last page number. Otherwise, keep the current page number.
+    const pageParam =
+      (lastPageNumber &&
+      searchParams.page &&
+      Number(searchParams.page) > lastPageNumber
+        ? lastPageNumber.toString()
+        : searchParams.page) || "1";
+
+    const params = new URLSearchParams({
+      ...searchParams,
+      take: value.toString(),
+      page: pageParam,
+    });
 
     // Update the URL with the new sorting params
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  }
-
-  if (
-    searchParams &&
-    lastPageNumber &&
-    Number(searchParams.page) > lastPageNumber
-  ) {
-    const params = createNewSearchParams(
-      searchParams,
-      "page",
-      lastPageNumber.toString()
-    );
-
-    router.push(`${pathname}?${params}`, { scroll: false });
   }
 
   return (
