@@ -1,11 +1,14 @@
 "use client";
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getAllAvailableProductsCount } from "@/db/userData/products";
 import {
   defaultProductsLayout,
   type ProductsLayout,
 } from "../_types/layoutTypes";
+import { getLastPageNumber } from "../_helpers/pageNumber";
+import type { ProductsSearchParams } from "../page";
 
 type ProductsContextType = {
   layout: ProductsLayout;
@@ -23,16 +26,49 @@ export default function ProductsContextProvider({
   const [layout, setLayout] = useState<ProductsLayout>(defaultProductsLayout);
   const [productsCount, setProductsCount] = useState<number | null>(null);
 
-  useEffect(() => {
-    async function fetchProductsCount() {
-      const count = await getAllAvailableProductsCount();
-      if (count) {
-        setProductsCount(count);
-      }
-    }
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
-    fetchProductsCount();
+  // Get search params
+  const searchQueryParam = searchParams.get("searchQuery");
+  const pageParam = searchParams.get("page");
+  const takeParam = searchParams.get("take");
+  const sortByParam = searchParams.get("sortBy");
+  const orderParam = searchParams.get("order");
+
+  // Fetch products count based on search query
+  const fetchProductsCount = useCallback(async (query?: string) => {
+    const count = await getAllAvailableProductsCount(query);
+
+    if (count) {
+      setProductsCount(count);
+    }
   }, []);
+
+  // Fetch products count on initial render and when search query changes
+  useEffect(() => {
+    fetchProductsCount(searchQueryParam || undefined);
+  }, [fetchProductsCount, searchQueryParam]);
+
+  // Get the last page number
+  const lastPageNumber = getLastPageNumber(productsCount, takeParam);
+
+  // Redirect to the last page if the current page number is greater than the last page number
+  if (lastPageNumber && pageParam && Number(pageParam) > lastPageNumber) {
+    const params = new URLSearchParams({
+      page: lastPageNumber.toString(),
+    } as ProductsSearchParams);
+
+    // Pass the rest of the search params if they exist
+    takeParam && params.set("take", takeParam);
+    sortByParam && params.set("sortBy", sortByParam);
+    orderParam && params.set("order", orderParam);
+    searchQueryParam && params.set("searchQuery", searchQueryParam);
+
+    // Update the URL with the new page number
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }
 
   return (
     <ProductsContext.Provider value={{ layout, setLayout, productsCount }}>
