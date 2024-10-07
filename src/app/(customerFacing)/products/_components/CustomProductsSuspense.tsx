@@ -16,6 +16,7 @@ export default async function CustomProductsSuspense({
     take = defaultProductsPerPage.toString(),
     sortBy = "name",
     order = "asc",
+    searchQuery,
   },
 }: ProductSuspenseProps) {
   const productsToSkip =
@@ -41,7 +42,8 @@ export default async function CustomProductsSuspense({
     productsSortBy,
     productsOrder,
     productsToSkip,
-    productsToDisplay
+    productsToDisplay,
+    searchQuery
   );
 
   return (

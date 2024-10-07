@@ -11,6 +11,7 @@ export type ProductsSearchParams = {
   take?: string;
   sortBy?: keyof Product;
   order?: SortingType;
+  searchQuery?: string;
 };
 
 export default function ProductsPage({

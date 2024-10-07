@@ -8,6 +8,7 @@ import { getLastPageNumber } from "../_helpers/pageNumber";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { defaultProductsPerPage } from "../_types/layoutTypes";
 import type { ProductsSearchParams } from "../page";
 
 export default function PageNavigation({
@@ -20,9 +21,14 @@ export default function PageNavigation({
   const { toast, dismiss } = useToast();
   const router = useRouter();
   const pathname = usePathname();
+  const { page, take } = searchParams;
 
-  const currentPageNumber = Number(searchParams.page) || 1;
-  const lastPageNumber = getLastPageNumber(productsCount, searchParams.take);
+  const currentPageNumber = page ? Number(page) : 1;
+  const lastPageNumber = getLastPageNumber(productsCount, take);
+  const productsPerPage = take ? Number(take) : defaultProductsPerPage;
+
+  // If the number of products is less than or equal to the number of products per page, do not display the page navigation
+  if (productsCount && productsCount <= productsPerPage) return null;
 
   function handleChangePage(page: number) {
     const params = new URLSearchParams({
