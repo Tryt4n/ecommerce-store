@@ -20,16 +20,12 @@ export default function ProductsPerView({
   const { productsCount } = useProductsContext();
   const router = useRouter();
   const pathname = usePathname();
-  const { take } = searchParams;
+  const { take, page } = searchParams;
 
-  const isValidProductsPerPage = (value: number): value is ProductsPerPage => {
-    return productsPerPageValues.includes(value as ProductsPerPage);
-  };
+  const productsPerPage = take ? Number(take) : defaultProductsPerPage;
 
-  // Default to 12 products per page if the query parameter is not provided or invalid
-  const productsPerPage = (
-    isValidProductsPerPage(Number(take)) ? Number(take) : defaultProductsPerPage
-  ) as ProductsPerPage;
+  // If the number of products is less than or equal to the number of products per page, do not display the page navigation
+  if (productsCount && productsCount <= productsPerPage) return null;
 
   function changeProductsPerPage(value: ProductsPerPage) {
     // Calculate the last page number based on the new products per page value
@@ -37,11 +33,9 @@ export default function ProductsPerView({
 
     // If the current page number is greater than the last page number, set the page number to the last page number. Otherwise, keep the current page number.
     const pageParam =
-      (lastPageNumber &&
-      searchParams.page &&
-      Number(searchParams.page) > lastPageNumber
+      (lastPageNumber && page && Number(page) > lastPageNumber
         ? lastPageNumber.toString()
-        : searchParams.page) || "1";
+        : page) || "1";
 
     const params = new URLSearchParams({
       ...searchParams,
