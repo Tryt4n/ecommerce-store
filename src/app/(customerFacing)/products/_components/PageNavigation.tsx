@@ -2,7 +2,9 @@
 
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { createNewSearchParams } from "../_helpers/searchParams";
+import { useProductsContext } from "../_hooks/useProductsContext";
+import { useToast } from "@/hooks/useToast";
+import { getLastPageNumber } from "../_helpers/pageNumber";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -10,18 +12,23 @@ import type { ProductsSearchParams } from "../page";
 
 export default function PageNavigation({
   searchParams,
-  lastPageNumber,
 }: {
   searchParams: ProductsSearchParams;
-  lastPageNumber?: number;
 }) {
+  const { productsCount } = useProductsContext();
+
+  const { toast, dismiss } = useToast();
   const router = useRouter();
   const pathname = usePathname();
 
   const currentPageNumber = Number(searchParams.page) || 1;
+  const lastPageNumber = getLastPageNumber(productsCount, searchParams.take);
 
   function handleChangePage(page: number) {
-    const params = createNewSearchParams(searchParams, "page", page.toString());
+    const params = new URLSearchParams({
+      ...searchParams,
+      page: page.toString(),
+    });
 
     router.push(`${pathname}?${params.toString()}`, { scroll: true });
   }
@@ -113,6 +120,15 @@ export default function PageNavigation({
               }
               maxLength={String(lastPageNumber).length}
               onKeyDown={(e) => {
+                if (Number(e.currentTarget.value) > lastPageNumber) {
+                  toast({
+                    title: "Invalid page number",
+                    variant: "destructive",
+                  });
+                  return;
+                } else {
+                  dismiss();
+                }
                 if (e.key === "Enter") {
                   const customPage = Number(e.currentTarget.value);
 
