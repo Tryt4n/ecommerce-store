@@ -1,23 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { type ComponentProps } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { createNewSearchParams } from "../_helpers/searchParams";
 import { Button } from "@/components/ui/button";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { FilterIcon } from "lucide-react";
 import type { ProductsSearchParams } from "../page";
 
@@ -31,74 +24,92 @@ export default function FiltersButton({
 
   const { sortBy, order } = searchParams;
 
-  function handleFilter(key: "sortBy" | "order", param: string) {
-    const params = createNewSearchParams(searchParams, key, param);
+  function handleFilter(
+    sortByValue: NonNullable<typeof sortBy>,
+    orderValue: NonNullable<typeof order>
+  ) {
+    const params = new URLSearchParams({
+      ...searchParams,
+      sortBy: sortByValue,
+      order: orderValue,
+    });
 
     router.push(`${pathname}?${params.toString()}`, { scroll: true });
   }
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <Button type="button" variant="outline">
           <FilterIcon />
         </Button>
-      </PopoverTrigger>
+      </DropdownMenuTrigger>
 
-      <PopoverContent side="bottom">
-        <div className="flex h-full flex-row gap-4">
-          <Select
-            defaultValue={sortBy || "name"}
-            onValueChange={(value) => handleFilter("sortBy", value)}
-          >
-            <SelectTrigger>Sort by</SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem
-                  value="name"
-                  className="cursor-pointer"
-                  defaultChecked
-                >
-                  Name
-                </SelectItem>
-                <SelectItem value="priceInCents" className="cursor-pointer">
-                  Price
-                </SelectItem>
-                <SelectItem value="createdAt" className="cursor-pointer">
-                  Date
-                </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+      <DropdownMenuContent side="bottom">
+        <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+        <DropdownMenuSeparator />
 
-          <Separator orientation="vertical" className="h-[40px]" />
+        <CustomDropdownMenuCheckboxItem
+          label="Alphabetically ascending"
+          checked={
+            (sortBy === "name" && !order) ||
+            (!sortBy && (!order || order === "asc")) ||
+            (sortBy === "name" && order === "asc")
+          }
+          onClick={() => handleFilter("name", "asc")}
+        />
+        <CustomDropdownMenuCheckboxItem
+          label="Alphabetically descending"
+          checked={
+            (!sortBy && order === "desc") ||
+            (sortBy === "name" && order === "desc")
+          }
+          onClick={() => handleFilter("name", "desc")}
+        />
 
-          <Select
-            defaultValue={order || "asc"}
-            onValueChange={(value) => handleFilter("order", value)}
-          >
-            <SelectTrigger>Order by</SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>
-                  {sortBy === "createdAt"
-                    ? "Date"
-                    : sortBy === "priceInCents"
-                      ? "Price"
-                      : "Alphabetically"}
-                </SelectLabel>
+        <CustomDropdownMenuCheckboxItem
+          label="Price ascending"
+          checked={
+            (sortBy === "priceInCents" && order === "asc") ||
+            (sortBy === "priceInCents" && !order)
+          }
+          onClick={() => handleFilter("priceInCents", "asc")}
+        />
+        <CustomDropdownMenuCheckboxItem
+          label="Price descending"
+          checked={sortBy === "priceInCents" && order === "desc"}
+          onClick={() => handleFilter("priceInCents", "desc")}
+        />
 
-                <SelectItem value="asc" className="cursor-pointer">
-                  {sortBy === "createdAt" ? "Newest" : "Ascending"}
-                </SelectItem>
-                <SelectItem value="desc" className="cursor-pointer">
-                  {sortBy === "createdAt" ? "Oldest" : "Descending"}
-                </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-      </PopoverContent>
-    </Popover>
+        <CustomDropdownMenuCheckboxItem
+          label="Newest"
+          checked={sortBy === "createdAt" && order === "desc"}
+          onClick={() => handleFilter("createdAt", "desc")}
+        />
+        <CustomDropdownMenuCheckboxItem
+          label="Oldest"
+          checked={
+            (sortBy === "createdAt" && order === "asc") ||
+            (sortBy === "createdAt" && !order)
+          }
+          onClick={() => handleFilter("createdAt", "asc")}
+        />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function CustomDropdownMenuCheckboxItem({
+  label,
+  ...props
+}: { label: string } & ComponentProps<typeof DropdownMenuCheckboxItem>) {
+  return (
+    <DropdownMenuCheckboxItem
+      {...props}
+      disabled={props.checked ? true : props.disabled}
+      className={`cursor-pointer${props.className ? ` ${props.className}` : ""}`}
+    >
+      {label}
+    </DropdownMenuCheckboxItem>
   );
 }
