@@ -42,6 +42,7 @@ export default function FiltersButton({
       <DropdownMenuTrigger asChild>
         <Button type="button" variant="outline">
           <FilterIcon />
+          <span className="sr-only">Sorting options</span>
         </Button>
       </DropdownMenuTrigger>
 

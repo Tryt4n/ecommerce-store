@@ -18,7 +18,7 @@ export default function ProductsGridSection({
   productsFetcher,
 }: ProductsGridSectionProps) {
   return (
-    <article className="space-y-4">
+    <article className="my-8">
       <ProductsSectionHeader title={title} />
 
       <ListGrid>
