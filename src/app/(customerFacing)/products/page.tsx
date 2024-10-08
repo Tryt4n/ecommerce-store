@@ -23,7 +23,7 @@ export default function ProductsPage({
     <ProductsContextProvider>
       <h1 className="sr-only">Products Page</h1>
 
-      <article className="space-y-4">
+      <article>
         <ProductsHeader searchParams={searchParams} />
 
         <Products searchParams={searchParams} />

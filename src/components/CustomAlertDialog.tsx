@@ -42,8 +42,8 @@ export function CustomAlertDialog({
     <AlertDialog>
       <AlertDialogTrigger asChild>{triggerElement}</AlertDialogTrigger>
 
-      <AlertDialogContent>
-        <AlertDialogHeader>
+      <AlertDialogContent className="rounded-lg">
+        <AlertDialogHeader className="text-start">
           <AlertDialogTitle>{title}</AlertDialogTitle>
 
           {description && (
@@ -51,7 +51,7 @@ export function CustomAlertDialog({
           )}
         </AlertDialogHeader>
 
-        <AlertDialogFooter>
+        <AlertDialogFooter className="flex flex-row items-center justify-end gap-2 [&>button]:m-0">
           <AlertDialogCancel
             className={buttonVariants({ variant: cancelButtonVariant })}
             disabled={triggerElementDisabled}
