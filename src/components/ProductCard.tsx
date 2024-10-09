@@ -37,6 +37,8 @@ export default function ProductCard({
   categories,
   layout = "grid",
 }: ProductCardProps) {
+  const maxImageSize = 590;
+
   return (
     <li>
       <section className="h-full">
@@ -53,9 +55,15 @@ export default function ProductCard({
             }}
           >
             <div
-              className={`relative grid aspect-square items-center justify-center bg-muted ${layout === "list" ? "w-[50%] md:w-[66%]" : ""}`}
+              className={`relative grid aspect-square max-h-[${maxImageSize}px] items-center justify-center overflow-hidden bg-muted ${layout === "list" ? "w-[50%] md:w-[66%]" : ""}`}
             >
-              <Image src={imageUrl || ""} alt={name} />
+              <Image
+                src={imageUrl}
+                alt={name}
+                width={maxImageSize}
+                height={maxImageSize}
+                isThumbnail
+              />
             </div>
 
             <div
