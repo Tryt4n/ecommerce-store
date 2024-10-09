@@ -35,7 +35,7 @@ export async function uploadFilesToImagekit(
     const formData = new FormData();
     formData.append("file", file);
     formData.append("fileName", file.name);
-    formData.append("folder", `Products/${directoryName.replace(" ", "_")}`);
+    formData.append("folder", `Products/${directoryName.replace(/ /g, "_")}`); // Replace all spaces with underscores
     formData.append("publicKey", process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY);
     formData.append("signature", signature);
     formData.append("expire", expire);
