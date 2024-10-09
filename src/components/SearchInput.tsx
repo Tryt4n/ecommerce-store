@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
@@ -15,7 +15,15 @@ export default function SearchInput({ className }: SearchInputProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [value, setValue] = useState(searchParams.get("searchQuery") || "");
+  const searchQuery = searchParams.get("searchQuery");
+  const [value, setValue] = useState(searchQuery || "");
+
+  // Reset value for the input when searchQuery would be deleted
+  useEffect(() => {
+    if (!searchQuery) {
+      setValue("");
+    }
+  }, [searchQuery]);
 
   return (
     <form
@@ -36,7 +44,7 @@ export default function SearchInput({ className }: SearchInputProps) {
       }}
     >
       <Label htmlFor="search" className="sr-only">
-        Search
+        Search for products
       </Label>
 
       <Input
