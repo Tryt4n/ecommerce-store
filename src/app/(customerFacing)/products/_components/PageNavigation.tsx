@@ -27,8 +27,9 @@ export default function PageNavigation({
   const lastPageNumber = getLastPageNumber(productsCount, take);
   const productsPerPage = take ? Number(take) : defaultProductsPerPage;
 
-  // If the number of products is less than or equal to the number of products per page, do not display the page navigation
-  if (productsCount && productsCount <= productsPerPage) return null;
+  // If `productsCount` does not exist or if the number of products is less than or equal to the number of products per page, do not display the page navigation
+  if (!productsCount || (productsCount && productsCount <= productsPerPage))
+    return null;
 
   function handleChangePage(page: number) {
     const params = new URLSearchParams({
