@@ -35,7 +35,6 @@ export default function NavbarLinks({
             href="/"
             setIsSheetOpen={setIsSheetOpen}
             isMobile={isMobile}
-            onClick={() => console.log("Home clicked")}
           />
           <NavLink
             label="Products"

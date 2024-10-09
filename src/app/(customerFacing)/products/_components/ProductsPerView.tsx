@@ -24,8 +24,9 @@ export default function ProductsPerView({
 
   const productsPerPage = take ? Number(take) : defaultProductsPerPage;
 
-  // If the number of products is less than or equal to the number of products per page, do not display the page navigation
-  if (productsCount && productsCount <= productsPerPage) return null;
+  // If `productsCount` does not exist or if the number of products is less than or equal to the number of products per page, do not display the page navigation
+  if (!productsCount || (productsCount && productsCount <= productsPerPage))
+    return null;
 
   function changeProductsPerPage(value: ProductsPerPage) {
     // Calculate the last page number based on the new products per page value

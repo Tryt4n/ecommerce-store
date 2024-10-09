@@ -14,6 +14,7 @@ type ProductsContextType = {
   layout: ProductsLayout;
   setLayout: (layout: ProductsLayout) => void;
   productsCount: number | null;
+  handleResetSearchQueryParam: () => void;
 };
 
 export const ProductsContext = createContext<ProductsContextType | null>(null);
@@ -41,9 +42,7 @@ export default function ProductsContextProvider({
   const fetchProductsCount = useCallback(async (query?: string) => {
     const count = await getAllAvailableProductsCount(query);
 
-    if (count) {
-      setProductsCount(count);
-    }
+    setProductsCount(count || 0); // Set the count to 0 if it is null
   }, []);
 
   // Fetch products count on initial render and when search query changes
@@ -70,8 +69,17 @@ export default function ProductsContextProvider({
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
+  function handleResetSearchQueryParam() {
+    const params = new URLSearchParams(searchParams);
+    params.delete("searchQuery");
+
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+
   return (
-    <ProductsContext.Provider value={{ layout, setLayout, productsCount }}>
+    <ProductsContext.Provider
+      value={{ layout, setLayout, productsCount, handleResetSearchQueryParam }}
+    >
       {children}
     </ProductsContext.Provider>
   );

@@ -25,7 +25,7 @@ export default function SortableItem({
     <li
       ref={setNodeRef}
       style={style}
-      className="relative mx-auto h-[320px] w-[320px]"
+      className="relative mx-auto h-[320px] w-[320px] max-w-[100%]"
     >
       <Button
         type="button"

@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { Trash } from "lucide-react";
 
 type SearchInputProps = {
   className?: string;
@@ -15,7 +16,15 @@ export default function SearchInput({ className }: SearchInputProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [value, setValue] = useState(searchParams.get("searchQuery") || "");
+  const searchQuery = searchParams.get("searchQuery");
+  const [value, setValue] = useState(searchQuery || "");
+
+  // Reset value for the input when searchQuery would be deleted
+  useEffect(() => {
+    if (!searchQuery) {
+      setValue("");
+    }
+  }, [searchQuery]);
 
   return (
     <form
@@ -36,19 +45,39 @@ export default function SearchInput({ className }: SearchInputProps) {
       }}
     >
       <Label htmlFor="search" className="sr-only">
-        Search
+        Search for products
       </Label>
 
-      <Input
-        type="search"
-        id="search"
-        name="search"
-        placeholder="Search"
-        autoComplete="off"
-        maxLength={256}
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-      />
+      <div className="relative w-full">
+        <Input
+          type="search"
+          id="search"
+          name="search"
+          placeholder="Search"
+          autoComplete="off"
+          maxLength={256}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+
+        {searchQuery && searchQuery !== "" && (
+          <Button
+            type="button"
+            variant="destructive"
+            className="absolute right-0 top-0 aspect-square p-2"
+            onClick={() => {
+              const params = new URLSearchParams(searchParams);
+              params.delete("searchQuery");
+
+              router.push(`${pathname}?${params.toString()}`, {
+                scroll: false,
+              });
+            }}
+          >
+            <Trash size={16} />
+          </Button>
+        )}
+      </div>
 
       <Button type="submit" variant="outline">
         Search

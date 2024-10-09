@@ -191,7 +191,7 @@ function ImageUploadInner(
                           index === 0 ? "Main Image" : `Image ${index + 1}`
                         }
                         trigger={
-                          <div className="relative mx-auto flex h-[320px] w-[320px] items-center rounded-md border">
+                          <div className="relative flex h-full w-full justify-center overflow-hidden rounded-md border">
                             <Image
                               src={image.url}
                               alt={`Uploaded image-${index === 0 ? "main" : index}`}

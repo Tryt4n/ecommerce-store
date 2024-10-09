@@ -1,5 +1,6 @@
 import React from "react";
 import CustomLayoutProductCard from "./CustomLayoutProductCard";
+import ResetSearchQueryParamButton from "./ResetSearchQueryParamButton";
 import { defaultProductsPerPage } from "../_types/layoutTypes";
 import type { getAllAvailableForPurchaseProducts } from "@/db/userData/products";
 import type { ProductsSearchParams } from "../page";
@@ -48,7 +49,7 @@ export default async function CustomProductsSuspense({
 
   return (
     <>
-      {products && products.length > 1 ? (
+      {products && products.length >= 1 ? (
         <>
           {products.map((product) => (
             <CustomLayoutProductCard
@@ -63,9 +64,12 @@ export default async function CustomProductsSuspense({
           ))}
         </>
       ) : (
-        <p className="col-span-full text-center">
-          Searched products not found.
-        </p>
+        <div className="col-span-full my-8 flex flex-row items-center justify-center gap-4">
+          <p className="col-span-full text-pretty text-center">
+            Searched products not found.
+          </p>
+          <ResetSearchQueryParamButton />
+        </div>
       )}
     </>
   );
