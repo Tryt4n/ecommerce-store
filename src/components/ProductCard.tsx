@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "./ui/card";
 import Image from "./Image";
+import TextWithSearchOption from "./TextWithSearchOption";
 import PurchaseButton from "@/app/(customerFacing)/products/_components/PurchaseButton";
 import { formatCurrency } from "@/lib/formatters";
 import type { Category, Product } from "@prisma/client";
@@ -61,7 +62,9 @@ export default function ProductCard({
               className={`flex flex-col ${layout === "grid" ? "flex-grow" : "w-[50%] justify-center md:w-[34%]"}`}
             >
               <CardHeader className="self-start">
-                <CardTitle>{name}</CardTitle>
+                <CardTitle>
+                  <TextWithSearchOption text={name} />
+                </CardTitle>
                 <CardDescription className="capitalize">
                   {`${categories.length > 1 ? "Categories" : "Category"}: ${categories.join(" / ")}`}
                 </CardDescription>
