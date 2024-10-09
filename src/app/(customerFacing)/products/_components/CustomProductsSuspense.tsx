@@ -49,7 +49,7 @@ export default async function CustomProductsSuspense({
 
   return (
     <>
-      {products && products.length > 1 ? (
+      {products && products.length >= 1 ? (
         <>
           {products.map((product) => (
             <CustomLayoutProductCard
