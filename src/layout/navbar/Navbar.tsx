@@ -3,8 +3,8 @@
 import React from "react";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { useWindowSize } from "@/hooks/useWindowSize";
-import NavbarMobile from "./NavbarMobile";
-import NavbarDesktop from "./NavbarDesktop";
+import NavbarMobile from "./components/mobile/NavbarMobile";
+import NavbarDesktop from "./components/desktop/NavbarDesktop";
 import type { KindePermissions } from "@kinde-oss/kinde-auth-nextjs/types";
 
 export type NavbarProps = {

@@ -9,7 +9,7 @@ export default function AdminLinks({
   setIsSheetOpen?: ComponentProps<typeof NavLink>["setIsSheetOpen"];
 }) {
   return (
-    <>
+    <div className="m-2 [&>a]:w-full">
       <NavLink
         label="Dashboard"
         href="/admin"
@@ -40,6 +40,6 @@ export default function AdminLinks({
         isMobile={isMobile}
         setIsSheetOpen={setIsSheetOpen}
       />
-    </>
+    </div>
   );
 }

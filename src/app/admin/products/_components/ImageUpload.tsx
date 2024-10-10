@@ -41,6 +41,8 @@ function ImageUploadInner(
   const [isImageDeleting, setIsImageDeleting] = useState(false);
   const { toast } = useToast();
 
+  const maxImageSize = 320;
+
   function resetInput() {
     if (
       ikUploadRef &&
@@ -191,10 +193,15 @@ function ImageUploadInner(
                           index === 0 ? "Main Image" : `Image ${index + 1}`
                         }
                         trigger={
-                          <div className="relative flex h-full w-full justify-center overflow-hidden rounded-md border">
+                          <div
+                            className={`relative flex aspect-square max-h-[${maxImageSize}px] items-center justify-center overflow-hidden rounded-md border bg-muted`}
+                          >
                             <Image
                               src={image.url}
                               alt={`Uploaded image-${index === 0 ? "main" : index}`}
+                              width={maxImageSize}
+                              height={maxImageSize}
+                              isThumbnail
                             />
 
                             {allUploadedImages.length > 1 && index === 0 && (
@@ -217,7 +224,18 @@ function ImageUploadInner(
                   );
                 } else {
                   return (
-                    <Image key={index} src={image.url} alt={`Uploaded image`} />
+                    <div
+                      key={index}
+                      className={`relative grid aspect-square max-h-[${maxImageSize}px] items-center justify-center overflow-hidden bg-muted`}
+                    >
+                      <Image
+                        src={image.url}
+                        alt={`Uploaded image`}
+                        width={maxImageSize}
+                        height={maxImageSize}
+                        isThumbnail
+                      />
+                    </div>
                   );
                 }
               })}

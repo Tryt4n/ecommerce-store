@@ -1,10 +1,18 @@
 import React, { type ComponentProps } from "react";
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import NavLinkListItem from "./NavLinkListItem";
 import NavLink from "./NavLink";
-import AdminAccordionLinks from "./AdminAccordionLinks";
 import AdminLinks from "./AdminLinks";
+import AdminAccordionLinks from "../mobile/AdminAccordionLinks";
 import LoginLogout from "./LoginLogout";
 import { Separator } from "@/components/ui/separator";
-import type { NavbarProps } from "../Navbar";
+import type { NavbarProps } from "../../Navbar";
 
 export default function NavbarLinks({
   authentication,
@@ -27,16 +35,19 @@ export default function NavbarLinks({
   const { isAuthenticated, permissions } = authentication;
 
   return (
-    <nav className={containerStyles}>
-      <div data-navbar-list>
-        <ul className={listStyles} aria-label="Page navigation">
-          <NavLink
+    <NavigationMenu className={`${containerStyles} w-full max-w-full`}>
+      <div className="w-full">
+        <NavigationMenuList
+          className={`space-x-0 ${listStyles}`}
+          aria-label="Page navigation"
+        >
+          <NavLinkListItem
             label="Home"
             href="/"
             setIsSheetOpen={setIsSheetOpen}
             isMobile={isMobile}
           />
-          <NavLink
+          <NavLinkListItem
             label="Products"
             href="/products"
             setIsSheetOpen={setIsSheetOpen}
@@ -46,7 +57,7 @@ export default function NavbarLinks({
           {isAuthenticated &&
             permissions &&
             !permissions.permissions?.includes("admin") && (
-              <NavLink
+              <NavLinkListItem
                 label="My Orders"
                 href="/orders"
                 setIsSheetOpen={setIsSheetOpen}
@@ -67,17 +78,31 @@ export default function NavbarLinks({
                     />
                   </>
                 ) : (
-                  <AdminLinks
-                    isMobile={isMobile}
-                    setIsSheetOpen={setIsSheetOpen}
-                  />
+                  <>
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger
+                        variant="ghost"
+                        iconSize={16}
+                        className="text-base"
+                      >
+                        Admin Links
+                      </NavigationMenuTrigger>
+
+                      <NavigationMenuContent>
+                        <AdminLinks
+                          isMobile={isMobile}
+                          setIsSheetOpen={setIsSheetOpen}
+                        />
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                  </>
                 )}
               </>
             )}
-        </ul>
+        </NavigationMenuList>
       </div>
 
       <LoginLogout isAuthenticated={isAuthenticated} {...loginLogoutProps} />
-    </nav>
+    </NavigationMenu>
   );
 }

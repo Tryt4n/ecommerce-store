@@ -61,7 +61,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
     if (error && Object.values(error).some((field) => field !== undefined)) {
       toast({
         title: "Error",
-        description: `There was an error while trying to ${product ? "update" : "add"} the discount code.`,
+        description: `There was an error while trying to ${product ? "update" : "add"}.`,
         variant: "destructive",
       });
 

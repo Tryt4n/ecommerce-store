@@ -6,9 +6,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
-import AdminLinks from "./AdminLinks";
+import AdminLinks from "../common/AdminLinks";
 import { ChevronDown } from "lucide-react";
-import type NavLink from "./NavLink";
+import type NavLink from "../common/NavLink";
 
 export default function AdminAccordionLinks({
   isMobile,

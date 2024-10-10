@@ -1,6 +1,6 @@
 import React from "react";
-import NavbarLinks from "./components/NavbarLinks";
-import type { NavbarProps } from "./Navbar";
+import NavbarLinks from "../common/NavbarLinks";
+import type { NavbarProps } from "../../Navbar";
 
 export default function NavbarDesktop({ authentication }: NavbarProps) {
   return (

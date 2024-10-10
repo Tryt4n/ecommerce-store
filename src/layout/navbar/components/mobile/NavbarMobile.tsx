@@ -11,8 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Menu } from "lucide-react";
-import NavbarLinks from "./components/NavbarLinks";
-import type { NavbarProps } from "./Navbar";
+import NavbarLinks from "../common/NavbarLinks";
+import type { NavbarProps } from "../../Navbar";
 
 export default function NavbarMobile({ authentication }: NavbarProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
