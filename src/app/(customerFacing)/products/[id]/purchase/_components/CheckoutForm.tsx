@@ -6,7 +6,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { getDiscountedAmount } from "@/lib/discountCodeHelpers";
 import { formatCurrency } from "@/lib/formatters";
 import StripePaymentForm from "./StripePaymentForm";
-import Image from "@/components/Image";
+import ImageThumbnail from "@/components/ImageThumbnail";
 import type { checkDiscountCode } from "@/db/userData/discountCodes";
 import type { getProduct } from "@/db/userData/products";
 
@@ -34,12 +34,15 @@ export default function CheckoutForm({
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <section className="flex items-center gap-4">
-        <div className="relative aspect-video w-1/3 flex-shrink-0">
-          <Image src={product.images[0]?.url} alt={product.name} />
-        </div>
+        <ImageThumbnail
+          src={product.images[0]?.url}
+          alt={product.name}
+          width={340}
+          height={340}
+        />
 
-        <div>
-          <p className="flex items-center text-lg">
+        <div className="flex-grow">
+          <p className="flex items-center text-pretty text-lg">
             {isDiscounted && (
               <>
                 <s
@@ -56,9 +59,9 @@ export default function CheckoutForm({
             </span>
           </p>
 
-          <h2 className="text-2xl font-bold">{product.name}</h2>
+          <h2 className="text-balance text-2xl font-bold">{product.name}</h2>
 
-          <p className="line-clamp-3 text-muted-foreground">
+          <p className="line-clamp-3 text-pretty text-muted-foreground">
             {product.description}
           </p>
         </div>

@@ -6,13 +6,13 @@ import {
   uploadFilesToImagekit,
   deleteFileInImageKit,
 } from "@/lib/imagekit/files";
-import Image from "../../../../components/Image";
 import { Label } from "../../../../components/ui/label";
 import { Progress } from "../../../../components/ui/progress";
 import { Input } from "../../../../components/ui/input";
 import Sortable from "../../../../components/Sortable";
 import SortableItem from "../../../../components/SortableItem";
 import SortImagesInfo from "./SortImagesInfo";
+import ImageThumbnail from "@/components/ImageThumbnail";
 import CustomTooltip from "@/components/Tooltip";
 import XButton from "@/components/ui/XButton";
 import type { UploadedImage } from "@/lib/imagekit/type";
@@ -193,17 +193,13 @@ function ImageUploadInner(
                           index === 0 ? "Main Image" : `Image ${index + 1}`
                         }
                         trigger={
-                          <div
-                            className={`relative flex aspect-square max-h-[${maxImageSize}px] items-center justify-center overflow-hidden rounded-md border bg-muted`}
+                          <ImageThumbnail
+                            src={image.url}
+                            alt={`Uploaded image-${index === 0 ? "main" : index}`}
+                            width={maxImageSize}
+                            height={maxImageSize}
+                            containerStyles="rounded-md border bg-muted"
                           >
-                            <Image
-                              src={image.url}
-                              alt={`Uploaded image-${index === 0 ? "main" : index}`}
-                              width={maxImageSize}
-                              height={maxImageSize}
-                              isThumbnail
-                            />
-
                             {allUploadedImages.length > 1 && index === 0 && (
                               <p
                                 id="main-image"
@@ -212,30 +208,24 @@ function ImageUploadInner(
                                 Main Image
                               </p>
                             )}
-
                             <XButton
                               disabled={isImageDeleting}
                               onClick={() => handleDeleteImage(image.id)}
                             />
-                          </div>
+                          </ImageThumbnail>
                         }
                       />
                     </SortableItem>
                   );
                 } else {
                   return (
-                    <div
+                    <ImageThumbnail
                       key={index}
-                      className={`relative grid aspect-square max-h-[${maxImageSize}px] items-center justify-center overflow-hidden bg-muted`}
-                    >
-                      <Image
-                        src={image.url}
-                        alt={`Uploaded image`}
-                        width={maxImageSize}
-                        height={maxImageSize}
-                        isThumbnail
-                      />
-                    </div>
+                      src={image.url}
+                      alt={`Uploaded image`}
+                      width={maxImageSize}
+                      height={maxImageSize}
+                    />
                   );
                 }
               })}
