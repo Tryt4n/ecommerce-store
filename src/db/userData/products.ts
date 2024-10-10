@@ -14,7 +14,11 @@ export const getMostPopularProducts = cache(
         take: numberOfProducts,
         include: {
           categories: { select: { category: { select: { name: true } } } },
-          images: { take: 1, select: { url: true } },
+          images: {
+            take: 1,
+            where: { isMainForProduct: true },
+            select: { url: true },
+          },
         },
       });
 
@@ -36,7 +40,11 @@ export const getNewestProducts = cache(
         take: numberOfProducts,
         include: {
           categories: { select: { category: { select: { name: true } } } },
-          images: { take: 1, select: { url: true } },
+          images: {
+            take: 1,
+            where: { isMainForProduct: true },
+            select: { url: true },
+          },
         },
       });
 
@@ -97,7 +105,11 @@ export const getAllAvailableForPurchaseProducts = cache(
           description: true,
           _count: { select: { orders: true } },
           categories: { select: { category: { select: { name: true } } } },
-          images: { take: 1, select: { url: true } },
+          images: {
+            take: 1,
+            where: { isMainForProduct: true },
+            select: { url: true },
+          },
         },
         // Sort by the given `orderBy` and then by `name` in ascending order in case of the same `orderBy` value
         orderBy: [{ [orderBy]: type }, { name: "asc" }],
