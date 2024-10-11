@@ -13,6 +13,8 @@ export default async function SuccessPurchasePage({
 }: {
   searchParams: { payment_intent: string };
 }) {
+  if (searchParams.payment_intent == null || searchParams.payment_intent === "")
+    return notFound();
   const paymentIntent = await stripe.paymentIntents.retrieve(
     searchParams.payment_intent
   );
