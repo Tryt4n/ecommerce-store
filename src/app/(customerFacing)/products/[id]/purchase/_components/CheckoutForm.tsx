@@ -5,8 +5,9 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { getDiscountedAmount } from "@/lib/discountCodeHelpers";
 import { formatCurrency } from "@/lib/formatters";
-import StripePaymentForm from "./StripePaymentForm";
 import ImageThumbnail from "@/components/ImageThumbnail";
+import NotRealPaymentInfo from "./NotRealPaymentInfo";
+import StripePaymentForm from "./StripePaymentForm";
 import type { checkDiscountCode } from "@/db/userData/discountCodes";
 import type { getProduct } from "@/db/userData/products";
 
@@ -33,7 +34,7 @@ export default function CheckoutForm({
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
-      <section className="flex items-center gap-4">
+      <article className="flex items-center gap-4">
         <ImageThumbnail
           src={product.images[0]?.url}
           alt={product.name}
@@ -65,22 +66,23 @@ export default function CheckoutForm({
             {product.description}
           </p>
         </div>
-      </section>
+      </article>
 
-      <section>
+      <article>
         <h2 className="sr-only">Payments</h2>
 
         <Elements
           stripe={stripePromise}
           options={{ amount, mode: "payment", currency: "pln" }}
         >
+          <NotRealPaymentInfo />
           <StripePaymentForm
             productId={product.id}
             priceInCents={amount}
             discountCode={discountCode}
           />
         </Elements>
-      </section>
+      </article>
     </div>
   );
 }
