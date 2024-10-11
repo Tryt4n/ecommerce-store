@@ -8,10 +8,20 @@ import { LayoutGrid, LayoutList } from "lucide-react";
 export default function LayoutButton() {
   const { layout, setLayout } = useProductsContext();
 
+  function changeLayout() {
+    const layoutLocalStorage = localStorage.getItem("productsLayout");
+
+    setLayout(layout === "list" ? "grid" : "list");
+    localStorage.setItem(
+      "productsLayout",
+      layoutLocalStorage === "list" ? "grid" : "list"
+    );
+  }
+
   return (
     <Button
       variant="outline"
-      onClick={() => setLayout(layout === "list" ? "grid" : "list")}
+      onClick={changeLayout}
       aria-label="Toggle layout view between list and grid."
     >
       {layout === "list" ? <LayoutList /> : <LayoutGrid />}

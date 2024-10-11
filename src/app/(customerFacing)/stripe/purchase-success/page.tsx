@@ -1,6 +1,6 @@
 import React from "react";
 import Stripe from "stripe";
-import Image from "@/components/Image";
+import ImageThumbnail from "@/components/ImageThumbnail";
 import { notFound } from "next/navigation";
 import { getProduct } from "@/db/userData/products";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ export default async function SuccessPurchasePage({
 }: {
   searchParams: { payment_intent: string };
 }) {
+  if (searchParams.payment_intent == null || searchParams.payment_intent === "")
+    return notFound();
   const paymentIntent = await stripe.paymentIntents.retrieve(
     searchParams.payment_intent
   );
@@ -28,19 +30,22 @@ export default async function SuccessPurchasePage({
       <h1 className="sr-only">Payment verification</h1>
 
       <section className="mx-auto max-w-5xl space-y-8">
-        <h2 className="text-4xl font-bold">
+        <h2 className="text-balance text-4xl font-bold">
           {isSuccess ? "Success!" : "Error!"}
         </h2>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-          <div className="relative aspect-video w-full sm:w-1/3 sm:flex-shrink-0">
-            <Image src={product.images[0]?.url} alt={product.name} />
-          </div>
+        <div className="flex flex-col justify-center gap-4 sm:flex-row sm:items-center">
+          <ImageThumbnail
+            src={product.images[0]?.url}
+            alt={product.name}
+            width={320}
+            height={320}
+          />
 
           <div>
             <h2 className="text-2xl font-bold">{product.name}</h2>
 
-            <p className="line-clamp-3 text-muted-foreground">
+            <p className="line-clamp-3 text-pretty text-muted-foreground">
               {product.description}
             </p>
 

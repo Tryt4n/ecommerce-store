@@ -24,7 +24,12 @@ export default function ProductsContextProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [layout, setLayout] = useState<ProductsLayout>(defaultProductsLayout);
+  const [layout, setLayout] = useState<ProductsLayout>(() => {
+    const savedLayout = localStorage.getItem("productsLayout");
+    return savedLayout
+      ? (savedLayout as ProductsLayout)
+      : defaultProductsLayout;
+  });
   const [productsCount, setProductsCount] = useState<number | null>(null);
 
   const searchParams = useSearchParams();

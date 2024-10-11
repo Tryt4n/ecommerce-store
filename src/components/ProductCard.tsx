@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import Image from "./Image";
+import ImageThumbnail from "./ImageThumbnail";
 import TextWithSearchOption from "./TextWithSearchOption";
 import PurchaseButton from "@/app/(customerFacing)/products/_components/PurchaseButton";
 import { formatCurrency } from "@/lib/formatters";
@@ -54,17 +54,13 @@ export default function ProductCard({
               }
             }}
           >
-            <div
-              className={`relative grid aspect-square max-h-[${maxImageSize}px] items-center justify-center overflow-hidden bg-muted ${layout === "list" ? "w-[50%] md:w-[66%]" : ""}`}
-            >
-              <Image
-                src={imageUrl}
-                alt={name}
-                width={maxImageSize}
-                height={maxImageSize}
-                isThumbnail
-              />
-            </div>
+            <ImageThumbnail
+              src={imageUrl}
+              alt={name}
+              width={maxImageSize}
+              height={maxImageSize}
+              containerStyles={`bg-muted ${layout === "list" ? `w-[50%] md:w-[66%] h-[${maxImageSize}px]` : ""}`}
+            />
 
             <div
               className={`flex flex-col ${layout === "grid" ? "flex-grow" : "w-[50%] justify-center md:w-[34%]"}`}
