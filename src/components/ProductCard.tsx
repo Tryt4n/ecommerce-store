@@ -40,7 +40,9 @@ export default function ProductCard({
   const maxImageSize = 590;
 
   return (
-    <li>
+    <li
+      className={`${layout === "list" ? `h-full max-h-[${maxImageSize}px]` : ""}`}
+    >
       <section className="h-full">
         <Card
           className={`h-full overflow-visible border-0 transition-all hover:shadow-xl ${layout === "grid" ? "hover:scale-105" : "hover:scale-[102.5%]"}`}
