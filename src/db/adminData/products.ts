@@ -275,7 +275,7 @@ export async function deleteProduct(id: Product["id"]) {
     if (product == null) return notFound();
 
     await Promise.all([
-      deleteFolderInImageKit(product.name.replace(" ", "_")),
+      deleteFolderInImageKit(product.name.replace(/ /g, "_")), // Replace all spaces with underscores
       db.image.deleteMany({ where: { productId: id } }),
       db.product.delete({ where: { id } }),
       db.productFile.delete({ where: { id: product.productFile?.id } }),
