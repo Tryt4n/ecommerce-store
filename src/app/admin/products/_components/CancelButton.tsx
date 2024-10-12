@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEventListener } from "@/hooks/useEventListener";
 import { Button } from "../../../../components/ui/button";
 import {
   deleteFolderInImageKit,
@@ -47,7 +48,6 @@ export default function CancelButton({
           deleteFileInImageKit(image.id)
         );
 
-        // If the original file is different from the uploaded file, delete the uploaded file
         if (
           (!originalUploadedFile && uploadedFile) ||
           (originalUploadedFile &&
@@ -73,31 +73,23 @@ export default function CancelButton({
     originalUploadedFile,
   ]);
 
-  useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      handleCancel();
-      event.preventDefault();
-      event.returnValue = ""; // Chrome requires returnValue to be set
-    };
+  const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    handleCancel();
+    event.preventDefault();
+    event.returnValue = ""; // Chrome requires returnValue to be set
+  };
 
-    const handlePopState = () => {
-      handleCancel();
-    };
+  const handlePopState = () => {
+    handleCancel();
+  };
 
-    const handleHashChange = () => {
-      handleCancel();
-    };
+  const handleHashChange = () => {
+    handleCancel();
+  };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    window.addEventListener("popstate", handlePopState);
-    window.addEventListener("hashchange", handleHashChange);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.removeEventListener("popstate", handlePopState);
-      window.removeEventListener("hashchange", handleHashChange);
-    };
-  }, [handleCancel]);
+  useEventListener("beforeunload", handleBeforeUnload);
+  useEventListener("popstate", handlePopState);
+  useEventListener("hashchange", handleHashChange);
 
   return (
     <Button
