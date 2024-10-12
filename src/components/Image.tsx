@@ -8,18 +8,19 @@ const urlEndpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
 type ImageProps = { isThumbnail?: boolean } & ComponentProps<typeof IKImage>;
 
 export default function Image({ isThumbnail = false, ...props }: ImageProps) {
-  const modifiedImageUrl =
-    isThumbnail && props.src?.includes(urlEndpoint)
-      ? props.src.replace(urlEndpoint, `${urlEndpoint}/tr:n-ik_ml_thumbnail`)
-      : props.src;
-
   return (
     <IKImage
       urlEndpoint={urlEndpoint}
       {...props}
-      src={modifiedImageUrl}
       loading="lazy"
       lqip={{ active: true, quality: 5 }}
+      transformation={[
+        {
+          height: props.height?.toString(),
+          width: props.width?.toString(),
+          raw: `${isThumbnail ? "n-ik_ml_thumbnail," : ""}l-image,i-Logo@@logo.svg,w-100,h-100,lfo-top_right,l-end`, // It adds a watermark to the image
+        },
+      ]}
     />
   );
 }

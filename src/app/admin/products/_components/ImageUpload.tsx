@@ -90,7 +90,7 @@ function ImageUploadInner(
       return;
     }
 
-    if (files.length > 10) {
+    if (files.length > 15) {
       toast({
         title: "Too many files",
         description: "Please upload 15 files or less",
