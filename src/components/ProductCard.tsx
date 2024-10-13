@@ -49,7 +49,7 @@ export default function ProductCard({
         >
           <Link
             href={`/products/${id}`}
-            className={`flex ${layout === "grid" ? "h-full flex-col justify-between" : "flex-row"} overflow-hidden rounded-lg border`}
+            className={`flex ${layout === "grid" ? "h-full flex-col justify-between" : "flex-row items-center"} overflow-hidden rounded-lg border`}
             onClick={(e) => {
               if (e.target instanceof HTMLButtonElement) {
                 e.preventDefault();
@@ -61,12 +61,10 @@ export default function ProductCard({
               alt={name}
               width={maxImageSize}
               height={maxImageSize}
-              containerStyles={`bg-muted ${layout === "list" ? `w-[50%] md:w-[66%] h-[${maxImageSize}px]` : ""}`}
+              containerStyles={`bg-muted ${layout === "list" ? `w-[${maxImageSize}px]` : ""}`}
             />
 
-            <div
-              className={`flex flex-col ${layout === "grid" ? "flex-grow" : "w-[50%] justify-center md:w-[34%]"}`}
-            >
+            <div className="flex flex-grow flex-col">
               <CardHeader className="self-start">
                 <CardTitle>
                   <TextWithSearchOption text={name} />
