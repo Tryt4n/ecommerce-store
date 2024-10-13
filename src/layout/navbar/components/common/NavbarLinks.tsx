@@ -1,4 +1,5 @@
 import React, { type ComponentProps } from "react";
+import Image from "next/image";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -36,6 +37,10 @@ export default function NavbarLinks({
 
   return (
     <NavigationMenu className={`${containerStyles} w-full max-w-full`}>
+      {!isMobile && (
+        <Image src="/logo-white.svg" alt="Logo" width={40} height={40} />
+      )}
+
       <div className="w-full">
         <NavigationMenuList
           className={`space-x-0 ${listStyles}`}

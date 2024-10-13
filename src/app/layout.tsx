@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    startupImage: ["/dark-icon.svg", "/light-icon.svg"],
+    startupImage: ["/logo-black.svg", "/logo-white.svg"],
     title: "E-commerce store",
   },
   applicationName: "E-commerce store",
@@ -44,13 +44,13 @@ export const metadata: Metadata = {
     url: "https://ecommerce-project.site",
     images: [
       {
-        url: "https://ecommerce-project.site/dark-icon.svg",
+        url: "https://ecommerce-project.site/logo-black.svg",
         width: 128,
         height: 128,
         alt: "E-commerce store",
       },
       {
-        url: "https://ecommerce-project.site/light-icon.svg",
+        url: "https://ecommerce-project.site/logo-white.svg",
         width: 128,
         height: 128,
         alt: "E-commerce store",
@@ -73,11 +73,11 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/dark-icon.svg",
+        url: "/logo-black.svg",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/light-icon.svg",
+        url: "/logo-white.svg",
         media: "(prefers-color-scheme: dark)",
       },
     ],

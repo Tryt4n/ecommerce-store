@@ -1,10 +1,9 @@
 import React from "react";
-import Stripe from "stripe";
-import ImageThumbnail from "@/components/ImageThumbnail";
 import { notFound } from "next/navigation";
 import { getProduct } from "@/db/userData/products";
+import Stripe from "stripe";
+import ImageThumbnail from "@/components/ImageThumbnail";
 import { Button } from "@/components/ui/button";
-import { createDownloadVerification } from "@/app/_actions/download";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -51,14 +50,12 @@ export default async function SuccessPurchasePage({
 
             <Button
               href={
-                isSuccess
-                  ? `/products/download/${(await createDownloadVerification(product.id))?.id}`
-                  : `/products/${product.id}/purchase`
+                isSuccess ? "/products" : `/products/${product.id}/purchase`
               }
               className="mt-4 w-full sm:w-auto"
               size={"lg"}
             >
-              {isSuccess ? "Download" : "Try again"}
+              {isSuccess ? "Go Back" : "Try again"}
             </Button>
           </div>
         </div>

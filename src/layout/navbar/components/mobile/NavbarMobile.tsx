@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   Sheet,
   SheetContent,
@@ -10,8 +11,8 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Menu } from "lucide-react";
 import NavbarLinks from "../common/NavbarLinks";
+import { Menu } from "lucide-react";
 import type { NavbarProps } from "../../Navbar";
 
 export default function NavbarMobile({ authentication }: NavbarProps) {
@@ -19,7 +20,9 @@ export default function NavbarMobile({ authentication }: NavbarProps) {
 
   return (
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-      <div className="flex justify-end bg-primary p-4">
+      <div className="flex justify-between bg-primary p-4">
+        <Image src="/logo-white.svg" alt="Logo" width={40} height={40} />
+
         <SheetTrigger asChild>
           <Button
             type="button"

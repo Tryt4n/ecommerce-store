@@ -13,7 +13,7 @@ export default function ImageThumbnail({
 }: ImageThumbnailProps) {
   return (
     <div
-      className={`relative flex aspect-square max-h-[${image.width}px] items-center justify-center overflow-hidden${containerStyles ? ` ${containerStyles}` : ""}`}
+      className={`relative flex aspect-square max-h-[${image.width}px] max-w-[${image.width}px] items-center justify-center overflow-hidden${containerStyles ? ` ${containerStyles}` : ""}`}
     >
       {/* eslint-disable-next-line jsx-a11y/alt-text */}
       <Image {...image} isThumbnail />

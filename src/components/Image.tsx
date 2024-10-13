@@ -18,7 +18,7 @@ export default function Image({ isThumbnail = false, ...props }: ImageProps) {
         {
           height: props.height?.toString(),
           width: props.width?.toString(),
-          raw: `${isThumbnail ? "n-ik_ml_thumbnail," : ""}l-image,i-Logo@@logo.svg,w-100,h-100,lfo-top_right,l-end`, // It adds a watermark to the image
+          raw: `${isThumbnail ? "n-ik_ml_thumbnail," : ""}l-image,i-Logo@@logo-black_with_padding.svg,w-100,h-100,lfo-top_right,t-false,l-end`, // It adds a watermark to the image
         },
       ]}
     />
