@@ -178,7 +178,7 @@ export default function StripePaymentForm({
           </div>
         </CardContent>
 
-        <CardFooter>
+        <CardFooter className="flex gap-4">
           <Button
             type="submit"
             className="w-full"
@@ -186,6 +186,16 @@ export default function StripePaymentForm({
             disabled={stripe == null || elements == null}
           >
             {`${isLoading ? "Purchasing..." : `Purchase - ${formatCurrency(priceInCents / 100)}`} `}
+          </Button>
+
+          <Button
+            type="button"
+            size="lg"
+            variant="destructive"
+            className=""
+            onClick={() => router.back()}
+          >
+            Cancel
           </Button>
         </CardFooter>
       </Card>
