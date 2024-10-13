@@ -32,14 +32,17 @@ export default function CheckoutForm({
         );
   const isDiscounted = amount !== product.priceInCents;
 
+  const imageSize = 340;
+
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <article className="flex items-center gap-4">
         <ImageThumbnail
           src={product.images[0]?.url}
           alt={product.name}
-          width={340}
-          height={340}
+          width={imageSize}
+          height={imageSize}
+          containerStyles={`w-[${imageSize}px]`}
         />
 
         <div className="flex-grow">
