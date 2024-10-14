@@ -11,7 +11,7 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/orders/:path*",
-    "/products/purchase/:id",
+    "/products/purchase/:productId*",
     "/webhooks/stripe",
   ],
 };
