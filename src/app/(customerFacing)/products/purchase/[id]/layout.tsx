@@ -1,5 +1,6 @@
+import React from "react";
+import type { Metadata } from "next";
 import { getAllAvailableProductsIds, getProduct } from "@/db/userData/products";
-import type { Metadata } from "next/types";
 
 export async function generateStaticParams() {
   const productsIds = await getAllAvailableProductsIds();
@@ -15,12 +16,10 @@ export async function generateMetadata({
   const product = await getProduct(id);
 
   return {
-    title: {
-      default: `${product?.name} | E-commerce store`,
-      template: "%s | E-commerce store",
-    },
+    title: `Purchase - ${product?.name} | E-commerce store`,
     description: product?.description,
     category: product?.categories.join(", "),
+    keywords: ["stripe", "stripe payments"],
     openGraph: {
       images: [
         {
@@ -31,7 +30,7 @@ export async function generateMetadata({
   };
 }
 
-export default function ProductPageLayout({
+export default function PurchasePageLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

@@ -11,7 +11,7 @@ export default function PurchaseButton({ id }: { id: string }) {
     <Button
       size={"lg"}
       className="w-full"
-      onClick={() => router.push(`/products/${id}/purchase`)}
+      onClick={() => router.push(`/products/purchase/${id}`)}
     >
       Purchase
     </Button>

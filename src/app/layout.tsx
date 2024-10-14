@@ -8,7 +8,10 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "E-commerce store",
+  title: {
+    default: "E-commerce store",
+    template: "%s | E-commerce store",
+  },
   description: "This is a demo e-commerce store",
   authors: [{ name: "Marcin Jaczewski", url: "https://github.com/Tryt4n" }],
   creator: "Marcin Jaczewski",
@@ -18,6 +21,7 @@ export const metadata: Metadata = {
     startupImage: ["/logo-black.svg", "/logo-white.svg"],
     title: "E-commerce store",
   },
+  metadataBase: new URL("https://ecommerce-project.site"),
   applicationName: "E-commerce store",
   category: "E-commerce",
   classification: "Demo E-commerce Store",
@@ -59,13 +63,6 @@ export const metadata: Metadata = {
   },
   publisher: "Marcin Jaczewski",
   referrer: "no-referrer",
-  robots: {
-    index: true,
-    follow: true,
-    "max-image-preview": "standard",
-    "max-snippet": 100,
-    noimageindex: true,
-  },
   verification: {
     google: "PxJ5SGs_BInggwNN_oEFXD68uvd6YIUIMQkoz3vd__M",
     me: "https://github.com/Tryt4n",
