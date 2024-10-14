@@ -16,3 +16,32 @@ export async function userOrderExist(
     console.error(error);
   }
 }
+
+export async function getAllUserOrders(email: User["email"]) {
+  try {
+    return await db.order.findMany({
+      where: { user: { email } },
+      select: {
+        id: true,
+        createdAt: true,
+        product: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            images: {
+              take: 1,
+              where: { isMainForProduct: true },
+              select: { url: true },
+            },
+            priceInCents: true,
+            productFile: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    `Could not get all orders for user ${email}. Error: ${error}`;
+  }
+}
