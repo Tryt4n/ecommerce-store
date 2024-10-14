@@ -25,11 +25,16 @@ export default function ProductsContextProvider({
   children: React.ReactNode;
 }) {
   const [layout, setLayout] = useState<ProductsLayout>(() => {
-    const savedLayout = localStorage.getItem("productsLayout");
-    return savedLayout
-      ? (savedLayout as ProductsLayout)
-      : defaultProductsLayout;
+    // Check if window is defined to avoid SSR error
+    if (typeof window !== "undefined") {
+      const savedLayout = localStorage.getItem("productsLayout");
+      return savedLayout
+        ? (savedLayout as ProductsLayout)
+        : defaultProductsLayout;
+    }
+    return defaultProductsLayout;
   });
+
   const [productsCount, setProductsCount] = useState<number | null>(null);
 
   const searchParams = useSearchParams();
