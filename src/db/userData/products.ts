@@ -148,3 +148,14 @@ export async function getAllAvailableProductsCount(
     console.error(`Can't get products count. Error: ${error}`);
   }
 }
+
+export async function getAllAvailableProductsIds() {
+  try {
+    return await db.product.findMany({
+      where: { isAvailableForPurchase: true },
+      select: { id: true, updatedAt: true },
+    });
+  } catch (error) {
+    console.error(`Can't get products IDs. Error: ${error}`);
+  }
+}
