@@ -178,7 +178,7 @@ export default function StripePaymentForm({
           </div>
         </CardContent>
 
-        <CardFooter className="flex gap-4">
+        <CardFooter className="flex flex-wrap gap-x-4 gap-y-2 sm:flex-nowrap">
           <Button
             type="submit"
             className="w-full"
@@ -192,7 +192,7 @@ export default function StripePaymentForm({
             type="button"
             size="lg"
             variant="destructive"
-            className=""
+            className="ml-auto"
             onClick={() => router.back()}
           >
             Cancel
