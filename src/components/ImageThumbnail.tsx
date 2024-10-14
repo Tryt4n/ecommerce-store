@@ -4,14 +4,12 @@ import Image from "./Image";
 type ImageThumbnailProps = {
   containerClassNames?: string;
   containerStyles?: React.CSSProperties;
-  imageClassNames?: ComponentProps<typeof Image>["className"];
   children?: React.ReactNode;
 } & ComponentProps<typeof Image>;
 
 export default function ImageThumbnail({
   containerClassNames,
   containerStyles,
-  imageClassNames,
   children,
   ...image
 }: ImageThumbnailProps) {
@@ -21,11 +19,7 @@ export default function ImageThumbnail({
       style={containerStyles ? containerStyles : undefined}
     >
       {/* eslint-disable-next-line jsx-a11y/alt-text */}
-      <Image
-        {...image}
-        isThumbnail
-        className={imageClassNames ? imageClassNames : undefined}
-      />
+      <Image {...image} isThumbnail />
       {children}
     </div>
   );
