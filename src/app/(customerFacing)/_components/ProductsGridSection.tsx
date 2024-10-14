@@ -28,6 +28,9 @@ export default function ProductsGridSection({
               <ProductCardSkeleton />
               <ProductCardSkeleton />
               <ProductCardSkeleton />
+              <ProductCardSkeleton />
+              <ProductCardSkeleton />
+              <ProductCardSkeleton />
             </>
           }
         >
