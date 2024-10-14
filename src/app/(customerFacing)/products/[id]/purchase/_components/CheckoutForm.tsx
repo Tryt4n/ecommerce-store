@@ -42,7 +42,7 @@ export default function CheckoutForm({
           alt={product.name}
           width={imageSize}
           height={imageSize}
-          containerStyles={`w-[${imageSize}px]`}
+          containerStyles={{ width: imageSize }}
         />
 
         <div className="flex-grow">

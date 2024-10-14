@@ -61,7 +61,10 @@ export default function ProductCard({
               alt={name}
               width={maxImageSize}
               height={maxImageSize}
-              containerStyles={`bg-muted ${layout === "list" ? `w-[${maxImageSize}px]` : ""}`}
+              containerStyles={
+                layout === "list" ? { width: maxImageSize } : undefined
+              }
+              imageClassNames="p-4"
             />
 
             <div className="flex flex-grow flex-col">
