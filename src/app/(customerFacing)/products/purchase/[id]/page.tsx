@@ -2,7 +2,10 @@ import React from "react";
 import { notFound } from "next/navigation";
 import { getProduct } from "@/db/userData/products";
 import { checkDiscountCode } from "@/db/userData/discountCodes";
-import CheckoutForm from "./_components/CheckoutForm";
+import CheckoutForm from "../_components/CheckoutForm";
+
+// Force dynamic rendering to not interfere with static metadata generation
+export const dynamic = "force-dynamic";
 
 export default async function PurchasePage({
   params: { id },

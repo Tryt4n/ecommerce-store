@@ -43,6 +43,7 @@ export default function CheckoutForm({
           width={imageSize}
           height={imageSize}
           containerStyles={{ width: imageSize }}
+          containerClassNames="bg-muted"
         />
 
         <div className="flex-grow">
