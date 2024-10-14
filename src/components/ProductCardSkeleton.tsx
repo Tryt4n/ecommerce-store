@@ -13,7 +13,7 @@ export default function ProductCardSkeleton() {
   return (
     <li className="flex animate-pulse flex-col">
       <Card aria-label="Product is loading" className="overflow-hidden">
-        <div className="aspect-video w-full bg-gray-300" />
+        <div className="aspect-square w-full bg-gray-300" />
 
         <CardHeader>
           <CardTitle>
