@@ -39,10 +39,11 @@ export default async function SuccessPurchasePage({
             alt={product.name}
             width={320}
             height={320}
+            containerStyles={{ width: 320 }}
           />
 
           <div>
-            <h2 className="text-2xl font-bold">{product.name}</h2>
+            <p className="text-2xl font-bold">{product.name}</p>
 
             <p className="line-clamp-3 text-pretty text-muted-foreground">
               {product.description}
