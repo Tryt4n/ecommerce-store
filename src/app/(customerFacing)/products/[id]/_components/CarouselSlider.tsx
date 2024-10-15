@@ -130,6 +130,10 @@ export default function CarouselSlider({
                 src={url}
                 alt={`${productName} - ${index} image`}
                 containerClassNames={`bg-muted relative aspect-square h-[${mainImageSize}px] [&>img]:object-contain [&>img]:object-center mx-auto`}
+                containerStyles={{
+                  width: mainImageSize,
+                  height: mainImageSize,
+                }}
                 customRawSize={2000}
               />
             </div>
@@ -145,6 +149,7 @@ export default function CarouselSlider({
           loop={true}
           freeMode={true}
           grabCursor={true}
+          watchSlidesProgress={true}
           hashNavigation={{
             watchState: true,
           }}
