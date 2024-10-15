@@ -61,10 +61,11 @@ export default function ProductCard({
               alt={name}
               width={maxImageSize}
               height={maxImageSize}
-              containerStyles={
+              thumbnailContainerStyles={
                 layout === "list" ? { width: maxImageSize } : undefined
               }
-              containerClassNames="bg-muted m-4"
+              thumbnailContainerClassNames="bg-muted m-4"
+              containerClassNames="relative aspect-square w-full max-w-full [&>img]:object-contain [&>img]:object-center"
             />
 
             <div className="flex flex-grow flex-col">
