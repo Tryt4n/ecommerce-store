@@ -107,7 +107,14 @@ export default function CarouselSlider({
         }}
         loop={imagesUrl.length > 1 ? true : undefined}
         effect="fade"
-        thumbs={thumbsSwiper ? { swiper: thumbsSwiper } : undefined}
+        thumbs={
+          imagesUrl.length > 1
+            ? {
+                swiper:
+                  thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
+              }
+            : undefined
+        }
         hashNavigation={{
           watchState: true,
         }}
