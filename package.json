@@ -50,6 +50,7 @@
     "recharts": "^2.12.7",
     "resend": "^4.0.0",
     "stripe": "^16.10.0",
+    "swiper": "^11.1.14",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"

@@ -39,7 +39,7 @@ export default async function SuccessPurchasePage({
             alt={product.name}
             width={320}
             height={320}
-            containerStyles={{ width: 320 }}
+            thumbnailContainerStyles={{ width: 320 }}
           />
 
           <div>

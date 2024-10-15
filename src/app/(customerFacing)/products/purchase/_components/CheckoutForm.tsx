@@ -42,8 +42,8 @@ export default function CheckoutForm({
           alt={product.name}
           width={imageSize}
           height={imageSize}
-          containerStyles={{ width: imageSize }}
-          containerClassNames="bg-muted"
+          thumbnailContainerStyles={{ width: imageSize }}
+          thumbnailContainerClassNames="bg-muted"
         />
 
         <div className="flex-grow">

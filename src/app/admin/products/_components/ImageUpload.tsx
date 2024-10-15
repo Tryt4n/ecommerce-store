@@ -198,7 +198,7 @@ function ImageUploadInner(
                             alt={`Uploaded image-${index === 0 ? "main" : index}`}
                             width={maxImageSize}
                             height={maxImageSize}
-                            containerClassNames="rounded-md border bg-muted"
+                            thumbnailContainerClassNames="rounded-md border bg-muted"
                           >
                             {allUploadedImages.length > 1 && index === 0 && (
                               <p

@@ -22,8 +22,8 @@ export default function OrdersHistory({
             <ImageThumbnail
               src={order.product.images[0].url}
               alt={order.product.name}
-              containerClassNames="bg-muted flex-shrink-0"
-              containerStyles={{ height: 250 }}
+              thumbnailContainerClassNames="bg-muted flex-shrink-0"
+              thumbnailContainerStyles={{ height: 250 }}
             />
 
             <div className="flex flex-grow flex-row flex-wrap justify-between gap-2 sm:gap-4">

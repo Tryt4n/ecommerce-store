@@ -10,10 +10,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${process.env.NEXT_PUBLIC_SERVER_URL}/products/${product.id}`,
         lastModified: product.updatedAt,
       },
-      {
-        url: `${process.env.NEXT_PUBLIC_SERVER_URL}/products/purchase/${product.id}`,
-        lastModified: product.updatedAt,
-      },
     ]) ?? [];
 
   return [
