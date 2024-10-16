@@ -1,10 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { type ComponentProps } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-export default function PurchaseButton({ id }: { id: string }) {
+type PurchaseButtonProps = {
+  id: string;
+} & ComponentProps<typeof Button>;
+
+export default function PurchaseButton({ id, ...props }: PurchaseButtonProps) {
   const router = useRouter();
 
   return (
@@ -12,6 +16,7 @@ export default function PurchaseButton({ id }: { id: string }) {
       size={"lg"}
       className="w-full"
       onClick={() => router.push(`/products/purchase/${id}`)}
+      {...props}
     >
       Purchase
     </Button>
