@@ -15,6 +15,7 @@ import {
   A11y,
 } from "swiper/modules";
 import Image from "@/components/Image";
+import { carouselSliderThumbnailsBreakpoint } from "../_consts/breakpoints";
 import type { Swiper as SwiperType } from "swiper";
 
 import "swiper/css";
@@ -36,37 +37,23 @@ export default function CarouselSlider({
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
   const { width } = useWindowSize();
 
+  // Function to get the size of the thumbnails
   const handleResize = useCallback(() => {
-    if (width >= 1280) {
-      return 200;
-    } else if (width >= 1024) {
-      return 150;
-    } else if (width >= 768) {
-      return 175;
-    } else if (width >= 600) {
-      return 135;
-    } else if (width >= 520) {
-      return 115;
-    } else if (width >= 480) {
-      return 100;
-    } else if (width >= 425) {
-      return 125;
-    } else if (width >= 350) {
-      return 100;
-    } else if (width < 350) {
-      return 90;
-    } else {
-      return 200;
-    }
+    const breakpoint = carouselSliderThumbnailsBreakpoint.find(
+      (bp) => width >= bp.minWidth
+    );
+    return breakpoint ? breakpoint.value : 200;
   }, [width]);
 
   const [mainImageSize, setMainImageSize] = useState(
-    width !== 0 && width < 550 ? width - 48 : 500
+    width !== 0 && width < 550 ? width - 48 : 500 // 500px is the default size and also the largest size - both width and height
   );
-  const [thumbnailsSize, setThumbnailsSize] = useState(handleResize());
+  const [thumbnailsSize, setThumbnailsSize] = useState(handleResize()); // 200px is the default size
 
   // Set the size of the images
   useEffect(() => {
+    if (width === 0) return; // 0 is the default initialized value of the width
+
     if (width && width < 550) {
       setMainImageSize(width - 48); // 24px padding on each side
     }
@@ -76,6 +63,7 @@ export default function CarouselSlider({
 
   return (
     <div data-carousel-slider>
+      {/* Main Slider */}
       <Swiper
         style={
           {
@@ -94,10 +82,10 @@ export default function CarouselSlider({
           EffectFade,
           A11y,
         ]}
-        spaceBetween={10}
         navigation={true}
         pagination={{
           clickable: false,
+          type: "bullets",
         }}
         keyboard={{
           enabled: true,
@@ -112,25 +100,31 @@ export default function CarouselSlider({
             ? {
                 swiper:
                   thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
-              }
+              } // If thumbsSwiper doesn't exist or it is destroyed, set it to null
             : undefined
         }
         hashNavigation={{
-          watchState: true,
+          watchState: true, // Enable hash navigation
         }}
         className="mySwiper2 cursor-zoom-in bg-inherit"
       >
         {imagesUrl.map((url, index) => (
           <SwiperSlide
             key={`${url}-${index + 1}`}
-            data-hash={`slide${index + 1}`}
+            data-hash={`slide${index + 1}`} // Add data-hash to the slides (only for main slider)
+            className="overflow-hidden rounded-2xl"
           >
             <div className="swiper-zoom-container">
               <Image
                 src={url}
                 alt={`${productName} - ${index} image`}
+                aria-label="Double click/tap or pinch the image to zoom"
                 containerClassNames={`bg-muted relative aspect-square h-[${mainImageSize}px] [&>img]:object-contain [&>img]:object-center mx-auto`}
-                customRawSize={2000}
+                containerStyles={{
+                  width: mainImageSize,
+                  height: mainImageSize,
+                }}
+                customRawSize={2000} // 2000x2000 - size of the fetched image
               />
             </div>
           </SwiperSlide>
@@ -138,15 +132,17 @@ export default function CarouselSlider({
       </Swiper>
 
       {imagesUrl.length > 1 && (
+        // Thumbs Slider
         <Swiper
           onSwiper={setThumbsSwiper}
           modules={[Navigation, FreeMode, Thumbs, HashNavigation, A11y]}
-          slidesPerView={width >= 480 ? 4 : 3}
+          slidesPerView={width >= 480 ? 4 : 3} // On small screens reduce the number of slides from 4 to 3
           loop={true}
-          freeMode={true}
-          grabCursor={true}
+          freeMode={true} // Free mode allows the slides to keep moving after the user releases the slide
+          grabCursor={true} // Change the cursor to a grab cursor when you hover over the slides
+          watchSlidesProgress={true} // Docs say it's necessary for thumbs
           hashNavigation={{
-            watchState: true,
+            watchState: true, // Enable hash navigation
           }}
           className="mySwiper my-4 sm:my-8 [&>*>.swiper-slide-thumb-active]:opacity-25 [&>*>.swiper-slide-thumb-active]:transition-all"
         >
@@ -154,15 +150,15 @@ export default function CarouselSlider({
             <SwiperSlide key={`${url}-${index + 1}`}>
               <Image
                 src={url}
-                alt={`${productName} - ${index} image`}
+                alt={`${productName} - ${index} thumbnail`}
                 width={thumbnailsSize}
                 height={thumbnailsSize}
-                containerClassNames={`relative border-2 border-primary bg-muted h-[${thumbnailsSize}px] rounded-2xl overflow-hidden cursor-pointer hover:opacity-75 transition-all`}
+                containerClassNames={`relative border-2 aspect-square border-primary bg-muted h-[${thumbnailsSize}px] rounded-2xl overflow-hidden cursor-pointer hover:opacity-75 transition-all`}
                 containerStyles={{
                   width: thumbnailsSize,
                   height: thumbnailsSize,
                 }}
-                isThumbnail
+                isThumbnail // Set the image as a thumbnail - it gives the default size of 440x440
               />
             </SwiperSlide>
           ))}

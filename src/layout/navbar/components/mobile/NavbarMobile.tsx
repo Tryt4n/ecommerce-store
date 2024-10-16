@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import NavbarLinks from "../common/NavbarLinks";
+import ShoppingCart from "@/components/ShoppingCart";
 import { Menu } from "lucide-react";
 import type { NavbarProps } from "../../Navbar";
 
@@ -23,19 +24,23 @@ export default function NavbarMobile({ authentication }: NavbarProps) {
       <div className="flex justify-between bg-primary p-4">
         <Image src="/logo-white.svg" alt="Logo" width={40} height={40} />
 
-        <SheetTrigger asChild>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setIsSheetOpen(true)}
-          >
-            <Menu />
-            <span className="sr-only">Open navigation menu</span>
-          </Button>
-        </SheetTrigger>
+        <div className="flex flex-row items-center gap-4">
+          <ShoppingCart iconProps={{ color: "#FFF" }} />
+
+          <SheetTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsSheetOpen(true)}
+            >
+              <Menu />
+              <span className="sr-only">Open navigation menu</span>
+            </Button>
+          </SheetTrigger>
+        </div>
       </div>
 
-      <SheetContent className="rounded-s-lg [&>button>svg]:h-6 [&>button>svg]:w-6">
+      <SheetContent className="rounded-s-lg [&>button>svg]:h-6 [&>button>svg]:w-6 [&>button]:z-10">
         <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
         <SheetDescription className="sr-only">Select page</SheetDescription>
 
