@@ -118,8 +118,8 @@ export default function AddToCartButton({
         {/* Cart Icon */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="26"
-          height="26"
+          width="24"
+          height="24"
           viewBox="0 0 24 24"
           fill="none"
           data-src="https://cdn.hugeicons.com/icons/shopping-cart-add-01-solid-standard.svg"
