@@ -13,6 +13,7 @@ import {
 import ImageThumbnail from "./ImageThumbnail";
 import TextWithSearchOption from "./TextWithSearchOption";
 import PurchaseButton from "@/app/(customerFacing)/products/_components/PurchaseButton";
+import AddToCartButton from "@/app/(customerFacing)/products/_components/AddToCartButton";
 import { formatCurrency } from "@/lib/formatters";
 import type { Category, Product } from "@prisma/client";
 import type { UploadedImage } from "@/lib/imagekit/type";
@@ -51,7 +52,11 @@ export default function ProductCard({
             href={`/products/${id}`}
             className={`flex ${layout === "grid" ? "h-full flex-col justify-between" : "flex-row items-center"} overflow-hidden rounded-lg border`}
             onClick={(e) => {
-              if (e.target instanceof HTMLButtonElement) {
+              const target = e.target as Element;
+              if (
+                target instanceof HTMLButtonElement ||
+                target.closest("[data-shopping-cart-button]")
+              ) {
                 e.preventDefault();
               }
             }}
@@ -87,7 +92,12 @@ export default function ProductCard({
                 <p className="line-clamp-4">{description}</p>
               </CardContent>
 
-              <CardFooter>
+              <CardFooter className="flex flex-col">
+                <AddToCartButton
+                  id={id}
+                  productName={name}
+                  data-shopping-cart-button
+                />
                 <PurchaseButton id={id} />
               </CardFooter>
             </div>
