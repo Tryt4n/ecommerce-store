@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
+import ShoppingCartContextProvider from "./_context/ShoppingCartContext";
 import Navbar from "@/layout/navbar/Navbar";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
@@ -94,9 +95,11 @@ export default function RootLayout({
           inter.variable
         )}
       >
-        <Navbar />
-        <Toaster />
-        {children}
+        <ShoppingCartContextProvider>
+          <Navbar />
+          <Toaster />
+          {children}
+        </ShoppingCartContextProvider>
       </body>
     </html>
   );
