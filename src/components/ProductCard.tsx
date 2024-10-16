@@ -96,6 +96,7 @@ export default function ProductCard({
                 <AddToCartButton
                   id={id}
                   productName={name}
+                  className="lg:gap-x-2 xl:gap-x-4"
                   data-shopping-cart-button
                 />
                 <PurchaseButton id={id} />
