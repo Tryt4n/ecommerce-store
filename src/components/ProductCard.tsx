@@ -94,8 +94,12 @@ export default function ProductCard({
 
               <CardFooter className="flex flex-col">
                 <AddToCartButton
-                  id={id}
-                  productName={name}
+                  product={{
+                    id,
+                    name,
+                    priceInCents,
+                    thumbnailUrl: imageUrl,
+                  }}
                   className="lg:gap-x-2 xl:gap-x-4"
                   data-shopping-cart-button
                 />

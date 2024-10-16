@@ -23,7 +23,14 @@ export default function ProductBuyModule({ product }: ProductBuyModuleProps) {
       </hgroup>
 
       <div className="my-6">
-        <AddToCartButton id={product.id} productName={product.name} />
+        <AddToCartButton
+          product={{
+            id: product.id,
+            name: product.name,
+            priceInCents: product.priceInCents,
+            thumbnailUrl: product.images[0].url,
+          }}
+        />
 
         <PurchaseButton id={product.id} className="w-full" />
       </div>
