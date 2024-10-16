@@ -7,19 +7,19 @@ import { IKImage } from "imagekitio-next";
 const urlEndpoint = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
 
 type ImageProps = {
-  isThumbnail?: boolean;
-  customRawSize?: number;
   containerClassNames?: string;
   containerStyles?: React.CSSProperties;
+  customRawSize?: number;
+  isThumbnail?: boolean;
 } & ComponentProps<typeof IKImage>;
 
-const defaultImageWidth = 440;
+const defaultImageWidth = 440 as const;
 
 export default function Image({
-  isThumbnail = false,
   containerClassNames,
   containerStyles,
   customRawSize = defaultImageWidth,
+  isThumbnail = false,
   ...props
 }: ImageProps) {
   // Use `react-intersection-observer`to load the image only when it needs to be displayed
