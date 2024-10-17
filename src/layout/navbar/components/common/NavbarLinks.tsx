@@ -39,7 +39,7 @@ export default function NavbarLinks({
   return (
     <NavigationMenu className={`${containerStyles} w-full max-w-full`}>
       {!isMobile && (
-        <Image src="/logo-white.svg" alt="Logo" width={40} height={40} />
+        <Image src="/logo-white.svg" alt="Site Logo" width={40} height={40} />
       )}
 
       <div className="w-full">

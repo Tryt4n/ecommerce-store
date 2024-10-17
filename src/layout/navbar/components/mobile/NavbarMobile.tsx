@@ -22,7 +22,7 @@ export default function NavbarMobile({ authentication }: NavbarProps) {
   return (
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
       <div className="flex justify-between bg-primary p-4">
-        <Image src="/logo-white.svg" alt="Logo" width={40} height={40} />
+        <Image src="/logo-white.svg" alt="Site Logo" width={40} height={40} />
 
         <div className="flex flex-row items-center gap-4">
           <ShoppingCart iconProps={{ color: "#FFF" }} />
