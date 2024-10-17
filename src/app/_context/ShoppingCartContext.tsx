@@ -1,20 +1,20 @@
 "use client";
 
 import React, { createContext, useEffect, useState } from "react";
+import { decode, encode } from "@/lib/helpers";
 import type { ShoppingCart } from "@/types/shoppingCart";
 
 type ChangeProductQuantity = "increment" | "decrement";
 
 type ShoppingCartContext = {
   shoppingCart: ShoppingCart | undefined;
-  setShoppingCart: (value: ShoppingCart | undefined) => void;
   getShoppingCartFromLocalStorage: () => ShoppingCart;
-  setShoppingCartLocalStorage: (value: ShoppingCart) => void;
   deleteProductFromShoppingCart: (productId: string) => void;
   changeProductQuantityInShoppingCart: (
     productId: string,
     type: ChangeProductQuantity
   ) => void;
+  updateShoppingCart: (value: ShoppingCart) => void;
 };
 
 export const ShoppingCartContext = createContext<ShoppingCartContext | null>(
@@ -28,6 +28,7 @@ export default function ShoppingCartContextProvider({
 }) {
   const [shoppingCart, setShoppingCart] = useState<ShoppingCart | undefined>();
 
+  // Load the shopping cart from the local storage on the initial render
   useEffect(() => {
     const cart = getShoppingCartFromLocalStorage();
 
@@ -38,9 +39,7 @@ export default function ShoppingCartContextProvider({
 
   function deleteProductFromShoppingCart(productId: string) {
     const cart = getShoppingCartFromLocalStorage();
-
     const updatedCart = cart.filter((item) => item.id !== productId);
-
     updateShoppingCart(updatedCart);
   }
 
@@ -49,35 +48,32 @@ export default function ShoppingCartContextProvider({
     type: ChangeProductQuantity
   ) {
     const cart = getShoppingCartFromLocalStorage();
-
     const itemIndex = cart.findIndex((item) => item.id === productId);
 
-    // If the product is not in the cart, return
-    if (itemIndex === -1) {
-      return;
-    }
+    if (itemIndex === -1) return; // If the product is not in the cart, return
 
     // If the product is already in the cart, update the quantity
     if (type === "increment") {
-      if (cart[itemIndex].quantity >= 99) return;
-      cart[itemIndex].quantity += 1;
+      if (cart[itemIndex].quantity >= 99) return; // If the quantity is 99, return
+      cart[itemIndex].quantity += 1; // Increment the quantity
     } else {
-      if (cart[itemIndex].quantity <= 1) {
-        return;
-      }
-
-      cart[itemIndex].quantity -= 1;
+      if (cart[itemIndex].quantity <= 1) return; // If the quantity is 1, return
+      cart[itemIndex].quantity -= 1; // Decrement the quantity
     }
 
     updateShoppingCart(cart);
   }
 
   function getShoppingCartFromLocalStorage(): ShoppingCart {
-    return JSON.parse(localStorage.getItem("shoppingCart") || "[]");
+    const localStorageEncodedData = localStorage.getItem("shoppingCart");
+    return localStorageEncodedData
+      ? JSON.parse(decode(localStorageEncodedData))
+      : [];
   }
 
   function setShoppingCartLocalStorage(value: ShoppingCart) {
-    localStorage.setItem("shoppingCart", JSON.stringify(value));
+    const encodedData = encode(JSON.stringify(value));
+    localStorage.setItem("shoppingCart", encodedData);
   }
 
   function updateShoppingCart(value: ShoppingCart) {
@@ -87,11 +83,10 @@ export default function ShoppingCartContextProvider({
 
   const contextValue: ShoppingCartContext = {
     shoppingCart,
-    setShoppingCart,
     getShoppingCartFromLocalStorage,
-    setShoppingCartLocalStorage,
     deleteProductFromShoppingCart,
     changeProductQuantityInShoppingCart,
+    updateShoppingCart,
   };
 
   return (
