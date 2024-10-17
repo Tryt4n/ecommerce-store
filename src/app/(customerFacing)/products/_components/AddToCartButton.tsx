@@ -18,11 +18,8 @@ export default function AddToCartButton({
   product,
   ...props
 }: AddToCartButtonProps) {
-  const {
-    setShoppingCart,
-    getShoppingCartFromLocalStorage,
-    setShoppingCartLocalStorage,
-  } = useShoppingCart();
+  const { getShoppingCartFromLocalStorage, updateShoppingCart } =
+    useShoppingCart();
   const [quantity, setQuantity] = useState(1);
   const { toast } = useToast();
 
@@ -44,8 +41,7 @@ export default function AddToCartButton({
       cart[itemIndex].quantity += quantity;
     }
 
-    setShoppingCartLocalStorage(cart); // Update the local storage
-    setShoppingCart(cart); // Update the context state
+    updateShoppingCart(cart); // Update the local storage and the context state
     setQuantity(1); // Reset the quantity input
     toast({
       title: "Added to cart",
@@ -77,10 +73,11 @@ export default function AddToCartButton({
           <Minus />
         </Button>
 
-        <div>
-          <Label htmlFor="quantityInput" className="sr-only">
+        <Label>
+          <span className="sr-only">
             Enter the quantity of the product you want to add to your cart
-          </Label>
+          </span>
+
           <Input
             type="number"
             name="quantityInput"
@@ -100,7 +97,7 @@ export default function AddToCartButton({
             max={99}
             aria-live="polite"
           />
-        </div>
+        </Label>
 
         <Button
           type="button"
