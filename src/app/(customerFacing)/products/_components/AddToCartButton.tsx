@@ -18,11 +18,8 @@ export default function AddToCartButton({
   product,
   ...props
 }: AddToCartButtonProps) {
-  const {
-    setShoppingCart,
-    getShoppingCartFromLocalStorage,
-    setShoppingCartLocalStorage,
-  } = useShoppingCart();
+  const { getShoppingCartFromLocalStorage, updateShoppingCart } =
+    useShoppingCart();
   const [quantity, setQuantity] = useState(1);
   const { toast } = useToast();
 
@@ -44,8 +41,7 @@ export default function AddToCartButton({
       cart[itemIndex].quantity += quantity;
     }
 
-    setShoppingCartLocalStorage(cart); // Update the local storage
-    setShoppingCart(cart); // Update the context state
+    updateShoppingCart(cart); // Update the local storage and the context state
     setQuantity(1); // Reset the quantity input
     toast({
       title: "Added to cart",
