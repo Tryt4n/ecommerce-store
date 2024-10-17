@@ -13,5 +13,7 @@ export const config = {
     "/orders/:path*",
     "/products/purchase/:productId*",
     "/webhooks/stripe",
+    "/products/:id/download/productDetails",
+    "/products/:id/download/productFile",
   ],
 };
