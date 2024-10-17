@@ -35,8 +35,10 @@ export default function ProductDescription({
 }: ProductDescriptionProps) {
   return (
     <div>
-      <section className="my-8 text-center">
-        <h2 className="text-balance text-xl font-semibold">Description</h2>
+      <section className="my-8">
+        <h2 className="text-balance text-center text-xl font-semibold">
+          Description
+        </h2>
 
         <p className="mx-auto max-w-[60ch] text-pretty">
           {description
