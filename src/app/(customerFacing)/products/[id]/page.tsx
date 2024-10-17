@@ -4,6 +4,7 @@ import { getProduct } from "@/db/userData/products";
 import ProductBuyModule from "./_components/ProductBuyModule";
 import CarouselSlider from "./_components/CarouselSlider";
 import ProductDescription from "./_components/ProductDescription";
+import ProductFiles from "./_components/ProductFiles";
 
 export default async function ProductPage({
   params: { id },
@@ -26,6 +27,8 @@ export default async function ProductPage({
       </div>
 
       <ProductDescription />
+
+      <ProductFiles product={product} />
     </div>
   );
 }
