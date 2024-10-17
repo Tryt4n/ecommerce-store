@@ -77,10 +77,11 @@ export default function AddToCartButton({
           <Minus />
         </Button>
 
-        <div>
-          <Label htmlFor="quantityInput" className="sr-only">
+        <Label>
+          <span className="sr-only">
             Enter the quantity of the product you want to add to your cart
-          </Label>
+          </span>
+
           <Input
             type="number"
             name="quantityInput"
@@ -100,7 +101,7 @@ export default function AddToCartButton({
             max={99}
             aria-live="polite"
           />
-        </div>
+        </Label>
 
         <Button
           type="button"
