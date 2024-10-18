@@ -23,6 +23,7 @@ export default function OrdersHistory({
               src={order.product.images[0].url}
               alt={order.product.name}
               thumbnailContainerClassNames="bg-muted flex-shrink-0"
+              containerClassNames="relative h-full w-full "
               thumbnailContainerStyles={{ height: 250 }}
             />
 
