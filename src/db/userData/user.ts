@@ -1,7 +1,6 @@
 "use server";
 
 import db from "../init";
-import { createDownloadVerification } from "@/app/_actions/download";
 import { sendPurchaseEmail } from "@/lib/resend/emails";
 import { updateDiscountCode } from "../adminData/discountCodes";
 import type { DiscountCode, Product } from "@prisma/client";
@@ -30,14 +29,11 @@ export async function createOrEditUser(
       select: { orders: { orderBy: { createdAt: "desc" }, take: 1 } },
     });
 
-    const downloadVerification = await createDownloadVerification(product.id);
-
     if (discountCodeId) {
       await updateDiscountCode(discountCodeId, { uses: { increment: 1 } });
     }
 
-    downloadVerification &&
-      (await sendPurchaseEmail(email, order, product, downloadVerification));
+    await sendPurchaseEmail(email, order, product);
   } catch (error) {
     console.error(`Can't create/edit user. Error: ${error}`);
   }

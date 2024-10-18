@@ -11,12 +11,11 @@ import {
 } from "@react-email/components";
 import OrderInformation from "./OrderInformation";
 import type { Product } from "../types";
-import type { DownloadVerification, Order } from "@prisma/client";
+import type { Order } from "@prisma/client";
 
 type OrderHistoryEmailProps = {
   orders: Array<
     Required<Pick<Order, "id" | "createdAt" | "pricePaidInCents">> & {
-      downloadVerification: DownloadVerification;
       product: Product;
     }
   >;
@@ -39,12 +38,6 @@ OrderHistoryEmail.PreviewProps = {
         ],
         description: "Product Description",
       },
-      downloadVerification: {
-        createdAt: new Date(),
-        expiresAt: new Date(),
-        id: crypto.randomUUID(),
-        productId: crypto.randomUUID(),
-      },
     },
     {
       id: crypto.randomUUID(),
@@ -60,12 +53,6 @@ OrderHistoryEmail.PreviewProps = {
         ],
         description: "Second Product Description",
       },
-      downloadVerification: {
-        createdAt: new Date(),
-        expiresAt: new Date(),
-        id: crypto.randomUUID(),
-        productId: crypto.randomUUID(),
-      },
     },
   ],
 } satisfies OrderHistoryEmailProps;
@@ -74,7 +61,7 @@ OrderHistoryEmail.PreviewProps = {
 export default function OrderHistoryEmail({ orders }: OrderHistoryEmailProps) {
   return (
     <Html>
-      <Preview>Order History & Downloads</Preview>
+      <Preview>Order History</Preview>
       <Tailwind>
         <Head />
 
@@ -84,11 +71,7 @@ export default function OrderHistoryEmail({ orders }: OrderHistoryEmailProps) {
 
             {orders.map((order, index) => (
               <React.Fragment key={order.id}>
-                <OrderInformation
-                  order={order}
-                  product={order.product}
-                  downloadVerification={order.downloadVerification}
-                />
+                <OrderInformation order={order} product={order.product} />
 
                 {index < orders.length - 1 && <Hr />}
               </React.Fragment>

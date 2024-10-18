@@ -1,14 +1,7 @@
 import React from "react";
 import dotenv from "dotenv";
 import { dateFormatter, formatCurrency } from "@/lib/formatters";
-import {
-  Button,
-  Column,
-  Img,
-  Row,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Column, Img, Row, Section, Text } from "@react-email/components";
 import type { PurchaseReceiptEmailProps } from "./PurchaseReceiptEmail";
 
 dotenv.config();
@@ -18,7 +11,6 @@ type OrderInformationProps = PurchaseReceiptEmailProps;
 export default function OrderInformation({
   order,
   product,
-  downloadVerification,
 }: OrderInformationProps) {
   return (
     <>
@@ -55,15 +47,6 @@ export default function OrderInformation({
         <Row className="mt-8">
           <Column className="align-bottom">
             <Text className="m-0 mr-4 text-lg font-bold">{product.name}</Text>
-          </Column>
-
-          <Column align="right">
-            <Button
-              href={`${process.env.NEXT_PUBLIC_SERVER_URL}/products/download/${downloadVerification.id}`}
-              className="rounded bg-black px-6 py-4 text-lg text-white"
-            >
-              Download
-            </Button>
           </Column>
         </Row>
 

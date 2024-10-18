@@ -7,7 +7,6 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  // url      = env("DATABASE_URL")
   url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
@@ -22,12 +21,11 @@ model Product {
   updatedAt              DateTime @updatedAt
   productFileId          String?
 
-  images                Image[]
-  orders                Order[]
-  downloadVerifications DownloadVerification[]
-  discountCodes         DiscountCode[]
-  categories            ProductCategory[]
-  productFile           ProductFile?           @relation(fields: [productFileId], references: [id], onDelete: Cascade)
+  images        Image[]
+  orders        Order[]
+  discountCodes DiscountCode[]
+  categories    ProductCategory[]
+  productFile   ProductFile?      @relation(fields: [productFileId], references: [id], onDelete: Cascade)
 }
 
 model Image {
@@ -83,14 +81,6 @@ model Order {
   product        Product       @relation(fields: [productId], references: [id], onDelete: Restrict)
   discountCodeId String?
   discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id], onDelete: Restrict)
-}
-
-model DownloadVerification {
-  id        String   @id @default(uuid())
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model DiscountCode {

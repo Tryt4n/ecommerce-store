@@ -6,7 +6,6 @@ import { userOrderExist } from "@/db/userData/orders";
 import { checkDiscountCode } from "@/db/userData/discountCodes";
 import { emailSchema } from "@/lib/zod/emailSchema";
 import { sendEmailWithOrderHistory } from "@/lib/resend/emails";
-import { createDownloadVerification } from "./download";
 import { getDiscountedAmount } from "@/lib/discountCodeHelpers";
 import { createStripePaymentIntent } from "@/lib/stripe/stripe";
 import type { DiscountCode, Product, User } from "@prisma/client";
@@ -31,26 +30,7 @@ export async function emailOrdersHistory(
     };
   }
 
-  // Map orders to include downloadVerification promises
-  const ordersWithPromises = user.orders.map(async (order) => {
-    const downloadVerification = await createDownloadVerification(
-      order.product.id
-    );
-    if (!downloadVerification) {
-      throw new Error(
-        `Download verification not found for product ${order.product.id}.`
-      );
-    }
-    return {
-      ...order,
-      downloadVerification,
-    };
-  });
-
-  // Wait for all promises to resolve
-  const orders = await Promise.all(ordersWithPromises);
-
-  const data = await sendEmailWithOrderHistory(user.email, orders);
+  const data = await sendEmailWithOrderHistory(user.email, user.orders);
 
   if (data?.error) {
     return {
