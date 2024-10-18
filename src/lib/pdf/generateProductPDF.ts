@@ -11,6 +11,8 @@ const FONT_SIZE = 12;
 const FONT_SIZE_SECTION_HEADER = 14;
 const HEADER_SIZE = 24;
 const ROW_HEIGHT = 20;
+const CELL_PADDING = 5;
+const TABLE_COLUMN_WIDTH = (PAGE_WIDTH - 2 * MARGIN) / 2;
 
 export async function generateProductPDF(
   product: NonNullable<Awaited<ReturnType<typeof getProduct>>> & {
@@ -111,7 +113,7 @@ export async function generateProductPDF(
     });
 
     // Draw body text
-    let currentLineY = y - headerHeight - FONT_SIZE;
+    let currentLineY = y - headerHeight - FONT_SIZE / 2;
     bodyLines.forEach((line) => {
       page.drawText(line, {
         x,
@@ -122,6 +124,126 @@ export async function generateProductPDF(
     });
 
     return currentLineY;
+  }
+
+  // Function to wrap text in cell with break-word support
+  function wrapTextInCell(text: string, maxWidth: number): string[] {
+    const words = text.split(/\s+/);
+    const lines: string[] = [];
+    let currentLine = "";
+
+    for (let word of words) {
+      // Handle very long words
+      while (word.length * (FONT_SIZE * 0.5) > maxWidth) {
+        const breakPoint = Math.floor(maxWidth / (FONT_SIZE * 0.5));
+        const part = word.substring(0, breakPoint);
+        word = word.substring(breakPoint);
+        if (currentLine) {
+          lines.push(currentLine);
+          currentLine = "";
+        }
+        lines.push(part);
+      }
+
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      if (testLine.length * (FONT_SIZE * 0.5) <= maxWidth) {
+        currentLine = testLine;
+      } else {
+        if (currentLine) lines.push(currentLine);
+        currentLine = word;
+      }
+    }
+    if (currentLine) lines.push(currentLine);
+    return lines;
+  }
+
+  // Function to draw table cell with wrapped text
+  function drawTableCell(
+    text: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    isHeader: boolean = false,
+    isEvenRow: boolean = false
+  ) {
+    // Draw background for header
+    if (isHeader) {
+      page.drawRectangle({
+        x,
+        y: y - height,
+        width,
+        height,
+        color: rgb(0.8, 0.8, 0.8),
+      });
+    } else if (isEvenRow) {
+      page.drawRectangle({
+        x,
+        y: y - height,
+        width,
+        height,
+        color: rgb(0.95, 0.95, 0.95),
+      });
+    }
+
+    // Draw background for even rows
+    if (isEvenRow && !isHeader) {
+      page.drawRectangle({
+        x,
+        y: y - height,
+        width,
+        height,
+        color: rgb(0.95, 0.95, 0.95),
+      });
+    }
+
+    // Draw cell border
+    page.drawRectangle({
+      x,
+      y: y - height,
+      width,
+      height,
+      borderColor: handlePdfColorRGB("rgb(2, 8, 23)"),
+      borderWidth: 1,
+    });
+
+    // Wrap and draw text
+    const lines = wrapTextInCell(text, width - 2 * CELL_PADDING);
+
+    // Calculate total height of the text
+    const textHeight = lines.length * (FONT_SIZE + 5) - 5; // Subtract 5 because the last line does not need padding
+
+    // Calculate starting position of the text to center it in the cell
+    let textY = y - (height - textHeight) / 2 - FONT_SIZE;
+
+    // For the header, add a slight offset up to make the text slightly higher
+    if (isHeader) {
+      textY += 2;
+    }
+
+    lines.forEach((line) => {
+      page.drawText(line, {
+        x: x + CELL_PADDING,
+        y: textY,
+        size: FONT_SIZE,
+        color: handlePdfColorRGB("rgb(2, 8, 23)"),
+      });
+      textY -= FONT_SIZE + 5;
+    });
+
+    // Add additional padding at the bottom of the text
+    if (lines.length === 1) {
+      textY -= 5; // Additional padding for single line
+    }
+  }
+
+  // Function to calculate cell height based on content
+  function calculateCellHeight(text: string, width: number): number {
+    const lines = wrapTextInCell(text, width - 2 * CELL_PADDING);
+    return Math.max(
+      ROW_HEIGHT,
+      lines.length * (FONT_SIZE + 5) + 2 * CELL_PADDING
+    );
   }
 
   // Draw Product Name
@@ -197,100 +319,69 @@ export async function generateProductPDF(
   );
   currentY -= 40; // Space between description and specifications
 
-  // Draw Specification Table with dynamic position
+  // Draw section header
   currentY = drawText("Specifications:", MARGIN, currentY, {
     size: FONT_SIZE_SECTION_HEADER,
     color: handlePdfColorRGB("rgb(2, 8, 23)"),
   });
 
-  // Draw table headers
-  page.drawRectangle({
-    x: MARGIN,
-    y: currentY - ROW_HEIGHT,
-    width: PAGE_WIDTH - 2 * MARGIN,
-    height: ROW_HEIGHT,
-    color: rgb(0.8, 0.8, 0.8),
-    borderColor: handlePdfColorRGB("rgb(2, 8, 23)"),
-    borderWidth: 1,
-  });
+  // Table headers
+  const headerHeight = ROW_HEIGHT;
+  const middleX = MARGIN + TABLE_COLUMN_WIDTH;
 
-  // Calculate middle point for the vertical line
-  const middleX = MARGIN + (PAGE_WIDTH - 2 * MARGIN) / 2;
+  // Draw headers
+  drawTableCell(
+    "Name",
+    MARGIN,
+    currentY,
+    TABLE_COLUMN_WIDTH,
+    headerHeight,
+    true
+  );
+  drawTableCell(
+    "Value",
+    middleX,
+    currentY,
+    TABLE_COLUMN_WIDTH,
+    headerHeight,
+    true
+  );
 
-  // Draw vertical line in header
-  page.drawLine({
-    start: { x: middleX, y: currentY },
-    end: { x: middleX, y: currentY - ROW_HEIGHT },
-    thickness: 1,
-    color: handlePdfColorRGB("rgb(2, 8, 23)"),
-  });
+  currentY -= headerHeight;
 
-  // Draw header text
-  page.drawText("Name", {
-    x: MARGIN + 5,
-    y: currentY - 15,
-    size: FONT_SIZE,
-    color: handlePdfColorRGB("rgb(2, 8, 23)"),
-  });
-  page.drawText("Value", {
-    x: middleX + 5,
-    y: currentY - 15,
-    size: FONT_SIZE,
-    color: handlePdfColorRGB("rgb(2, 8, 23)"),
-  });
-
-  currentY -= ROW_HEIGHT;
-
-  // Draw specification data rows with consistent vertical lines
+  // Draw data rows
   product.specification.forEach((spec, index) => {
-    if (currentY < MARGIN + ROW_HEIGHT) {
+    // Calculate row height based on longer text
+    const nameHeight = calculateCellHeight(spec.name, TABLE_COLUMN_WIDTH);
+    const valueHeight = calculateCellHeight(spec.value, TABLE_COLUMN_WIDTH);
+    const rowHeight = Math.max(nameHeight, valueHeight);
+
+    // Check if new page is needed
+    if (currentY - rowHeight < MARGIN) {
       addNewPage();
     }
 
-    // Background for even rows
-    if (index % 2 === 0) {
-      page.drawRectangle({
-        x: MARGIN,
-        y: currentY - ROW_HEIGHT,
-        width: PAGE_WIDTH - 2 * MARGIN,
-        height: ROW_HEIGHT,
-        color: rgb(0.95, 0.95, 0.95),
-      });
-    }
+    // Draw spec name and value cells
+    drawTableCell(
+      spec.name,
+      MARGIN,
+      currentY,
+      TABLE_COLUMN_WIDTH,
+      rowHeight,
+      false,
+      index % 2 === 0
+    );
+    drawTableCell(
+      spec.value,
+      middleX,
+      currentY,
+      TABLE_COLUMN_WIDTH,
+      rowHeight,
+      false,
+      index % 2 === 0
+    );
 
-    // Draw spec name and value
-    page.drawText(spec.name, {
-      x: MARGIN + 5,
-      y: currentY - 15,
-      size: FONT_SIZE,
-      color: handlePdfColorRGB("rgb(2, 8, 23)"),
-    });
-    page.drawText(spec.value, {
-      x: middleX + 5,
-      y: currentY - 15,
-      size: FONT_SIZE,
-      color: handlePdfColorRGB("rgb(2, 8, 23)"),
-    });
-
-    // Draw row borders
-    page.drawRectangle({
-      x: MARGIN,
-      y: currentY - ROW_HEIGHT,
-      width: PAGE_WIDTH - 2 * MARGIN,
-      height: ROW_HEIGHT,
-      borderColor: handlePdfColorRGB("rgb(2, 8, 23)"),
-      borderWidth: 1,
-    });
-
-    // Draw vertical line for each row
-    page.drawLine({
-      start: { x: middleX, y: currentY },
-      end: { x: middleX, y: currentY - ROW_HEIGHT },
-      thickness: 1,
-      color: handlePdfColorRGB("rgb(2, 8, 23)"),
-    });
-
-    currentY -= ROW_HEIGHT;
+    currentY -= rowHeight;
   });
 
   const pdfBytes = await pdfDoc.save();
