@@ -30,8 +30,8 @@ export default function ProductDropdownMenu({
 
       <DropdownMenuContent>
         <DropdownMenuItem asChild className="cursor-pointer">
-          <a download href={`/admin/products/${product.id}/download`}>
-            Download
+          <a download href={`/products/${product.id}/download/productDetails`}>
+            Download Details
           </a>
         </DropdownMenuItem>
 
