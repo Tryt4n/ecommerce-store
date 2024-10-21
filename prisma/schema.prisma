@@ -22,10 +22,12 @@ model Product {
   productFileId          String?
 
   images        Image[]
-  orders        Order[]
+  // orders        Order[]
   discountCodes DiscountCode[]
   categories    ProductCategory[]
   productFile   ProductFile?      @relation(fields: [productFileId], references: [id], onDelete: Cascade)
+
+  OrderItem OrderItem[] //!
 }
 
 model Image {
@@ -69,19 +71,48 @@ model User {
   orders    Order[]
 }
 
+// model Order {
+//   id               String   @id @default(uuid())
+//   pricePaidInCents Int
+//   createdAt        DateTime @default(now())
+//   updatedAt        DateTime @updatedAt
+
+//   userId         String
+//   productId      String
+//   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   product        Product       @relation(fields: [productId], references: [id], onDelete: Restrict)
+//   discountCodeId String?
+//   discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id], onDelete: Restrict)
+// }
+//!
 model Order {
   id               String   @id @default(uuid())
   pricePaidInCents Int
+  isPaid           Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   userId         String
-  productId      String
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product        Product       @relation(fields: [productId], references: [id], onDelete: Restrict)
   discountCodeId String?
   discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id], onDelete: Restrict)
+
+  orderItems OrderItem[]
 }
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int    @default(1)
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId, productId])
+}
+
+//!
 
 model DiscountCode {
   id             String           @id @default(uuid())
