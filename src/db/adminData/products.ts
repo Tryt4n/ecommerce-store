@@ -40,18 +40,27 @@ export async function getAllProducts(
           select: { category: { select: { name: true } } },
           orderBy: { category: { name: "asc" } },
         },
-        _count: { select: { orders: true } },
+        OrderItem: { select: { quantity: true } },
       },
       orderBy: { [orderBy]: type },
       where: { createdAt: createdAtQuery },
     });
 
-    // Convert the query result so that _count is a number
-    const transformedProducts = products.map((product) => ({
-      ...product,
-      _count: product._count.orders,
-      categories: product.categories.map((category) => category.category.name),
-    }));
+    // Transform the products to include the total count of orders and map the categories to an array of strings
+    const transformedProducts = products.map((product) => {
+      const _count = product.OrderItem.reduce(
+        (total, orderItem) => total + orderItem.quantity,
+        0
+      );
+
+      return {
+        ...product,
+        _count,
+        categories: product.categories.map(
+          (category) => category.category.name
+        ),
+      };
+    });
 
     return transformedProducts;
   } catch (error) {

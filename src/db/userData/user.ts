@@ -15,13 +15,22 @@ export async function getUser(email: string) {
             id: true,
             pricePaidInCents: true,
             createdAt: true,
-            product: {
+            isPaid: true,
+            orderItems: {
               select: {
                 id: true,
-                name: true,
-                description: true,
-                images: { select: { id: true, url: true } },
-                productFile: { select: { id: true, name: true, url: true } },
+                product: {
+                  select: {
+                    id: true,
+                    name: true,
+                    description: true,
+                    images: { select: { id: true, url: true } },
+                    productFile: {
+                      select: { id: true, name: true, url: true },
+                    },
+                  },
+                },
+                quantity: true,
               },
             },
           },

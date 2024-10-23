@@ -24,7 +24,14 @@ export async function getOrders(
         id: true,
         createdAt: true,
         pricePaidInCents: true,
-        product: { select: { name: true } },
+        isPaid: true,
+        orderItems: {
+          select: {
+            id: true,
+            quantity: true,
+            product: { select: { name: true } },
+          },
+        },
         user: true,
         discountCode: {
           select: { code: true },
@@ -38,9 +45,12 @@ export async function getOrders(
       id: order.id,
       createdAt: order.createdAt,
       pricePaidInCents: order.pricePaidInCents,
-      productName: order.product.name,
+      productNames: order.orderItems
+        .map((item) => item.product.name)
+        .join(", "),
       userEmail: order.user.email,
       discountCode: order.discountCode?.code,
+      isPaid: order.isPaid,
     }));
 
     return filteredOrders;

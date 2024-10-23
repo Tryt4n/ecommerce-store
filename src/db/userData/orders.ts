@@ -1,21 +1,7 @@
 "use server";
 
 import db from "../init";
-import type { Product, User } from "@prisma/client";
-
-export async function userOrderExist(
-  email: User["email"],
-  productId: Product["id"]
-) {
-  try {
-    return await db.order.findFirst({
-      where: { user: { email }, productId },
-      select: { id: true },
-    });
-  } catch (error) {
-    console.error(error);
-  }
-}
+import type { User } from "@prisma/client";
 
 export async function getAllUserOrders(email: User["email"]) {
   try {
@@ -24,18 +10,25 @@ export async function getAllUserOrders(email: User["email"]) {
       select: {
         id: true,
         createdAt: true,
-        product: {
+        isPaid: true,
+        orderItems: {
           select: {
             id: true,
-            name: true,
-            description: true,
-            images: {
-              take: 1,
-              where: { isMainForProduct: true },
-              select: { url: true },
+            quantity: true,
+            product: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                images: {
+                  take: 1,
+                  where: { isMainForProduct: true },
+                  select: { url: true },
+                },
+                priceInCents: true,
+                productFile: true,
+              },
             },
-            priceInCents: true,
-            productFile: true,
           },
         },
       },
