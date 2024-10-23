@@ -22,7 +22,6 @@ model Product {
   productFileId          String?
 
   images        Image[]
-  // orders        Order[]
   discountCodes DiscountCode[]
   categories    ProductCategory[]
   productFile   ProductFile?      @relation(fields: [productFileId], references: [id], onDelete: Cascade)
