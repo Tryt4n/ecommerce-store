@@ -68,7 +68,9 @@ export async function getAllProducts(
   }
 }
 
-export async function createProduct(data: z.infer<typeof productAddSchema>) {
+export async function createProduct(
+  data: z.infer<typeof productAddSchema> & { id: string }
+) {
   try {
     await db.$transaction(async (tx) => {
       // Find all categories IDs
@@ -83,6 +85,7 @@ export async function createProduct(data: z.infer<typeof productAddSchema>) {
       // Create the product
       await tx.product.create({
         data: {
+          id: data.id,
           isAvailableForPurchase: false,
           name: data.name,
           description: data.description,
