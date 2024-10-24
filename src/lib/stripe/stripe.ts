@@ -52,7 +52,7 @@ export async function createStripeProduct(
 
 export async function updateStripeProduct(
   productId: string,
-  params: Partial<Stripe.ProductCreateParams>,
+  params: Partial<Stripe.ProductUpdateParams>,
   options?: Stripe.RequestOptions
 ) {
   try {
@@ -63,10 +63,55 @@ export async function updateStripeProduct(
 }
 
 export async function deleteStripeProduct(productId: string) {
+  // Stripe API does not allow deleted product when it has any connections with prices so we need to update the product to inactive
   try {
-    await stripe.products.del(productId);
+    await stripe.products.update(productId, {
+      active: false,
+      metadata: {
+        status: "deleted",
+        deleted_at: new Date().toISOString(),
+      },
+    });
   } catch (error) {
     console.error(`Stripe failed to delete product. Error: ${error}`);
+  }
+}
+
+export async function createStripePrice(
+  params: Stripe.PriceCreateParams,
+  options?: Stripe.RequestOptions
+) {
+  try {
+    return await stripe.prices.create(params, options);
+  } catch (error) {
+    console.error(`Stripe failed to create price. Error: ${error}`);
+  }
+}
+
+export async function searchForExistingStripePrice(
+  params: Stripe.PriceSearchParams,
+  options?: Stripe.RequestOptions
+) {
+  try {
+    return await stripe.prices.search(params, options);
+  } catch (error) {
+    console.error(
+      `Stripe failed to search for existing price. Error: ${error}`
+    );
+  }
+}
+
+export async function searchForStripeInvoice(
+  params: Stripe.InvoiceSearchParams,
+  options?: Stripe.RequestOptions
+) {
+  try {
+    return await stripe.invoices.search(params, options);
+    // return await stripe.invoices.search({
+    //   query: `metadata["orderIdInDB"]:'790f0096-909e-4634-9e94-1d3be23ddb24'`,
+    // });
+  } catch (error) {
+    console.error(`Stripe failed to search for invoice. Error: ${error}`);
   }
 }
 
