@@ -68,3 +68,17 @@ export async function deleteOrder(id: Order["id"]) {
     console.error(`Can't delete order. Error: ${error}`);
   }
 }
+
+export async function updateOrder(
+  id: Order["id"],
+  data: Prisma.OrderUpdateInput
+) {
+  try {
+    await db.order.update({
+      where: { id: id },
+      data: data,
+    });
+  } catch (error) {
+    console.error(`Can't update order. Error: ${error}`);
+  }
+}
