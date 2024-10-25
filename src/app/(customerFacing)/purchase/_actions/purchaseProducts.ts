@@ -5,7 +5,6 @@ import {
   createStripeCheckoutSession,
   createStripeCustomer,
 } from "@/lib/stripe/stripe";
-import { redirect } from "next/navigation";
 
 export async function handlePurchaseProduct(
   products: {
@@ -58,10 +57,6 @@ export async function handlePurchaseProduct(
     products,
     orderId
   );
-
-  if (checkoutSession && checkoutSession.url) {
-    redirect(checkoutSession.url);
-  }
 
   return checkoutSession;
 }
