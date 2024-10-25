@@ -1,7 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useFormState } from "react-dom";
+import { useRouter } from "next/navigation";
+import { useShoppingCart } from "@/app/_hooks/useShoppingCart";
 import { handlePurchaseProduct } from "../_actions/purchaseProducts";
 import { Button } from "@/components/ui/button";
 import ErrorMessage from "@/components/ErrorMessage";
@@ -22,6 +24,15 @@ export default function PurchaseForm({
     handlePurchaseProduct.bind(null, products),
     undefined
   );
+  const { clearShoppingCart } = useShoppingCart();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (error && typeof error !== "string" && error.url) {
+      router.push(error.url);
+      clearShoppingCart();
+    }
+  }, [error, clearShoppingCart, router]);
 
   return (
     <form action={action}>
