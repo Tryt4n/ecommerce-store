@@ -107,9 +107,6 @@ export async function searchForStripeInvoice(
 ) {
   try {
     return await stripe.invoices.search(params, options);
-    // return await stripe.invoices.search({
-    //   query: `metadata["orderIdInDB"]:'790f0096-909e-4634-9e94-1d3be23ddb24'`,
-    // });
   } catch (error) {
     console.error(`Stripe failed to search for invoice. Error: ${error}`);
   }
@@ -147,6 +144,47 @@ export async function createStripeCheckoutSession(
     success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/purchase/success`,
     line_items: lineItems,
     mode: "payment",
+    billing_address_collection: "required",
+    custom_fields: [
+      {
+        key: "name",
+        label: {
+          type: "custom",
+          custom: "Name",
+        },
+        type: "text",
+        text: {
+          minimum_length: 5,
+          maximum_length: 100,
+        },
+        optional: false,
+      },
+      {
+        key: "address",
+        label: {
+          type: "custom",
+          custom: "Address - street, city, ZIP-code (if different)",
+        },
+        type: "text",
+        text: {
+          minimum_length: 12,
+          maximum_length: 200,
+        },
+      },
+      {
+        key: "NIP",
+        label: {
+          type: "custom",
+          custom: "NIP",
+        },
+        type: "numeric",
+        optional: true,
+        numeric: {
+          minimum_length: 10,
+          maximum_length: 10,
+        },
+      },
+    ],
     payment_method_types: ["card", "blik", "p24", "paypal"],
     currency: "pln",
     automatic_tax: {
@@ -160,6 +198,20 @@ export async function createStripeCheckoutSession(
       invoice_data: {
         rendering_options: { amount_tax_display: "include_inclusive_tax" },
         metadata: { orderIdInDB: orderId },
+        custom_fields: [
+          {
+            name: "Name",
+            value: "{{checkout.custom_fields.name.value}}",
+          },
+          {
+            name: "Address",
+            value: "{{checkout.custom_fields.address.value}}",
+          },
+          {
+            name: "NIP",
+            value: "{{checkout.custom_fields.NIP.value}}",
+          },
+        ],
       },
     },
     metadata: { orderIdInDB: orderId },
