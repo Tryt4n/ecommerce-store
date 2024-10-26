@@ -6,6 +6,7 @@ import {
   createStripeCheckoutSession,
   createOrGetExistingStripeCustomer,
 } from "@/lib/stripe/stripe";
+import { purchaseSchema } from "@/lib/zod/purchaseSchema";
 
 export async function handlePurchaseProduct(
   products: {
@@ -16,34 +17,74 @@ export async function handlePurchaseProduct(
   prevState: unknown,
   formData: FormData
 ) {
-  const email = formData.get("email") as string;
-  const firstName = formData.get("firstName") as string;
-  const lastName = formData.get("lastName") as string;
-  const createInvoice = formData.get("invoice") as "on" | null;
-  const companyName = formData.get("companyName") as string;
-  const companyAddress = formData.get("companyAddress") as string;
-  const NIP = formData.get("NIP") as string;
+  const email =
+    formData.get("email") !== ""
+      ? (formData.get("email") as string)
+      : undefined;
+  const firstName =
+    formData.get("firstName") !== ""
+      ? (formData.get("firstName") as string)
+      : undefined;
+  const lastName =
+    formData.get("lastName") !== ""
+      ? (formData.get("lastName") as string)
+      : undefined;
+  const createInvoice =
+    (formData.get("invoice") as "on" | null) === "on" ? true : false;
+  const companyName =
+    formData.get("companyName") !== ""
+      ? (formData.get("companyName") as string)
+      : undefined;
+  const companyStreet =
+    formData.get("companyStreet") !== ""
+      ? (formData.get("companyStreet") as string)
+      : undefined;
+  const companyStreetNumber =
+    formData.get("companyStreetNumber") !== ""
+      ? (formData.get("companyStreetNumber") as string)
+      : undefined;
+  const companyApartmentNumber =
+    formData.get("companyApartmentNumber") !== ""
+      ? (formData.get("companyApartmentNumber") as string)
+      : undefined;
+  const companyCity =
+    formData.get("companyCity") !== ""
+      ? (formData.get("companyCity") as string)
+      : undefined;
+  const companyZipCode =
+    formData.get("companyZipCode") !== ""
+      ? (formData.get("companyZipCode") as string)
+      : undefined;
+  const NIP =
+    formData.get("NIP") !== "" ? (formData.get("NIP") as string) : undefined;
 
-  // Check if the order is valid - if not, return an error
-  if (products.length === 0) {
-    return { data: null, error: "No products to purchase." };
+  const result = purchaseSchema.safeParse({
+    products,
+    email,
+    firstName,
+    lastName,
+    createInvoice,
+    companyName,
+    companyStreet,
+    companyStreetNumber,
+    companyApartmentNumber,
+    companyCity,
+    companyZipCode,
+    NIP,
+  });
+
+  if (result.success === false) {
+    return { errors: result.error.formErrors.fieldErrors };
   }
-  if (products.length > 20) {
-    return {
-      data: null,
-      error: "Maximum of 20 products can be purchased at once.",
-    };
-  }
-  if (!email || email === "") {
-    return { data: null, error: "Email is required." };
-  }
+
+  const { data: parsedData } = result;
 
   // Create a new customer in Stripe - if the customer already exists, it will return the existing customer
   const customer = await createOrGetExistingStripeCustomer({
-    email: email,
+    email: parsedData.email,
     name:
-      firstName || lastName
-        ? `${firstName ? firstName : ""} ${lastName ? lastName : ""}`
+      parsedData.firstName || parsedData.lastName
+        ? `${parsedData.firstName ? parsedData.firstName : ""} ${parsedData.lastName ? parsedData.lastName : ""}`
         : undefined,
   });
 
@@ -58,7 +99,7 @@ export async function handlePurchaseProduct(
   const user = await createOrEditUserWithOrder(
     customer.id,
     customer.email!,
-    products,
+    parsedData.products,
     orderId
   );
 
@@ -68,28 +109,40 @@ export async function handlePurchaseProduct(
   // Create custom invoice fields
   const customInvoiceFields: Parameters<
     typeof createStripeCheckoutSession
-  >["3"] =
-    createInvoice === "on"
-      ? [
-          {
-            name: "Name",
-            value: companyName,
-          },
-          {
-            name: "Address",
-            value: companyAddress,
-          },
-        ]
-      : undefined;
-  if (createInvoice === "on" && customInvoiceFields && NIP && NIP !== "")
-    customInvoiceFields.push({ name: "NIP", value: NIP });
+  >["3"] = parsedData.createInvoice
+    ? [
+        {
+          name: "Name",
+          value: parsedData.companyName!,
+        },
+        // {
+        //   name: "Address",
+        //   value: `St. ${parsedData.companyStreet!} ${parsedData.companyStreetNumber!}${parsedData.companyApartmentNumber ? `, ${parsedData.companyApartmentNumber}` : ""}, ${parsedData.companyZipCode!} ${parsedData.companyCity!}`,
+        // },
+        {
+          name: "Address",
+          value: `St. ${parsedData.companyStreet!} ${parsedData.companyStreetNumber!}${parsedData.companyApartmentNumber ? `, ${parsedData.companyApartmentNumber}` : ""}`,
+        },
+        {
+          name: "City",
+          value: `${parsedData.companyZipCode!}, ${parsedData.companyCity!}`,
+        },
+      ]
+    : undefined;
+  if (
+    parsedData.createInvoice &&
+    customInvoiceFields &&
+    parsedData.NIP &&
+    parsedData.NIP !== ""
+  )
+    customInvoiceFields.push({ name: "NIP", value: parsedData.NIP });
 
   // If the user was created successfully, create a new checkout session
   const checkoutSession = await createStripeCheckoutSession(
     user.id,
     orderId,
-    products,
-    createInvoice === "on" ? customInvoiceFields : undefined // If the user wants an invoice, pass the custom fields
+    parsedData.products,
+    parsedData.createInvoice ? customInvoiceFields : undefined // If the user wants an invoice, pass the custom fields
   );
 
   // Update the order with the checkout session URL
@@ -105,5 +158,5 @@ export async function handlePurchaseProduct(
     };
 
   // Return the checkout session data
-  return { data: checkoutSession, error: null };
+  return { data: checkoutSession };
 }
