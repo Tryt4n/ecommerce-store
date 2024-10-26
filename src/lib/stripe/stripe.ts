@@ -20,7 +20,7 @@ export async function createStripePaymentIntent(
   }
 }
 
-export async function createStripeCustomer(
+export async function createOrGetExistingStripeCustomer(
   params: Stripe.CustomerCreateParams,
   options?: Stripe.RequestOptions
 ) {
@@ -114,11 +114,12 @@ export async function searchForStripeInvoice(
 
 export async function createStripeCheckoutSession(
   customerId: string,
+  orderId: string,
   products: {
     productId: string;
     quantity: number;
   }[],
-  orderId: string
+  invoiceData?: Stripe.Checkout.SessionCreateParams.InvoiceCreation.InvoiceData.CustomField[]
 ) {
   const lineItems: Stripe.PaymentLinkCreateParams.LineItem[] = [];
 
@@ -142,49 +143,10 @@ export async function createStripeCheckoutSession(
       shipping: "auto",
     },
     success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/purchase/success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/orders`,
     line_items: lineItems,
     mode: "payment",
     billing_address_collection: "required",
-    custom_fields: [
-      {
-        key: "name",
-        label: {
-          type: "custom",
-          custom: "Name",
-        },
-        type: "text",
-        text: {
-          minimum_length: 5,
-          maximum_length: 100,
-        },
-        optional: false,
-      },
-      {
-        key: "address",
-        label: {
-          type: "custom",
-          custom: "Address - street, city, ZIP-code (if different)",
-        },
-        type: "text",
-        text: {
-          minimum_length: 12,
-          maximum_length: 200,
-        },
-      },
-      {
-        key: "NIP",
-        label: {
-          type: "custom",
-          custom: "NIP",
-        },
-        type: "numeric",
-        optional: true,
-        numeric: {
-          minimum_length: 10,
-          maximum_length: 10,
-        },
-      },
-    ],
     payment_method_types: ["card", "blik", "p24", "paypal"],
     currency: "pln",
     automatic_tax: {
@@ -193,25 +155,13 @@ export async function createStripeCheckoutSession(
         type: "self",
       },
     },
-    invoice_creation: {
+    // Create invoice if invoiceData is provided
+    invoice_creation: invoiceData && {
       enabled: true,
       invoice_data: {
         rendering_options: { amount_tax_display: "include_inclusive_tax" },
         metadata: { orderIdInDB: orderId },
-        custom_fields: [
-          {
-            name: "Name",
-            value: "{{checkout.custom_fields.name.value}}",
-          },
-          {
-            name: "Address",
-            value: "{{checkout.custom_fields.address.value}}",
-          },
-          {
-            name: "NIP",
-            value: "{{checkout.custom_fields.NIP.value}}",
-          },
-        ],
+        custom_fields: invoiceData,
       },
     },
     metadata: { orderIdInDB: orderId },
