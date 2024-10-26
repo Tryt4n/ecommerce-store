@@ -23,7 +23,7 @@ export default function OrdersHistory({
                 dateTime={order.createdAt.toUTCString()}
                 className="block text-muted-foreground"
               >
-                {format(order.createdAt, "dd MMM yyyy, hh:mm ", {
+                {format(order.createdAt, "dd MMM yyyy, HH:MM ", {
                   locale: pl,
                 })}
               </time>
