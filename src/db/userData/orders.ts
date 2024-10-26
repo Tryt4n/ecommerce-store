@@ -11,6 +11,9 @@ export async function getAllUserOrders(email: User["email"]) {
         id: true,
         createdAt: true,
         isPaid: true,
+        receiptUrl: true,
+        checkoutSessionUrl: true,
+        invoicePdfUrl: true,
         orderItems: {
           select: {
             id: true,
