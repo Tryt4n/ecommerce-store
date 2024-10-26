@@ -1,12 +1,12 @@
 import React from "react";
 import { formatCurrency } from "@/lib/formatters";
+import { format } from "date-fns";
+import { pl } from "date-fns/locale";
 import Link from "next/link";
 import ImageThumbnail from "@/components/ImageThumbnail";
 import { Separator } from "@/components/ui/separator";
-import { format } from "date-fns";
-import { pl } from "date-fns/locale";
-import type { getAllUserOrders } from "@/db/userData/orders";
 import { Button } from "@/components/ui/button";
+import type { getAllUserOrders } from "@/db/userData/orders";
 
 export default function OrdersHistory({
   orders,
@@ -37,7 +37,7 @@ export default function OrdersHistory({
                     variant="destructive"
                     aria-label="The order has not been paid."
                     title="The order has not been paid."
-                    href="" // TODO: Add payment link
+                    href={order.checkoutSessionUrl || ""}
                   >
                     Pay
                   </Button>
