@@ -74,7 +74,7 @@ export async function updateOrder(
   data: Prisma.OrderUpdateInput
 ) {
   try {
-    await db.order.update({
+    return await db.order.update({
       where: { id: id },
       data: data,
     });
