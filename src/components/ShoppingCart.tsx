@@ -40,6 +40,7 @@ export default function ShoppingCart({
       <HoverCardTrigger asChild>
         <Button
           type="button"
+          href="/purchase"
           variant="default"
           className="transition-opacity hover:opacity-50"
           onClick={isTouchDevice ? () => setIsOpen(!isOpen) : undefined}
