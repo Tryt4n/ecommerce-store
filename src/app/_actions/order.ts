@@ -2,10 +2,10 @@
 
 import { getUser } from "@/db/userData/user";
 import { getProduct } from "@/db/userData/products";
-import { userOrderExist } from "@/db/userData/orders";
+// import { userOrderExist } from "@/db/userData/orders";
 import { checkDiscountCode } from "@/db/userData/discountCodes";
 import { emailSchema } from "@/lib/zod/emailSchema";
-import { sendEmailWithOrderHistory } from "@/lib/resend/emails";
+// import { sendEmailWithOrderHistory } from "@/lib/resend/emails";
 import { getDiscountedAmount } from "@/lib/discountCodeHelpers";
 import { createStripePaymentIntent } from "@/lib/stripe/stripe";
 import type { DiscountCode, Product, User } from "@prisma/client";
@@ -30,13 +30,13 @@ export async function emailOrdersHistory(
     };
   }
 
-  const data = await sendEmailWithOrderHistory(user.email, user.orders);
+  // const data = await sendEmailWithOrderHistory(user.email, user.orders);
 
-  if (data?.error) {
-    return {
-      error: "There was an error sending your email. Please try again.",
-    };
-  }
+  // if (data?.error) {
+  //   return {
+  //     error: "There was an error sending your email. Please try again.",
+  //   };
+  // }
 
   return { message: success_message };
 }
@@ -60,15 +60,6 @@ export async function createPaymentIntent(
     ));
   if (!discountCode == null && discountCouponCode != null) {
     return { error: "Coupon has expired." };
-  }
-
-  const existingOrder = await userOrderExist(email, productId);
-
-  if (existingOrder) {
-    return {
-      error:
-        "You have already purchased this product. Try downloading it from the My Orders page.",
-    };
   }
 
   const amount = !discountCode
