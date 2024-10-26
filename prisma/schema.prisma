@@ -82,8 +82,9 @@ model Order {
   discountCodeId String?
   discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id], onDelete: Restrict)
 
-  invoiceUrl    String?
-  invoicePdfUrl String?
+  checkoutSessionUrl String?
+  receiptUrl         String?
+  invoicePdfUrl      String?
 
   orderItems OrderItem[]
 }
