@@ -31,6 +31,17 @@ export const purchaseSchema = z
       .min(5, { message: "Name must be at least 5 characters long." })
       .max(100, { message: "Name must be at most 100 characters long." })
       .optional()
+      .transform((value) => {
+        if (!value) return value;
+        // Normalize street name:
+        // - replace multiple spaces with single space
+        // - ensure exactly one space after dots in initials
+        // - trim any leading/trailing spaces
+        return value
+          .trim()
+          .replace(/\.(?!\s)/g, ". ")
+          .replace(/\s+/g, " ");
+      })
       .superRefine((value, ctx) => {
         if (!value) return;
 
@@ -59,15 +70,23 @@ export const purchaseSchema = z
           });
           return;
         }
-
-        // Normalize name (replace multiple spaces with single ones)
-        return value.replace(/\s+/g, " ").trim();
       }),
     companyStreet: z
       .string()
       .min(3, { message: "Street must be at least 3 characters long." })
       .max(80, { message: "Street must be at most 80 characters long." })
       .optional()
+      .transform((value) => {
+        if (!value) return value;
+        // Normalize street name:
+        // - replace multiple spaces with single space
+        // - ensure exactly one space after dots in initials
+        // - trim any leading/trailing spaces
+        return value
+          .trim()
+          .replace(/\.(?!\s)/g, ". ")
+          .replace(/\s+/g, " ");
+      })
       .superRefine((value, ctx) => {
         if (!value) return;
 
@@ -87,31 +106,27 @@ export const purchaseSchema = z
         // \p{Lu} - uppercase letters
         // \p{Ll} - lowercase letters
         const streetRegex =
-          /^(?:(?:\p{Lu}\.){1,2}\s+)?[\p{L}0-9]+(?:[\s-][\p{L}0-9]+)*$/u;
+          /^(?:(?:\p{Lu}\.\s+){1,2})?[\p{L}0-9]+(?:[\s-][\p{L}0-9]+)*$/u;
 
         if (!streetRegex.test(value)) {
           ctx.addIssue({
             code: "custom",
             message:
-              "Invalid street format. Can be a single or multi-part name, optionally starting with initials (e.g. J. or J.J.), parts separated by space or hyphen.",
+              "Invalid street format. Can be a single or multi-part name, optionally starting with initials (e.g. J. or J. J.), parts separated by space or hyphen.",
           });
           return;
         }
-
-        // Normalize street name:
-        // - replace multiple spaces with single space
-        // - ensure exactly one space after dots in initials
-        // - trim any leading/trailing spaces
-        return value
-          .replace(/\s+/g, " ")
-          .replace(/\.(?!\s)/g, ". ")
-          .trim();
       }),
     companyStreetNumber: z
       .string()
       .min(1, { message: "Street number must be at least 1 character long." })
       .max(10, { message: "Street number must be at most 10 characters long." })
       .optional()
+      .transform((value) => {
+        if (!value) return value;
+        // Normalize street number (remove spaces)
+        return value.trim();
+      })
       .superRefine((value, ctx) => {
         if (!value) return;
 
@@ -135,9 +150,6 @@ export const purchaseSchema = z
           });
           return;
         }
-
-        // Normalize street number (remove spaces)
-        return value.trim();
       }),
     companyApartmentNumber: z
       .string()
@@ -148,6 +160,11 @@ export const purchaseSchema = z
         message: "Apartment number must be at most 10 characters long.",
       })
       .optional()
+      .transform((value) => {
+        if (!value) return value;
+        // Normalize street number (remove spaces)
+        return value.trim();
+      })
       .superRefine((value, ctx) => {
         if (!value) return;
 
@@ -165,15 +182,23 @@ export const purchaseSchema = z
           });
           return;
         }
-
-        // Normalize apartment number (remove spaces)
-        return value.trim();
       }),
     companyCity: z
       .string()
       .min(3, { message: "City must be at least 3 characters long." })
       .max(50, { message: "City must be at most 50 characters long." })
       .optional()
+      .transform((value) => {
+        if (!value) return value;
+        // Normalize city name:
+        // - replace multiple spaces with single space
+        // - ensure exactly one space after dots in initials
+        // - trim any leading/trailing spaces
+        return value
+          .trim()
+          .replace(/\.(?!\s)/g, ". ")
+          .replace(/\s+/g, " ");
+      })
       .superRefine((value, ctx) => {
         if (!value) return;
 
@@ -193,7 +218,7 @@ export const purchaseSchema = z
         // 2. The main part of the city's name: [\p{L}0-9]+
         // 3. Optional additional members: (?:[\s-][\p{L}0-9]+)*
         const cityRegex =
-          /^(?:(?:\p{Lu}\.){1,2}\s+)?[\p{L}0-9]+(?:[\s-][\p{L}0-9]+)*$/u;
+          /^(?:(?:\p{Lu}\.\s+){1,2})?[\p{L}0-9]+(?:[\s-][\p{L}0-9]+)*$/u;
 
         if (!cityRegex.test(value)) {
           ctx.addIssue({
@@ -203,21 +228,17 @@ export const purchaseSchema = z
           });
           return;
         }
-
-        // Normalize city name:
-        // - replace multiple spaces with single space
-        // - ensure exactly one space after dots in initials
-        // - trim any leading/trailing spaces
-        return value
-          .replace(/\s+/g, " ")
-          .replace(/\.(?!\s)/g, ". ")
-          .trim();
       }),
     companyZipCode: z
       .string()
       .min(3, { message: "Zip code must be at least 3 characters long." })
       .max(6, { message: "Zip code must be at most 6 characters long." })
       .optional()
+      .transform((value) => {
+        if (!value) return value;
+        // Normalize zip code (remove spaces)
+        return value.trim().replace(/\s+/g, "");
+      })
       .superRefine((value, ctx) => {
         if (!value) return;
 
@@ -231,13 +252,15 @@ export const purchaseSchema = z
           });
           return;
         }
-
-        // Normalize zip code (remove spaces)
-        return value.replace(/\s+/g, "").trim();
       }),
     NIP: z
       .string()
       .optional()
+      .transform((value) => {
+        if (!value) return value;
+        // Normalize NIP (remove spaces)
+        return value.trim();
+      })
       .superRefine((value, ctx) => {
         if (!value) return;
 
