@@ -2,6 +2,7 @@ import Stripe from "stripe";
 import { NextResponse, type NextRequest } from "next/server";
 import { deleteOrder, updateOrder } from "@/db/adminData/orders";
 import type { Order } from "@prisma/client";
+import { sendPurchaseEmail } from "@/lib/resend/emails";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -35,6 +36,8 @@ export async function POST(req: NextRequest) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const orderId = session.metadata?.orderIdInDB;
+
+      session.customer_email;
 
       if (!orderId) {
         return NextResponse.json(
@@ -80,7 +83,10 @@ export async function POST(req: NextRequest) {
           (orderUpdateDate.invoicePdfUrl = invoice.invoice_pdf);
 
         // Update the order in the database
-        await updateOrder(orderId, orderUpdateDate);
+        const order = await updateOrder(orderId, orderUpdateDate);
+
+        // Send the purchase email
+        order && (await sendPurchaseEmail(order.user.email, order));
 
         return NextResponse.json({ received: true }, { status: 200 });
       } catch (error) {
