@@ -3,10 +3,10 @@ import ShoppingCart from "./_components/ShoppingCart";
 
 export default async function PurchasePage() {
   return (
-    <div>
-      <h1>Purchase</h1>
+    <>
+      <h1 className="text-3xl font-bold">Shopping Cart</h1>
 
       <ShoppingCart />
-    </div>
+    </>
   );
 }
