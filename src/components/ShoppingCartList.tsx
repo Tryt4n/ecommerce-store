@@ -109,6 +109,7 @@ export default function ShoppingCartList({
                 onClick={() => deleteProductFromShoppingCart(id)}
               >
                 <X color="#EF4444" />
+                <span className="sr-only">Remove Product</span>
               </Button>
             </section>
 
