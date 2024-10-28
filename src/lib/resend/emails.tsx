@@ -1,39 +1,19 @@
 import { Resend } from "resend";
 import PurchaseReceiptEmail from "./templates/PurchaseReceiptEmail";
-import OrderHistoryEmail from "./templates/OrderHistoryEmail";
-import type { Order } from "./types";
-import type { ComponentProps } from "react";
-import type { getProduct } from "@/db/userData/products";
+import type { updateOrder } from "@/db/adminData/orders";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendPurchaseEmail(
   email: string,
-  order: Order,
-  product: NonNullable<Awaited<ReturnType<typeof getProduct>>>
+  order: NonNullable<Awaited<ReturnType<typeof updateOrder>>>
 ) {
   try {
     await resend.emails.send({
-      from: `Suport <${process.env.RESEND_FROM_EMAIL}>`,
+      from: `E-commerce Store <${process.env.RESEND_FROM_EMAIL}>`,
       to: email,
       subject: "Your purchase is complete!",
-      react: <PurchaseReceiptEmail order={order} product={product} />,
-    });
-  } catch (error) {
-    console.error(`Can't send email. Error: ${error}`);
-  }
-}
-
-export async function sendEmailWithOrderHistory(
-  email: string,
-  orders: ComponentProps<typeof OrderHistoryEmail>["orders"]
-) {
-  try {
-    return await resend.emails.send({
-      from: `Suport <${process.env.RESEND_FROM_EMAIL}>`,
-      to: email,
-      subject: "Order History",
-      react: <OrderHistoryEmail orders={orders} />,
+      react: <PurchaseReceiptEmail order={order} />,
     });
   } catch (error) {
     console.error(`Can't send email. Error: ${error}`);
