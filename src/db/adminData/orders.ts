@@ -77,6 +77,35 @@ export async function updateOrder(
     return await db.order.update({
       where: { id: id },
       data: data,
+      select: {
+        id: true,
+        createdAt: true,
+        pricePaidInCents: true,
+        orderItems: {
+          select: {
+            id: true,
+            product: {
+              select: {
+                name: true,
+                description: true,
+                priceInCents: true,
+                images: {
+                  where: { isMainForProduct: true },
+                  take: 1,
+                  select: { url: true },
+                },
+              },
+            },
+            quantity: true,
+          },
+        },
+        receiptUrl: true,
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
     });
   } catch (error) {
     console.error(`Can't update order. Error: ${error}`);
