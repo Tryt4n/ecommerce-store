@@ -11,7 +11,7 @@ import NavLinkListItem from "./NavLinkListItem";
 import NavLink from "./NavLink";
 import AdminLinks from "./AdminLinks";
 import AdminAccordionLinks from "../mobile/AdminAccordionLinks";
-import ShoppingCart from "@/components/ShoppingCart";
+import ShoppingCartHoverCard from "@/components/ShoppingCartHoverCard";
 import LoginLogout from "./LoginLogout";
 import { Separator } from "@/components/ui/separator";
 import type { NavbarProps } from "../../Navbar";
@@ -110,7 +110,7 @@ export default function NavbarLinks({
 
       {/* <LoginLogout isAuthenticated={isAuthenticated} {...loginLogoutProps} /> */}
       <div className="flex w-full items-center justify-end gap-4 md:w-auto">
-        {!isMobile && <ShoppingCart />}
+        {!isMobile && <ShoppingCartHoverCard />}
         <LoginLogout isAuthenticated={isAuthenticated} {...loginLogoutProps} />
       </div>
     </NavigationMenu>
