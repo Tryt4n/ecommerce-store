@@ -1,32 +1,109 @@
 import Stripe from "stripe";
 import { NextResponse, type NextRequest } from "next/server";
-import { getProduct } from "@/db/userData/products";
-import { createOrEditUser } from "@/db/userData/user";
+import { deleteOrder, updateOrder } from "@/db/adminData/orders";
+import type { Order } from "@prisma/client";
+import { sendPurchaseEmail } from "@/lib/resend/emails";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(req: NextRequest) {
-  const event = stripe.webhooks.constructEvent(
-    await req.text(),
-    req.headers.get("stripe-signature") as string,
-    process.env.STRIPE_WEBHOOK_SECRET
-  );
+  try {
+    const event = stripe.webhooks.constructEvent(
+      await req.text(),
+      req.headers.get("stripe-signature") as string,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
 
-  if (event.type === "charge.succeeded") {
-    const charge = event.data.object;
-    const productId = charge.metadata.productId;
-    const discountCodeId = charge.metadata.discountCodeId;
-    const email = charge.billing_details.email;
-    const pricePaidInCents = charge.amount;
+    // Delete the order if the checkout session is expired
+    if (event.type === "checkout.session.expired") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const orderId = session.metadata?.orderIdInDB;
 
-    const product = await getProduct(productId);
+      if (!orderId) {
+        return NextResponse.json(
+          { error: "No orderIdInDB in session checkout metadata" },
+          { status: 400 }
+        );
+      }
 
-    if (!product || email == null) {
-      return new NextResponse("Bad Request", { status: 400 });
+      // Delete the order from the database
+      await deleteOrder(orderId);
+
+      return NextResponse.json({ received: true }, { status: 200 });
     }
 
-    await createOrEditUser(email, product, pricePaidInCents, discountCodeId);
-  }
+    // Update the order if the checkout session is completed
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const orderId = session.metadata?.orderIdInDB;
 
-  return new NextResponse();
+      session.customer_email;
+
+      if (!orderId) {
+        return NextResponse.json(
+          { error: "No orderIdInDB in session checkout metadata" },
+          { status: 400 }
+        );
+      }
+
+      // Prepare the data to update the order in the database
+      const orderUpdateDate: Partial<Order> = {
+        isPaid: true,
+        receiptUrl: null as null | string,
+        invoicePdfUrl: null as null | string,
+        checkoutSessionUrl: null,
+      };
+
+      try {
+        // Retrieve the PaymentIntent from the session
+        const paymentIntent = await stripe.paymentIntents.retrieve(
+          session.payment_intent as string,
+          {
+            expand: ["latest_charge"], // Expand the latest_charge field
+          }
+        );
+
+        // Get the receipt URL from the expanded charge
+        if (
+          paymentIntent.latest_charge &&
+          typeof paymentIntent.latest_charge !== "string"
+        ) {
+          orderUpdateDate.receiptUrl = paymentIntent.latest_charge.receipt_url;
+        }
+
+        // If the invoice exist get the download PDF URL from the session
+        const invoiceId = session.invoice;
+        const invoice =
+          invoiceId &&
+          typeof invoiceId === "string" &&
+          (await stripe.invoices.retrieve(invoiceId));
+
+        invoice &&
+          invoice?.invoice_pdf &&
+          (orderUpdateDate.invoicePdfUrl = invoice.invoice_pdf);
+
+        // Update the order in the database
+        const order = await updateOrder(orderId, orderUpdateDate);
+
+        // Send the purchase email
+        order && (await sendPurchaseEmail(order.user.email, order));
+
+        return NextResponse.json({ received: true }, { status: 200 });
+      } catch (error) {
+        console.error(`Failed to update order. Error: ${error}`);
+        return NextResponse.json(
+          { error: `Failed to update order: ${error}` },
+          { status: 500 }
+        );
+      }
+    }
+
+    return NextResponse.json({ received: true }, { status: 200 });
+  } catch (error: any) {
+    console.error("Error processing webhook:", error);
+    return NextResponse.json(
+      { error: `Webhook Error: ${error.message}` },
+      { status: 400 }
+    );
+  }
 }

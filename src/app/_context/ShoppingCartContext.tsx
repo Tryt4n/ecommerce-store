@@ -15,6 +15,7 @@ type ShoppingCartContext = {
     type: ChangeProductQuantity
   ) => void;
   updateShoppingCart: (value: ShoppingCart) => void;
+  clearShoppingCart: () => void;
 };
 
 export const ShoppingCartContext = createContext<ShoppingCartContext | null>(
@@ -81,12 +82,17 @@ export default function ShoppingCartContextProvider({
     setShoppingCart(value);
   }
 
+  function clearShoppingCart() {
+    localStorage.removeItem("shoppingCart");
+  }
+
   const contextValue: ShoppingCartContext = {
     shoppingCart,
     getShoppingCartFromLocalStorage,
     deleteProductFromShoppingCart,
     changeProductQuantityInShoppingCart,
     updateShoppingCart,
+    clearShoppingCart,
   };
 
   return (

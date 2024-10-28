@@ -1,5 +1,4 @@
 import React from "react";
-import ProductsContextProvider from "./_context/ProductsContext";
 import ProductsHeader from "./_layout/ProductsHeader";
 import Products from "./_layout/Products";
 import ProductsFooter from "./_layout/ProductsFooter";
@@ -20,7 +19,7 @@ export default function ProductsPage({
   searchParams: ProductsSearchParams;
 }) {
   return (
-    <ProductsContextProvider>
+    <>
       <h1 className="sr-only">Products Page</h1>
 
       <article>
@@ -30,6 +29,6 @@ export default function ProductsPage({
 
         <ProductsFooter searchParams={searchParams} />
       </article>
-    </ProductsContextProvider>
+    </>
   );
 }

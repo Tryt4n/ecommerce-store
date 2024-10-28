@@ -62,9 +62,10 @@ export default function SearchInput({ className }: SearchInputProps) {
 
         {searchQuery && searchQuery !== "" && (
           <Button
-            type="button"
+            type="reset"
             variant="destructive"
             className="absolute right-0 top-0 aspect-square p-2"
+            aria-label="Click to clear searching"
             onClick={() => {
               const params = new URLSearchParams(searchParams);
               params.delete("searchQuery");
@@ -75,6 +76,7 @@ export default function SearchInput({ className }: SearchInputProps) {
             }}
           >
             <Trash size={16} />
+            <span className="sr-only">Clear searching</span>
           </Button>
         )}
       </div>

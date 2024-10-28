@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import NavbarLinks from "../common/NavbarLinks";
-import ShoppingCart from "@/components/ShoppingCart";
+import ShoppingCartHoverCard from "@/components/ShoppingCartHoverCard";
 import { Menu } from "lucide-react";
 import type { NavbarProps } from "../../Navbar";
 
@@ -21,11 +21,11 @@ export default function NavbarMobile({ authentication }: NavbarProps) {
 
   return (
     <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-      <div className="flex justify-between bg-primary p-4">
+      <div className="sticky top-0 z-[1] flex justify-between bg-primary p-4">
         <Image src="/logo-white.svg" alt="Site Logo" width={40} height={40} />
 
         <div className="flex flex-row items-center gap-4">
-          <ShoppingCart iconProps={{ color: "#FFF" }} />
+          <ShoppingCartHoverCard iconProps={{ color: "#FFF" }} />
 
           <SheetTrigger asChild>
             <Button

@@ -110,6 +110,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
           name="priceInCents"
           id="priceInCents"
           min={1}
+          max={999999}
           required
           value={priceInCents}
           onChange={(e) => setPriceInCents(Number(e.target.value))}

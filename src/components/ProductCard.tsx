@@ -12,7 +12,6 @@ import {
 } from "./ui/card";
 import ImageThumbnail from "./ImageThumbnail";
 import TextWithSearchOption from "./TextWithSearchOption";
-import PurchaseButton from "@/app/(customerFacing)/products/_components/PurchaseButton";
 import AddToCartButton from "@/app/(customerFacing)/products/_components/AddToCartButton";
 import { formatCurrency } from "@/lib/formatters";
 import type { Category, Product } from "@prisma/client";
@@ -100,10 +99,9 @@ export default function ProductCard({
                     priceInCents,
                     thumbnailUrl: imageUrl,
                   }}
-                  className="lg:gap-x-2 xl:gap-x-4"
+                  className="my-0 lg:gap-x-2 xl:gap-x-4"
                   data-shopping-cart-button
                 />
-                <PurchaseButton id={id} />
               </CardFooter>
             </div>
           </Link>

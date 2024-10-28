@@ -10,6 +10,8 @@ export default function RevenueByProductChart({
 }: {
   data: ReturnType<typeof calculateRevenueByProduct>;
 }) {
+  const reducedData = data.filter((item) => item.revenue > 0);
+
   return (
     <>
       {data.length > 0 ? (
@@ -21,7 +23,7 @@ export default function RevenueByProductChart({
             />
 
             <Pie
-              data={data}
+              data={reducedData}
               dataKey="revenue"
               nameKey="name"
               label={(item) => item.name}

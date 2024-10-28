@@ -86,7 +86,16 @@ export async function getDashboardData(dateRange: DashboardDateParam) {
       }),
       // productsData
       db.product.findMany({
-        select: { name: true, orders: { select: { pricePaidInCents: true } } },
+        // select: { name: true, orders: { select: { pricePaidInCents: true } } },
+        select: {
+          name: true,
+          OrderItem: {
+            select: {
+              product: { select: { priceInCents: true } },
+              quantity: true,
+            },
+          },
+        },
         where: {
           createdAt: createdAtQuery || createdAtQueryForRevenueByProductData,
         },
@@ -126,7 +135,7 @@ export async function getDashboardData(dateRange: DashboardDateParam) {
       valueKey: "totalUsers",
     });
 
-    const productsWithRevenue = calculateRevenueByProduct(productsData);
+    const productsWithRevenue = calculateRevenueByProduct(productsData); // Calculate revenue for each product based on its orders
 
     return {
       usersData: {

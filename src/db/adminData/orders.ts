@@ -24,7 +24,14 @@ export async function getOrders(
         id: true,
         createdAt: true,
         pricePaidInCents: true,
-        product: { select: { name: true } },
+        isPaid: true,
+        orderItems: {
+          select: {
+            id: true,
+            quantity: true,
+            product: { select: { name: true } },
+          },
+        },
         user: true,
         discountCode: {
           select: { code: true },
@@ -38,9 +45,12 @@ export async function getOrders(
       id: order.id,
       createdAt: order.createdAt,
       pricePaidInCents: order.pricePaidInCents,
-      productName: order.product.name,
+      productNames: order.orderItems
+        .map((item) => item.product.name)
+        .join(", "),
       userEmail: order.user.email,
       discountCode: order.discountCode?.code,
+      isPaid: order.isPaid,
     }));
 
     return filteredOrders;
@@ -56,5 +66,48 @@ export async function deleteOrder(id: Order["id"]) {
     if (order == null) return notFound();
   } catch (error) {
     console.error(`Can't delete order. Error: ${error}`);
+  }
+}
+
+export async function updateOrder(
+  id: Order["id"],
+  data: Prisma.OrderUpdateInput
+) {
+  try {
+    return await db.order.update({
+      where: { id: id },
+      data: data,
+      select: {
+        id: true,
+        createdAt: true,
+        pricePaidInCents: true,
+        orderItems: {
+          select: {
+            id: true,
+            product: {
+              select: {
+                name: true,
+                description: true,
+                priceInCents: true,
+                images: {
+                  where: { isMainForProduct: true },
+                  take: 1,
+                  select: { url: true },
+                },
+              },
+            },
+            quantity: true,
+          },
+        },
+        receiptUrl: true,
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.error(`Can't update order. Error: ${error}`);
   }
 }

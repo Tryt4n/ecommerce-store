@@ -46,6 +46,16 @@ export default function AddToCartButton({
     toast({
       title: "Added to cart",
       description: `The ${product.name} has been added to the cart in quantity of ${quantity}.`,
+      className: "flex flex-col",
+      action: (
+        <Button
+          href="/purchase"
+          className="ml-0 mr-0 mt-2 w-full"
+          style={{ marginLeft: "0px", marginRight: "0px" }}
+        >
+          Go to Shopping Cart
+        </Button>
+      ),
       variant: "default",
     }); // Show a toast message
   }

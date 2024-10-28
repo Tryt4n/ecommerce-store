@@ -33,7 +33,7 @@ export default function DiscountCodesSections() {
         )}
       </section>
 
-      <Separator className="my-10 -ml-[2.5%] w-[105%]" />
+      <Separator className="my-10 -ml-[1.25%] w-[102.5%]" />
 
       <section>
         <h2 className="mb-4 text-2xl">Expired Coupons</h2>

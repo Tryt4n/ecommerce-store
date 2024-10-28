@@ -16,7 +16,7 @@ import AdminDropdownMenu from "../../_components/AdminDropdownMenu";
 import TableHeadSortingButton from "../../_components/TableHeadSortingButton";
 import TextWithSearchOption from "@/components/TextWithSearchOption";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
-import { Minus } from "lucide-react";
+import { Check, Minus, X } from "lucide-react";
 
 export default function OrdersTable() {
   const { data: orders, sortData: sortOrders } =
@@ -39,9 +39,9 @@ export default function OrdersTable() {
             sortingFn={() => sortOrders("createdAt", "desc")}
           />
           <TableHeadSortingButton
-            title="Product"
+            title="Products"
             className="text-center"
-            sortingFn={() => sortOrders("productName", "asc")}
+            sortingFn={() => sortOrders("productNames", "asc")}
           />
           <TableHeadSortingButton
             className="text-center"
@@ -58,6 +58,11 @@ export default function OrdersTable() {
             title="Coupon"
             sortingFn={() => sortOrders("discountCode", "desc")}
           />
+          <TableHeadSortingButton
+            className="text-center"
+            title="Paid"
+            sortingFn={() => sortOrders("isPaid", "desc")}
+          />
           <TableHead className="w-0">
             <span className="sr-only">Orders Actions</span>
           </TableHead>
@@ -72,7 +77,7 @@ export default function OrdersTable() {
             </TableCell>
 
             <TableCell align="center" className="text-nowrap">
-              <TextWithSearchOption text={order.productName} />
+              <TextWithSearchOption text={order.productNames} />
             </TableCell>
 
             <TableCell align="center" className="text-nowrap">
@@ -93,10 +98,18 @@ export default function OrdersTable() {
               )}
             </TableCell>
 
+            <TableCell align="center" className="text-nowrap">
+              {order.isPaid ? (
+                <Check className="text-green-500" />
+              ) : (
+                <X className="text-red-500" />
+              )}
+            </TableCell>
+
             <TableCell align="right" className="text-nowrap">
               <AdminDropdownMenu
                 id={order.id}
-                name={order.productName}
+                name={order.productNames}
                 deleteFn={deleteOrder}
               />
             </TableCell>

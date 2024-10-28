@@ -146,29 +146,39 @@ function getChartDateArray(startDate: Date, endDate: Date = new Date()) {
   };
 }
 
-type Order = {
-  pricePaidInCents: number;
+type Product<T = number> = {
+  name: string;
+  OrderItem: {
+    product: {
+      priceInCents: T;
+    };
+    quantity: number;
+  }[];
 };
 
-type ProductWithRevenue<T> = T & {
+type ProductWithRevenue = {
+  name: string;
   revenue: number;
 };
 
-export function calculateRevenueByProduct<T extends { orders: Order[] }>(
-  products: T[]
-): ProductWithRevenue<T>[] {
-  return products
-    .map((product) => {
-      const revenue = product.orders.reduce((sum, order) => {
-        return sum + order.pricePaidInCents / 100;
-      }, 0);
+/**
+ * Calculate revenue for each product based on its orders
+ * @param products - Array of products with their orders
+ * @returns Array of products with calculated revenue
+ */
+export function calculateRevenueByProduct<T extends number>(
+  products: Product<T>[]
+): ProductWithRevenue[] {
+  return products.map((product) => {
+    const totalRevenue = product.OrderItem.reduce((sum, item) => {
+      return sum + (item.product.priceInCents * item.quantity) / 100;
+    }, 0);
 
-      return {
-        ...product,
-        revenue,
-      };
-    })
-    .filter((product) => product.revenue > 0);
+    return {
+      name: product.name,
+      revenue: totalRevenue,
+    };
+  });
 }
 
 export function getCreatedAtQuery(dateRange: DateRange): Prisma.DateTimeFilter {

@@ -1,5 +1,10 @@
 import React from "react";
 import Link from "next/link";
+import { deleteProduct } from "../_actions/products";
+import {
+  toggleProductAvailability,
+  type getAllProducts,
+} from "@/db/adminData/products";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,14 +12,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
 import ActiveToggleDropdownMenuItem from "../../_components/ActiveToggleDropdownMenuItem";
 import DeleteDropdownItem from "../../_components/DeleteDropdownItem";
-import {
-  deleteProduct,
-  toggleProductAvailability,
-  type getAllProducts,
-} from "@/db/adminData/products";
+import { MoreVertical } from "lucide-react";
 
 export default function ProductDropdownMenu({
   product,
@@ -30,8 +30,8 @@ export default function ProductDropdownMenu({
 
       <DropdownMenuContent>
         <DropdownMenuItem asChild className="cursor-pointer">
-          <a download href={`/admin/products/${product.id}/download`}>
-            Download
+          <a download href={`/products/${product.id}/download/productDetails`}>
+            Download Details
           </a>
         </DropdownMenuItem>
 

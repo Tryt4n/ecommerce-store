@@ -10,7 +10,7 @@ export const getMostPopularProducts = cache(
     try {
       const products = await db.product.findMany({
         where: { isAvailableForPurchase: true },
-        orderBy: { orders: { _count: "desc" } },
+        orderBy: { OrderItem: { _count: "desc" } },
         take: numberOfProducts,
         include: {
           categories: { select: { category: { select: { name: true } } } },
@@ -103,7 +103,7 @@ export const getAllAvailableForPurchaseProducts = cache(
           priceInCents: true,
           isAvailableForPurchase: true,
           description: true,
-          _count: { select: { orders: true } },
+          OrderItem: { select: { quantity: true } },
           categories: { select: { category: { select: { name: true } } } },
           images: {
             take: 1,
@@ -117,7 +117,20 @@ export const getAllAvailableForPurchaseProducts = cache(
         take: take,
       });
 
-      return filterProductCategories(products);
+      // Add `_count` property to each product to store the total quantity of the product sold
+      const transformedProducts = products.map((product) => {
+        const _count = product.OrderItem.reduce(
+          (total, orderItem) => total + orderItem.quantity,
+          0
+        );
+
+        return {
+          ...product,
+          _count,
+        };
+      });
+
+      return filterProductCategories(transformedProducts);
     } catch (error) {
       console.error(`Can't get products. Error: ${error}`);
     }
