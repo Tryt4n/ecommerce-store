@@ -90,7 +90,7 @@ export async function handlePurchaseProduct(
 
   // If the customer is not created/returned, return an error
   if (!customer)
-    return { data: null, error: "Failed to create Stripe customer." };
+    return { data: null, customError: "Failed to create Stripe customer." };
 
   // Create a new order ID to identify the order both in the database and in Stripe
   const orderId = crypto.randomUUID();
@@ -104,7 +104,7 @@ export async function handlePurchaseProduct(
   );
 
   // If the user is not returned, return an error
-  if (!user) return { data: null, error: "Failed to create user." };
+  if (!user) return { data: null, customError: "Failed to create user." };
 
   // Create custom invoice fields
   const customInvoiceFields: Parameters<
@@ -154,7 +154,7 @@ export async function handlePurchaseProduct(
   if (!updatedOrder)
     return {
       data: null,
-      error: "Failed to update order with checkout session URL.",
+      customError: "Failed to update order with checkout session URL.",
     };
 
   // Return the checkout session data
