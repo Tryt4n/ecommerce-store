@@ -1,7 +1,7 @@
 import React from "react";
 import { formatCurrency } from "@/lib/formatters";
-import PurchaseButton from "../../_components/PurchaseButton";
 import AddToCartButton from "../../_components/AddToCartButton";
+import { Button } from "@/components/ui/button";
 import type { getProduct } from "@/db/userData/products";
 
 type ProductBuyModuleProps = {
@@ -32,7 +32,9 @@ export default function ProductBuyModule({ product }: ProductBuyModuleProps) {
           }}
         />
 
-        <PurchaseButton id={product.id} className="w-full" />
+        <Button href="/purchase" className="w-full text-base" size="lg">
+          Go to Shopping Cart
+        </Button>
       </div>
     </div>
   );
