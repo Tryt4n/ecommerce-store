@@ -25,7 +25,7 @@ export default function ProductsTable() {
     return <LoadingSpinner size={64} aria-label="Loading products..." />;
   }
 
-  if (products.length === 0) {
+  if (products.length === 0 || !products) {
     return <p className="text-center">No products found</p>;
   }
 

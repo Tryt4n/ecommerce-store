@@ -26,7 +26,7 @@ export default function OrdersTable() {
     return <LoadingSpinner size={64} aria-label="Loading products..." />;
   }
 
-  if (orders?.length === 0)
+  if (orders?.length === 0 || !orders)
     return <p className="text-center">No sales found</p>;
 
   return (

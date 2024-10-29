@@ -7,7 +7,7 @@ export default function TextWithSearchOption({ text }: { text: string }) {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get("searchQuery");
 
-  const parts = text.split(new RegExp(`(${searchQuery})`, "gi")); // Split the text into parts, where the search query is a separate part
+  const parts = text?.split(new RegExp(`(${searchQuery})`, "gi")); // Split the text into parts, where the search query is a separate part
 
   return (
     <>

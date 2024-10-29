@@ -1,4 +1,3 @@
-import ProductsContextProvider from "./_context/ProductsContext";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,5 +9,5 @@ export default function ProductsPageLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <ProductsContextProvider>{children}</ProductsContextProvider>;
+  return children;
 }
