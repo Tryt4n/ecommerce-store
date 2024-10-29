@@ -17,46 +17,20 @@ export async function handlePurchaseProduct(
   prevState: unknown,
   formData: FormData
 ) {
-  const email =
-    formData.get("email") !== ""
-      ? (formData.get("email") as string)
-      : undefined;
-  const firstName =
-    formData.get("firstName") !== ""
-      ? (formData.get("firstName") as string)
-      : undefined;
-  const lastName =
-    formData.get("lastName") !== ""
-      ? (formData.get("lastName") as string)
-      : undefined;
-  const createInvoice =
-    (formData.get("invoice") as "on" | null) === "on" ? true : false;
-  const companyName =
-    formData.get("companyName") !== ""
-      ? (formData.get("companyName") as string)
-      : undefined;
-  const companyStreet =
-    formData.get("companyStreet") !== ""
-      ? (formData.get("companyStreet") as string)
-      : undefined;
-  const companyStreetNumber =
-    formData.get("companyStreetNumber") !== ""
-      ? (formData.get("companyStreetNumber") as string)
-      : undefined;
-  const companyApartmentNumber =
-    formData.get("companyApartmentNumber") !== ""
-      ? (formData.get("companyApartmentNumber") as string)
-      : undefined;
-  const companyCity =
-    formData.get("companyCity") !== ""
-      ? (formData.get("companyCity") as string)
-      : undefined;
-  const companyZipCode =
-    formData.get("companyZipCode") !== ""
-      ? (formData.get("companyZipCode") as string)
-      : undefined;
-  const NIP =
-    formData.get("NIP") !== "" ? (formData.get("NIP") as string) : undefined;
+  const email = getFormValue(formData, "email");
+  const firstName = getFormValue(formData, "firstName");
+  const lastName = getFormValue(formData, "lastName");
+  const createInvoice = formData.get("invoice") === "on";
+  const companyName = getFormValue(formData, "companyName");
+  const companyStreet = getFormValue(formData, "companyStreet");
+  const companyStreetNumber = getFormValue(formData, "companyStreetNumber");
+  const companyApartmentNumber = getFormValue(
+    formData,
+    "companyApartmentNumber"
+  );
+  const companyCity = getFormValue(formData, "companyCity");
+  const companyZipCode = getFormValue(formData, "companyZipCode");
+  const NIP = getFormValue(formData, "NIP");
 
   const result = purchaseSchema.safeParse({
     products,
@@ -115,10 +89,6 @@ export async function handlePurchaseProduct(
           name: "Name",
           value: parsedData.companyName!,
         },
-        // {
-        //   name: "Address",
-        //   value: `St. ${parsedData.companyStreet!} ${parsedData.companyStreetNumber!}${parsedData.companyApartmentNumber ? `, ${parsedData.companyApartmentNumber}` : ""}, ${parsedData.companyZipCode!} ${parsedData.companyCity!}`,
-        // },
         {
           name: "Address",
           value: `St. ${parsedData.companyStreet!} ${parsedData.companyStreetNumber!}${parsedData.companyApartmentNumber ? `, ${parsedData.companyApartmentNumber}` : ""}`,
@@ -159,4 +129,10 @@ export async function handlePurchaseProduct(
 
   // Return the checkout session data
   return { data: checkoutSession };
+}
+
+function getFormValue(formData: FormData, key: string): string | undefined {
+  const value = formData.get(key);
+  // Return undefined if the value is null or an empty string
+  return value && value !== "" ? (value as string) : undefined;
 }
