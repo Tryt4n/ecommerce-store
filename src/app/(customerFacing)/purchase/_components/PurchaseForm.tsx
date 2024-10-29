@@ -110,7 +110,7 @@ export default function PurchaseForm({
               name="companyName"
               id="companyName"
               type="text"
-              placeholder="Company Name"
+              placeholder="Name"
               minLength={5}
               maxLength={100}
               required={createInvoice}
