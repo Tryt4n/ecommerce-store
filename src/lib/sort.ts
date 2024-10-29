@@ -96,7 +96,7 @@ export function sortArray<T>(
 
 function getNestedValue<T>(obj: T, keys: string | (keyof T)[]) {
   if (typeof keys === "string") {
-    keys = keys.split(".") as (keyof T)[];
+    keys = keys?.split(".") as (keyof T)[];
   }
 
   return keys.reduce((value, key) => (value as never)[key], obj);
