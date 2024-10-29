@@ -11,6 +11,10 @@ export default async function ProductsSuspense({
 }) {
   const products = await productsFetcher();
 
+  if (!products || products.length === 0) {
+    return <p className="text-center">No products available at the moment.</p>;
+  }
+
   return (
     <>
       {products?.map((product) => (
