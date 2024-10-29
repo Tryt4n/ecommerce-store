@@ -19,6 +19,16 @@ export default function OrdersHistory({
         <li key={order.id} className="rounded-lg border p-2 sm:p-4">
           <article className="flex flex-col-reverse flex-wrap justify-center gap-2 transition-colors has-[h2>a:hover]:opacity-75 sm:flex-nowrap sm:gap-4">
             <hgroup className="ml-auto space-y-1 text-end text-xs sm:text-sm">
+              <p className="my-4 mb-4 text-lg font-semibold sm:my-0">
+                Total:&nbsp;
+                {formatCurrency(
+                  order.orderItems.reduce(
+                    (acc, item) =>
+                      acc + item.product.priceInCents * item.quantity,
+                    0
+                  ) / 100
+                )}
+              </p>
               <time
                 dateTime={order.createdAt.toUTCString()}
                 className="block text-muted-foreground"
@@ -58,7 +68,7 @@ export default function OrdersHistory({
                     />
 
                     <div className="flex flex-grow flex-row flex-wrap justify-between">
-                      <hgroup className="space-y-1">
+                      <hgroup className="w-full space-y-1">
                         <div>
                           <h3 className="max-w-fit text-balance text-base font-semibold leading-6 underline-offset-4 transition-colors hover:text-muted-foreground hover:underline sm:text-lg">
                             <Link
@@ -72,9 +82,12 @@ export default function OrdersHistory({
                             {item.product.description}
                           </p>
                         </div>
-                        <p className="text-base font-semibold sm:text-lg">
-                          {formatCurrency(item.product.priceInCents / 100)}
-                        </p>
+                        <div className="flex w-full flex-row items-center justify-between gap-4 text-base font-semibold sm:text-lg">
+                          <p aria-label="Price for one piece">
+                            {formatCurrency(item.product.priceInCents / 100)}
+                          </p>
+                          <p aria-label="Quantity">x{item.quantity}</p>
+                        </div>
                       </hgroup>
                     </div>
                   </section>
