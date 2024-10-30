@@ -1,5 +1,6 @@
 "use server";
 
+import { getDiscountCode } from "@/db/adminData/discountCodes";
 import { updateOrder } from "@/db/adminData/orders";
 import { createOrEditUserWithOrder } from "@/db/userData/user";
 import {
@@ -7,13 +8,10 @@ import {
   createOrGetExistingStripeCustomer,
 } from "@/lib/stripe/stripe";
 import { purchaseSchema } from "@/lib/zod/purchaseSchema";
+import type { ShoppingCart } from "@/types/shoppingCart";
 
 export async function handlePurchaseProduct(
-  products: {
-    productId: string;
-    quantity: number;
-    priceInCents: number;
-  }[],
+  products: ShoppingCart,
   prevState: unknown,
   formData: FormData
 ) {
@@ -31,12 +29,14 @@ export async function handlePurchaseProduct(
   const companyCity = getFormValue(formData, "companyCity");
   const companyZipCode = getFormValue(formData, "companyZipCode");
   const NIP = getFormValue(formData, "NIP");
+  const discountCode = getFormValue(formData, "discountCode");
 
   const result = purchaseSchema.safeParse({
     products,
     email,
     firstName,
     lastName,
+    discountCode,
     createInvoice,
     companyName,
     companyStreet,
@@ -83,7 +83,7 @@ export async function handlePurchaseProduct(
   // Create custom invoice fields
   const customInvoiceFields: Parameters<
     typeof createStripeCheckoutSession
-  >["3"] = parsedData.createInvoice
+  >["4"] = parsedData.createInvoice
     ? [
         {
           name: "Name",
@@ -107,18 +107,32 @@ export async function handlePurchaseProduct(
   )
     customInvoiceFields.push({ name: "NIP", value: parsedData.NIP });
 
+  // Get the discount code from the database
+  const discountCodeDB = discountCode
+    ? await getDiscountCode(discountCode)
+    : undefined;
+
   // If the user was created successfully, create a new checkout session
   const checkoutSession = await createStripeCheckoutSession(
     user.id,
     orderId,
     parsedData.products,
+    discountCodeDB?.id,
     parsedData.createInvoice ? customInvoiceFields : undefined // If the user wants an invoice, pass the custom fields
   );
 
-  // Update the order with the checkout session URL
-  const updatedOrder = await updateOrder(orderId, {
+  // Prepare the data to update the order in the database
+  const orderDataToUpdateInDB: Parameters<typeof updateOrder>["1"] = {
     checkoutSessionUrl: checkoutSession.url,
-  });
+    discountCode: {
+      connect: { id: discountCodeDB?.id },
+    },
+  };
+  if (discountCode && checkoutSession.amount_total)
+    orderDataToUpdateInDB.pricePaidInCents = checkoutSession.amount_total;
+
+  // Update the order with the checkout session URL and connected discount code
+  const updatedOrder = await updateOrder(orderId, orderDataToUpdateInDB);
 
   // If the order was not updated, return an error
   if (!updatedOrder)
