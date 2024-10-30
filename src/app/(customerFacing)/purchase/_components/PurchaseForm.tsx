@@ -15,17 +15,12 @@ import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 
 export default function PurchaseForm({
   user,
-  products,
 }: {
   user: KindeUser<Record<string, string>>;
-  products: {
-    productId: string;
-    quantity: number;
-    priceInCents: number;
-  }[];
 }) {
+  const { shoppingCart } = useShoppingCart();
   const [purchaseData, action] = useFormState(
-    handlePurchaseProduct.bind(null, products),
+    handlePurchaseProduct.bind(null, shoppingCart!),
     undefined
   );
   const { clearShoppingCart } = useShoppingCart();
