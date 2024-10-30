@@ -25,6 +25,11 @@ export const purchaseSchema = z
     email: z.string().email({ message: "Invalid email address." }),
     firstName: z.string({ message: "Invalid first name." }).min(3).optional(),
     lastName: z.string({ message: "Invalid last name." }).min(3).optional(),
+    discountCode: z
+      .string()
+      .min(3, { message: "Invalid discount code." })
+      .max(40, { message: "Invalid discount code." })
+      .optional(),
     createInvoice: z.boolean({ message: "Invalid invoice creation flag." }),
     companyName: z
       .string()
