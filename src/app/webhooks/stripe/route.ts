@@ -1,8 +1,12 @@
 import Stripe from "stripe";
 import { NextResponse, type NextRequest } from "next/server";
 import { deleteOrder, updateOrder } from "@/db/adminData/orders";
-import type { Order } from "@prisma/client";
+import {
+  getDiscountCode,
+  updateDiscountCode,
+} from "@/db/adminData/discountCodes";
 import { sendPurchaseEmail } from "@/lib/resend/emails";
+import type { Order } from "@prisma/client";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -36,8 +40,6 @@ export async function POST(req: NextRequest) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const orderId = session.metadata?.orderIdInDB;
-
-      session.customer_email;
 
       if (!orderId) {
         return NextResponse.json(
@@ -98,7 +100,23 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ received: true }, { status: 200 });
+    // Update discount code usage if a discount is used
+    if (event.type === "customer.discount.created") {
+      const sessionDiscount = event.data.object as Stripe.Discount;
+
+      const discountCode = sessionDiscount.coupon.name
+        ? await getDiscountCode(sessionDiscount.coupon.name)
+        : null;
+
+      // Update the discount code usage in the database
+      if (discountCode) {
+        await updateDiscountCode(discountCode.id, {
+          uses: { increment: 1 },
+        });
+      }
+
+      return NextResponse.json({ received: true }, { status: 200 });
+    }
   } catch (error: any) {
     console.error("Error processing webhook:", error);
     return NextResponse.json(
