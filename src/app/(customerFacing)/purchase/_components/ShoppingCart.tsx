@@ -5,6 +5,7 @@ import { useShoppingCart } from "@/app/_hooks/useShoppingCart";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { formatCurrency } from "@/lib/formatters";
 import ShoppingCartList from "@/components/ShoppingCartList";
+import DiscountCodeForm from "./DiscountCodeForm";
 import PurchaseForm from "./PurchaseForm";
 import { Separator } from "@/components/ui/separator";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -15,17 +16,11 @@ export default function ShoppingCart() {
 
   const user = getUser();
 
-  const products = shoppingCart?.map((product) => ({
-    productId: product.id,
-    quantity: product.quantity,
-    priceInCents: product.priceInCents,
-  }));
-
   return (
     <>
       {user ? (
         <>
-          {shoppingCart && products && products?.length > 0 ? (
+          {shoppingCart && shoppingCart.length >= 1 ? (
             <article>
               <h2 className="sr-only">Shopping Cart List</h2>
 
@@ -43,7 +38,8 @@ export default function ShoppingCart() {
                 )}
               </p>
 
-              <PurchaseForm user={user} products={products} />
+              <DiscountCodeForm />
+              <PurchaseForm user={user} />
             </article>
           ) : (
             <p className="my-4 text-center text-base">
