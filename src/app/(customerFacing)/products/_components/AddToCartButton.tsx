@@ -21,7 +21,7 @@ export default function AddToCartButton({
   const { getShoppingCartFromLocalStorage, updateShoppingCart } =
     useShoppingCart();
   const [quantity, setQuantity] = useState(1);
-  const { toast } = useToast();
+  const { toast, dismiss } = useToast();
 
   function addToCart() {
     const cart = getShoppingCartFromLocalStorage();
@@ -52,6 +52,7 @@ export default function AddToCartButton({
           href="/purchase"
           className="ml-0 mr-0 mt-2 w-full"
           style={{ marginLeft: "0px", marginRight: "0px" }}
+          onClick={() => dismiss()}
         >
           Go to Shopping Cart
         </Button>
