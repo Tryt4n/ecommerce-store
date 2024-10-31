@@ -1,5 +1,6 @@
 "use server";
 
+import { getDiscountCode } from "@/db/adminData/discountCodes";
 import { updateOrder } from "@/db/adminData/orders";
 import { createOrEditUserWithOrder } from "@/db/userData/user";
 import {
@@ -7,62 +8,35 @@ import {
   createOrGetExistingStripeCustomer,
 } from "@/lib/stripe/stripe";
 import { purchaseSchema } from "@/lib/zod/purchaseSchema";
+import type { ShoppingCart } from "@/types/shoppingCart";
 
 export async function handlePurchaseProduct(
-  products: {
-    productId: string;
-    quantity: number;
-    priceInCents: number;
-  }[],
+  products: ShoppingCart,
   prevState: unknown,
   formData: FormData
 ) {
-  const email =
-    formData.get("email") !== ""
-      ? (formData.get("email") as string)
-      : undefined;
-  const firstName =
-    formData.get("firstName") !== ""
-      ? (formData.get("firstName") as string)
-      : undefined;
-  const lastName =
-    formData.get("lastName") !== ""
-      ? (formData.get("lastName") as string)
-      : undefined;
-  const createInvoice =
-    (formData.get("invoice") as "on" | null) === "on" ? true : false;
-  const companyName =
-    formData.get("companyName") !== ""
-      ? (formData.get("companyName") as string)
-      : undefined;
-  const companyStreet =
-    formData.get("companyStreet") !== ""
-      ? (formData.get("companyStreet") as string)
-      : undefined;
-  const companyStreetNumber =
-    formData.get("companyStreetNumber") !== ""
-      ? (formData.get("companyStreetNumber") as string)
-      : undefined;
-  const companyApartmentNumber =
-    formData.get("companyApartmentNumber") !== ""
-      ? (formData.get("companyApartmentNumber") as string)
-      : undefined;
-  const companyCity =
-    formData.get("companyCity") !== ""
-      ? (formData.get("companyCity") as string)
-      : undefined;
-  const companyZipCode =
-    formData.get("companyZipCode") !== ""
-      ? (formData.get("companyZipCode") as string)
-      : undefined;
-  const NIP =
-    formData.get("NIP") !== "" ? (formData.get("NIP") as string) : undefined;
+  const email = getFormValue(formData, "email");
+  const firstName = getFormValue(formData, "firstName");
+  const lastName = getFormValue(formData, "lastName");
+  const createInvoice = formData.get("invoice") === "on";
+  const companyName = getFormValue(formData, "companyName");
+  const companyStreet = getFormValue(formData, "companyStreet");
+  const companyStreetNumber = getFormValue(formData, "companyStreetNumber");
+  const companyApartmentNumber = getFormValue(
+    formData,
+    "companyApartmentNumber"
+  );
+  const companyCity = getFormValue(formData, "companyCity");
+  const companyZipCode = getFormValue(formData, "companyZipCode");
+  const NIP = getFormValue(formData, "NIP");
+  const discountCode = getFormValue(formData, "discountCode");
 
   const result = purchaseSchema.safeParse({
     products,
     email,
     firstName,
     lastName,
+    discountCode,
     createInvoice,
     companyName,
     companyStreet,
@@ -109,16 +83,12 @@ export async function handlePurchaseProduct(
   // Create custom invoice fields
   const customInvoiceFields: Parameters<
     typeof createStripeCheckoutSession
-  >["3"] = parsedData.createInvoice
+  >["4"] = parsedData.createInvoice
     ? [
         {
           name: "Name",
           value: parsedData.companyName!,
         },
-        // {
-        //   name: "Address",
-        //   value: `St. ${parsedData.companyStreet!} ${parsedData.companyStreetNumber!}${parsedData.companyApartmentNumber ? `, ${parsedData.companyApartmentNumber}` : ""}, ${parsedData.companyZipCode!} ${parsedData.companyCity!}`,
-        // },
         {
           name: "Address",
           value: `St. ${parsedData.companyStreet!} ${parsedData.companyStreetNumber!}${parsedData.companyApartmentNumber ? `, ${parsedData.companyApartmentNumber}` : ""}`,
@@ -137,18 +107,31 @@ export async function handlePurchaseProduct(
   )
     customInvoiceFields.push({ name: "NIP", value: parsedData.NIP });
 
+  // Get the discount code from the database
+  const discountCodeDB = discountCode
+    ? await getDiscountCode(discountCode)
+    : undefined;
+
   // If the user was created successfully, create a new checkout session
   const checkoutSession = await createStripeCheckoutSession(
     user.id,
     orderId,
     parsedData.products,
+    discountCodeDB?.id,
     parsedData.createInvoice ? customInvoiceFields : undefined // If the user wants an invoice, pass the custom fields
   );
 
-  // Update the order with the checkout session URL
-  const updatedOrder = await updateOrder(orderId, {
+  // Prepare the data to update the order in the database
+  const orderDataToUpdateInDB: Parameters<typeof updateOrder>["1"] = {
     checkoutSessionUrl: checkoutSession.url,
-  });
+  };
+  if (discountCode && checkoutSession.amount_total) {
+    orderDataToUpdateInDB.discountCode = { connect: { code: discountCode } };
+    orderDataToUpdateInDB.pricePaidInCents = checkoutSession.amount_total;
+  }
+
+  // Update the order with the checkout session URL and connected discount code
+  const updatedOrder = await updateOrder(orderId, orderDataToUpdateInDB);
 
   // If the order was not updated, return an error
   if (!updatedOrder)
@@ -159,4 +142,10 @@ export async function handlePurchaseProduct(
 
   // Return the checkout session data
   return { data: checkoutSession };
+}
+
+function getFormValue(formData: FormData, key: string): string | undefined {
+  const value = formData.get(key);
+  // Return undefined if the value is null or an empty string
+  return value && value !== "" ? (value as string) : undefined;
 }

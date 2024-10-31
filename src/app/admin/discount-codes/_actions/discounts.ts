@@ -1,47 +1,100 @@
 "use server";
 
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { addDiscountSchema } from "@/lib/zod/discount";
 import {
+  createStripeDiscountCode,
+  deleteStripeCoupon,
+  getAllStripeProductsByCategory,
+} from "@/lib/stripe/stripe";
+import {
+  checkIfDiscountCodeExists,
   createDiscountCode,
-  getDiscountCode,
-  updateDiscountCode as updateDiscountCodeInDB,
+  deleteDiscountCode as deleteDiscountCodeInDB,
 } from "@/db/adminData/discountCodes";
 import type { DiscountCode } from "@prisma/client";
 import type { FormDataEntries } from "@/types/formData";
+
+type DiscountCodeErrors = {
+  code?: string[] | undefined;
+  discountAmount?: string[] | undefined;
+  discountType?: string[] | undefined;
+  allProducts?: string[] | undefined;
+  productIds?: string[] | undefined;
+  categories?: string[] | undefined;
+  expiresAt?: string[] | undefined;
+  limit?: string[] | undefined;
+  stripeError?: string[] | undefined;
+} | null;
 
 export async function addDiscountCode(prevState: unknown, formData: FormData) {
   const data = processFormData(formData);
   const validationResult = validateAndParseData(data);
 
+  let errors: DiscountCodeErrors = null;
+
   if ("error" in validationResult) {
-    return validationResult.error;
+    errors = validationResult.error ? validationResult.error : null;
+    return errors;
   }
 
-  await createDiscountCode(validationResult.data).then(() =>
-    redirect("/admin/discount-codes")
-  );
+  // Destructure data from validationResult
+  const {
+    code,
+    discountType,
+    discountAmount,
+    limit,
+    allProducts,
+    productIds,
+    categories,
+    expiresAt,
+  } = validationResult.data;
+
+  // Check if discount code with the same code already exists
+  if (await checkIfDiscountCodeExists(code)) {
+    errors = { code: ["Discount code with the same code already exists."] };
+    return errors;
+  }
+
+  // Get products for the discount code if they are selected
+  let products = !allProducts ? productIds : undefined;
+
+  // Get products for the discount code if categories are selected
+  if (categories && categories.length > 0) {
+    // Get IDs of products with selected categories from Stripe and assign them to products
+    await getAllStripeProductsByCategory(categories).then(
+      (stripeProducts) => (products = stripeProducts)
+    );
+  }
+
+  // Create discount code in Stripe
+  const discountCode = await createStripeDiscountCode({
+    name: code,
+    discountType: discountType,
+    discountAmount:
+      discountType === "FIXED" ? discountAmount * 100 : discountAmount,
+    expiresAt: expiresAt,
+    products,
+    redemptions: limit,
+    metadata: categories ? { categories: categories.join(", ") } : undefined,
+  });
+
+  if (discountCode.error) {
+    return { stripeError: [discountCode.error] };
+  }
+  if (!discountCode.coupon || !discountCode.promotionCode) {
+    return { stripeError: ["Failed to create discount code"] };
+  }
+
+  // Create discount code in the database
+  await createDiscountCode({
+    ...validationResult.data,
+    id: discountCode.coupon.id,
+  }).then(() => redirect("/admin/discount-codes"));
 }
 
-export async function updateDiscountCode(
-  code: DiscountCode["code"],
-  prevState: unknown,
-  formData: FormData
-) {
-  const data = processFormData(formData);
-  const validationResult = validateAndParseData(data);
-
-  if ("error" in validationResult) {
-    return validationResult.error;
-  }
-
-  const discountCode = await getDiscountCode(code);
-
-  if (discountCode == null) return notFound();
-
-  await updateDiscountCodeInDB(discountCode.id, validationResult.data).then(
-    () => redirect("/admin/discount-codes")
-  );
+export async function deleteDiscountCode(id: DiscountCode["id"]) {
+  await Promise.all([deleteStripeCoupon(id), deleteDiscountCodeInDB(id)]);
 }
 
 function processFormData(formData: FormData): FormDataEntries {

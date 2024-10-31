@@ -4,8 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useFormState } from "react-dom";
 import { useToast } from "@/hooks/useToast";
 import { DiscountCodeType } from "@prisma/client";
-import { addDiscountCode, updateDiscountCode } from "../_actions/discounts";
-import { getUTCDate } from "@/lib/formatters";
+import { addDiscountCode } from "../_actions/discounts";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -15,39 +14,26 @@ import MultipleSelector from "@/components/ui/multiple-selector";
 import ErrorMessage from "@/components/ErrorMessage";
 import SubmitButton from "@/components/SubmitButton";
 import type { getAllProducts } from "@/db/adminData/products";
-import type { getDiscountCode } from "@/db/adminData/discountCodes";
 import type { getCategories } from "@/db/userData/categories";
 
 type DiscountCodeFormProps = {
   products: Awaited<ReturnType<typeof getAllProducts>>;
-  discountCode?: NonNullable<Awaited<ReturnType<typeof getDiscountCode>>>;
   categories?: Awaited<ReturnType<typeof getCategories>>;
 };
 
 export default function DiscountCodeForm({
   products,
-  discountCode,
   categories,
 }: DiscountCodeFormProps) {
-  const [error, action] = useFormState(
-    discountCode
-      ? updateDiscountCode.bind(null, discountCode.code)
-      : addDiscountCode,
-    {}
-  );
-  const [allProducts, setAllProducts] = useState<boolean>(
-    discountCode?.allProducts ?? true
-  );
-  const [selectedProducts, setSelectedProducts] = useState(
-    discountCode?.products.map((product) => ({
-      id: product.id,
-      name: product.name,
-    }))
-  );
+  const [error, action] = useFormState(addDiscountCode, {});
 
-  const [selectedCategories, setSelectedCategories] = useState<
-    DiscountCodeFormProps["categories"]
-  >(discountCode?.categories?.map((category) => category.name));
+  const [allProducts, setAllProducts] = useState<boolean>(true);
+  const [selectedProducts, setSelectedProducts] = useState<
+    { id: string; name: string }[] | undefined
+  >();
+
+  const [selectedCategories, setSelectedCategories] =
+    useState<DiscountCodeFormProps["categories"]>();
 
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const { toast } = useToast();
@@ -55,15 +41,14 @@ export default function DiscountCodeForm({
   const today = new Date();
   today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
 
-  const isAlreadyUsed = discountCode && discountCode?.uses > 0 ? true : false;
-
   useEffect(() => {
     if (!isFormSubmitted) return;
 
     if (error && Object.values(error).some((field) => field !== undefined)) {
       toast({
         title: "Error",
-        description: `There was an error while trying to ${discountCode ? "update" : "add"} the discount code.`,
+        description:
+          "There was an error while trying to add the discount code.",
         variant: "destructive",
       });
 
@@ -72,11 +57,11 @@ export default function DiscountCodeForm({
     }
 
     toast({
-      title: discountCode ? "Updated" : "Added",
-      description: `Discount code ${discountCode ? "updated" : "added"} successfully.`,
+      title: "Added",
+      description: "Discount code added successfully.",
       variant: "success",
     });
-  }, [isFormSubmitted, error, toast, discountCode]);
+  }, [isFormSubmitted, error, toast]);
 
   return (
     <form
@@ -86,14 +71,7 @@ export default function DiscountCodeForm({
     >
       <div className="space-y-2">
         <Label htmlFor="code">Code</Label>
-        <Input
-          type="text"
-          name="code"
-          id="code"
-          required
-          minLength={5}
-          defaultValue={discountCode?.code}
-        />
+        <Input type="text" name="code" id="code" required minLength={5} />
         {error?.code && <ErrorMessage error={error.code} />}
       </div>
 
@@ -103,18 +81,8 @@ export default function DiscountCodeForm({
           <RadioGroup
             id="discountType"
             name="discountType"
-            defaultValue={
-              discountCode?.discountType || DiscountCodeType.PERCENTAGE
-            }
-            disabled={isAlreadyUsed}
+            defaultValue={DiscountCodeType.PERCENTAGE}
           >
-            {isAlreadyUsed && (
-              <Input
-                type="hidden"
-                name="discountType"
-                value={discountCode?.discountType}
-              />
-            )}
             <div className="flex items-center gap-2">
               <RadioGroupItem
                 id="percentage"
@@ -139,16 +107,7 @@ export default function DiscountCodeForm({
             id="discountAmount"
             required
             min={1}
-            disabled={isAlreadyUsed}
-            defaultValue={discountCode?.discountAmount}
           />
-          {isAlreadyUsed && (
-            <Input
-              type="hidden"
-              name="discountAmount"
-              value={discountCode?.discountAmount}
-            />
-          )}
           {error?.discountAmount && (
             <ErrorMessage error={error.discountAmount} />
           )}
@@ -164,9 +123,7 @@ export default function DiscountCodeForm({
             type="number"
             name="limit"
             id="limit"
-            min={discountCode?.uses || 1}
             aria-describedby="limit-description"
-            defaultValue={discountCode?.limit || undefined}
           />
           <p id="limit-description" className="text-sm text-muted-foreground">
             Leave blank for infinite uses
@@ -183,11 +140,6 @@ export default function DiscountCodeForm({
             min={today.toJSON().split(":").slice(0, -1).join(":")} // Remove seconds
             className="w-max"
             aria-describedby="expiresAt-description"
-            defaultValue={
-              discountCode?.expiresAt
-                ? getUTCDate(new Date(discountCode.expiresAt))
-                : undefined
-            }
           />
           <p
             id="expiresAt-description"
@@ -302,11 +254,7 @@ export default function DiscountCodeForm({
       </div>
 
       <div className="flex flex-row gap-4">
-        <SubmitButton
-          className="text-base"
-          size="lg"
-          edit={discountCode ? true : false}
-        />
+        <SubmitButton className="text-base" size="lg" />
 
         <CancelButton />
       </div>

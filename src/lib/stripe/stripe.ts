@@ -1,6 +1,7 @@
 "use server";
 
 import Stripe from "stripe";
+import type { DiscountCodeType } from "@prisma/client";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -46,6 +47,59 @@ export async function updateStripeProduct(
   }
 }
 
+export async function getStripeProducts(
+  params?: Stripe.ProductListParams,
+  options?: Stripe.RequestOptions
+) {
+  try {
+    return await stripe.products.list(params, options);
+  } catch (error) {
+    console.error(`Stripe failed to search for products. Error: ${error}`);
+  }
+}
+
+export async function getAllStripeProductsByCategory(categories: string[]) {
+  // Use a Set to store unique product IDs
+  const productIdsSet = new Set<string>();
+  let hasMore = true;
+  let lastProductId = undefined;
+
+  // Fetch all products from Stripe in batches of 100 (maximum limit)
+  while (hasMore) {
+    try {
+      const stripeProducts = await getStripeProducts({
+        active: true,
+        limit: 100, // Stripe max limit
+        ...(lastProductId && { starting_after: lastProductId }),
+      });
+
+      if (!stripeProducts) break;
+
+      // Filter products that contain any of the provided categories
+      const filteredProducts = stripeProducts.data.filter((product) => {
+        const productCategories =
+          product.metadata?.categories?.split(", ") || [];
+        // Check if any of the searched categories are in the product's categories
+        return categories.some((category) =>
+          productCategories.includes(category)
+        );
+      });
+
+      // Add IDs of filtered products to the Set (automatically removes duplicates)
+      filteredProducts.forEach((product) => productIdsSet.add(product.id));
+
+      hasMore = stripeProducts.has_more;
+      lastProductId = stripeProducts.data[stripeProducts.data.length - 1]?.id;
+    } catch (error) {
+      console.error("Error fetching Stripe products:", error);
+      break;
+    }
+  }
+
+  // Convert Set to an array
+  return Array.from(productIdsSet);
+}
+
 export async function deleteStripeProduct(productId: string) {
   // Stripe API does not allow deleted product when it has any connections with prices so we need to update the product to inactive
   try {
@@ -85,30 +139,104 @@ export async function searchForExistingStripePrice(
   }
 }
 
-export async function searchForStripeInvoice(
-  params: Stripe.InvoiceSearchParams,
+export async function createStripeCoupon(
+  params?: Stripe.CouponCreateParams,
   options?: Stripe.RequestOptions
 ) {
   try {
-    return await stripe.invoices.search(params, options);
+    return await stripe.coupons.create(params, options);
   } catch (error) {
-    console.error(`Stripe failed to search for invoice. Error: ${error}`);
+    console.error(`Stripe failed to create coupon. Error: ${error}`);
   }
+}
+
+export async function deleteStripeCoupon(
+  id: string,
+  params?: Stripe.CouponDeleteParams,
+  options?: Stripe.RequestOptions
+) {
+  try {
+    await stripe.coupons.del(id, params, options);
+  } catch (error) {
+    console.error(`Stripe failed to delete coupon. Error: ${error}`);
+  }
+}
+
+export async function createStripePromotionCode(
+  params: Stripe.PromotionCodeCreateParams,
+  options?: Stripe.RequestOptions
+) {
+  try {
+    return await stripe.promotionCodes.create(params, options);
+  } catch (error) {
+    console.error(`Stripe failed to create promotion code. Error: ${error}`);
+  }
+}
+
+export async function createStripeDiscountCode(discountCode: {
+  name: string;
+  discountType: DiscountCodeType;
+  discountAmount: number;
+  products?: string[];
+  redemptions?: number;
+  expiresAt?: Date;
+  metadata?: Record<string, string>;
+}) {
+  const {
+    name,
+    discountType,
+    discountAmount,
+    products,
+    redemptions,
+    expiresAt,
+    metadata,
+  } = discountCode;
+
+  const expiresAtDate = expiresAt ? expiresAt.getTime() / 1000 : undefined; // Convert from milliseconds to seconds, as Stripe expects
+
+  const coupon = await createStripeCoupon({
+    name: name,
+    amount_off: discountType === "FIXED" ? discountAmount : undefined,
+    percent_off: discountType === "PERCENTAGE" ? discountAmount : undefined,
+    currency: "pln",
+    applies_to: {
+      products: products && products.length >= 1 ? products : undefined,
+    },
+    max_redemptions: redemptions,
+    redeem_by: expiresAtDate,
+    metadata: metadata,
+  });
+
+  if (!coupon) return { error: "Failed to create coupon" };
+
+  const promotionCode = await createStripePromotionCode({
+    coupon: coupon.id,
+    code: name,
+    active: true,
+    expires_at: expiresAtDate,
+    max_redemptions: redemptions,
+    metadata: metadata,
+  });
+
+  if (!promotionCode) return { error: "Failed to create promotion code" };
+
+  return { coupon, promotionCode };
 }
 
 export async function createStripeCheckoutSession(
   customerId: string,
   orderId: string,
   products: {
-    productId: string;
+    id: string;
     quantity: number;
   }[],
+  discountCodeId?: string,
   invoiceData?: Stripe.Checkout.SessionCreateParams.InvoiceCreation.InvoiceData.CustomField[]
 ) {
   const lineItems: Stripe.PaymentLinkCreateParams.LineItem[] = [];
 
   for (const product of products) {
-    const productData = await stripe.products.retrieve(product.productId);
+    const productData = await stripe.products.retrieve(product.id);
 
     lineItems.push({
       price: productData.default_price as string,
@@ -148,6 +276,14 @@ export async function createStripeCheckoutSession(
         custom_fields: invoiceData,
       },
     },
+    // If `discountCodeId` is provided, apply the discount code
+    discounts: discountCodeId
+      ? [
+          {
+            coupon: discountCodeId,
+          },
+        ]
+      : undefined,
     metadata: { orderIdInDB: orderId },
     submit_type: "pay",
   });

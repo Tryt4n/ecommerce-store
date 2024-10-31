@@ -15,17 +15,14 @@ import type { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 
 export default function PurchaseForm({
   user,
-  products,
+  discountCode,
 }: {
   user: KindeUser<Record<string, string>>;
-  products: {
-    productId: string;
-    quantity: number;
-    priceInCents: number;
-  }[];
+  discountCode?: string;
 }) {
+  const { shoppingCart } = useShoppingCart();
   const [purchaseData, action] = useFormState(
-    handlePurchaseProduct.bind(null, products),
+    handlePurchaseProduct.bind(null, shoppingCart!),
     undefined
   );
   const { clearShoppingCart } = useShoppingCart();
@@ -65,6 +62,12 @@ export default function PurchaseForm({
         name="firstName"
         id="firstName"
         value={user.given_name || ""}
+      />
+      <input
+        type="hidden"
+        name="discountCode"
+        id="discountCode"
+        value={discountCode || ""}
       />
 
       <div className="my-2 flex items-center">
@@ -110,7 +113,7 @@ export default function PurchaseForm({
               name="companyName"
               id="companyName"
               type="text"
-              placeholder="Company Name"
+              placeholder="Name"
               minLength={5}
               maxLength={100}
               required={createInvoice}

@@ -5,7 +5,7 @@ export const purchaseSchema = z
     products: z
       .array(
         z.object({
-          productId: z.string().min(1, { message: "Invalid product ID." }),
+          id: z.string().min(1, { message: "Invalid product ID." }),
           quantity: z
             .number({ message: "Quantity must be a number." })
             .int({ message: "Quantity must be a whole number." })
@@ -13,11 +13,13 @@ export const purchaseSchema = z
             .max(99, {
               message: "The maximum quantity for this product is 99.",
             }),
+          name: z.string().min(1, { message: "Invalid product name." }),
           priceInCents: z
             .number({ message: "Price must be a number." })
             .int({ message: "Price must be a whole number." })
             .min(1, { message: "Price must be a positive number." })
             .max(999999, { message: "Price must be at most 999999." }),
+          thumbnailUrl: z.string().url({ message: "Invalid thumbnail URL." }),
         })
       )
       .nonempty({ message: "No products to purchase." })
@@ -25,6 +27,11 @@ export const purchaseSchema = z
     email: z.string().email({ message: "Invalid email address." }),
     firstName: z.string({ message: "Invalid first name." }).min(3).optional(),
     lastName: z.string({ message: "Invalid last name." }).min(3).optional(),
+    discountCode: z
+      .string()
+      .min(3, { message: "Invalid discount code." })
+      .max(40, { message: "Invalid discount code." })
+      .optional(),
     createInvoice: z.boolean({ message: "Invalid invoice creation flag." }),
     companyName: z
       .string()

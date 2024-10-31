@@ -1,20 +1,18 @@
 import React from "react";
-import Link from "next/link";
 import {
-  deleteDiscountCode,
   toggleDiscountCodeActive,
   type getDiscountCodes,
 } from "@/db/adminData/discountCodes";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import DeleteDropdownItem from "../../_components/DeleteDropdownItem";
 import ActiveToggleDropdownMenuItem from "../../_components/ActiveToggleDropdownMenuItem";
 import { MoreVertical } from "lucide-react";
+import { deleteDiscountCode } from "../_actions/discounts";
 
 export default function DiscountDropdownMenu({
   discount,
@@ -45,12 +43,6 @@ export default function DiscountDropdownMenu({
             <DropdownMenuSeparator />
           </>
         )}
-
-        <DropdownMenuItem asChild>
-          <Link href={`/admin/discount-codes/${discount.code}/edit`}>Edit</Link>
-        </DropdownMenuItem>
-
-        <DropdownMenuSeparator />
 
         <DeleteDropdownItem
           id={discount.id}

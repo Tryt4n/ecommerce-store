@@ -1,6 +1,5 @@
 "use server";
 
-import { notFound } from "next/navigation";
 import db from "@/db/init";
 import { getCreatedAtQuery } from "@/lib/dashboardDataHelpers";
 import type { z } from "zod";
@@ -10,13 +9,14 @@ import type { SortingType } from "@/types/sort";
 import type { DateRange } from "@/types/ranges";
 
 export async function createDiscountCode(
-  data: z.infer<typeof addDiscountSchema>
+  data: z.infer<typeof addDiscountSchema> & { id: string }
 ) {
   try {
     const { productIds, categories } = data;
 
     return await db.discountCode.create({
       data: {
+        id: data.id,
         code: data.code,
         discountAmount: data.discountAmount,
         discountType: data.discountType,
@@ -139,11 +139,9 @@ export async function toggleDiscountCodeActive(
 
 export async function deleteDiscountCode(id: DiscountCode["id"]) {
   try {
-    const discountCode = await db.discountCode.delete({
-      where: { id },
+    await db.discountCode.delete({
+      where: { id, uses: 0 },
     });
-
-    if (discountCode == null) return notFound();
   } catch (error) {
     console.error(`Error deleting discount code. Error: ${error}`);
   }
@@ -162,42 +160,25 @@ export async function getDiscountCode(code: DiscountCode["code"]) {
 
 export async function updateDiscountCode(
   id: DiscountCode["id"],
-  data: Partial<
-    z.infer<typeof addDiscountSchema> & Prisma.DiscountCodeUpdateInput
-  >
+  data: Partial<Prisma.DiscountCodeUpdateInput>
 ) {
   try {
-    const { productIds, categories, ...restData } = data;
-
-    return await db.$transaction([
-      // Disconnect all existing products and categories
-      db.discountCode.update({
-        where: { id },
-        data: {
-          products: { set: [] },
-          categories: { set: [] },
-        },
-      }),
-      // Update the discount code with new data and connect new products and categories
-      db.discountCode.update({
-        where: { id },
-        data: {
-          ...restData,
-          allProducts:
-            categories && categories.length > 0 ? false : data.allProducts,
-          products: data.allProducts
-            ? undefined
-            : productIds && productIds.length > 0
-              ? { connect: productIds.map((id) => ({ id })) }
-              : undefined,
-          categories:
-            categories && categories.length > 0
-              ? { connect: categories.map((name) => ({ name })) }
-              : undefined,
-        },
-      }),
-    ]);
+    return await db.discountCode.update({
+      where: { id },
+      data,
+    });
   } catch (error) {
     console.error(`Error updating discount code. Error: ${error}`);
+  }
+}
+
+export async function checkIfDiscountCodeExists(code: DiscountCode["code"]) {
+  try {
+    const discountCode = await db.discountCode.findUnique({
+      where: { code: code },
+    });
+    return discountCode !== null;
+  } catch (error) {
+    console.error(`Error checking if discount code exists. Error: ${error}`);
   }
 }
