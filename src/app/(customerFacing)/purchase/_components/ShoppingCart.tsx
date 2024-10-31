@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useShoppingCart } from "@/app/_hooks/useShoppingCart";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { formatCurrency } from "@/lib/formatters";
@@ -13,6 +13,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 export default function ShoppingCart() {
   const { shoppingCart } = useShoppingCart();
   const { getUser } = useKindeBrowserClient();
+  const [discountCode, setDiscountCode] = useState<string>();
 
   const user = getUser();
 
@@ -38,8 +39,11 @@ export default function ShoppingCart() {
                 )}
               </p>
 
-              <DiscountCodeForm />
-              <PurchaseForm user={user} />
+              <DiscountCodeForm
+                discountCode={discountCode}
+                setDiscountCode={setDiscountCode}
+              />
+              <PurchaseForm user={user} discountCode={discountCode} />
             </article>
           ) : (
             <p className="my-4 text-center text-base">

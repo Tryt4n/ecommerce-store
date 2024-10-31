@@ -1,23 +1,35 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useFormState } from "react-dom";
 import { useShoppingCart } from "@/app/_hooks/useShoppingCart";
 import { validateDiscountCode } from "../_actions/discountCodeValidation";
+import { formatCurrency } from "@/lib/formatters";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ErrorMessage from "@/components/ErrorMessage";
 import SubmitButton from "@/components/SubmitButton";
-import { formatCurrency } from "@/lib/formatters";
 import { Separator } from "@/components/ui/separator";
 
-export default function DiscountCodeForm() {
+export default function DiscountCodeForm({
+  discountCode,
+  setDiscountCode,
+}: {
+  discountCode: string | undefined;
+  setDiscountCode: (value: string) => void;
+}) {
   const { shoppingCart } = useShoppingCart();
   const [discountCodeValidation, action] = useFormState(
     validateDiscountCode.bind(null, shoppingCart!),
     undefined
   );
 
+  const discountCodeRef = useRef<HTMLInputElement>(null);
+
   return (
-    <form action={action} className="mb-6 mt-4">
+    <form
+      action={action}
+      onSubmit={() => setDiscountCode(discountCodeRef.current?.value || "")}
+      className="mb-6 mt-4"
+    >
       <div>
         <Label htmlFor="discountCode" className="cursor-pointer font-semibold">
           Discount Code&nbsp;<span className="font-normal">(optional)</span>
@@ -39,6 +51,7 @@ export default function DiscountCodeForm() {
                   : false
                 : undefined
             }
+            ref={discountCodeRef}
           />
 
           <SubmitButton initialText="Activate" pendingText="Activating..." />
@@ -50,7 +63,7 @@ export default function DiscountCodeForm() {
       )}
       {discountCodeValidation?.success && (
         <p className="mt-1 indent-1 text-sm text-green-600">
-          Discount Code Applied
+          Discount Code Applied:&nbsp;{discountCode}
         </p>
       )}
 
@@ -83,10 +96,14 @@ export default function DiscountCodeForm() {
                   </div>
 
                   <p className="inline-flex">
-                    <span aria-label="Quantity">x{product.quantity}</span>
-                    <Separator orientation="vertical" className="ml-2" />
                     <span
-                      className="font-medium"
+                      className="text-muted-foreground"
+                      aria-label="Quantity"
+                    >
+                      x{product.quantity}
+                    </span>
+                    <span
+                      className="font-semibold"
                       aria-label="Total amount for products"
                     >
                       {formatCurrency(
