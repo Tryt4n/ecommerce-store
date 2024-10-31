@@ -124,12 +124,11 @@ export async function handlePurchaseProduct(
   // Prepare the data to update the order in the database
   const orderDataToUpdateInDB: Parameters<typeof updateOrder>["1"] = {
     checkoutSessionUrl: checkoutSession.url,
-    discountCode: {
-      connect: { id: discountCodeDB?.id },
-    },
   };
-  if (discountCode && checkoutSession.amount_total)
+  if (discountCode && checkoutSession.amount_total) {
+    orderDataToUpdateInDB.discountCode = { connect: { code: discountCode } };
     orderDataToUpdateInDB.pricePaidInCents = checkoutSession.amount_total;
+  }
 
   // Update the order with the checkout session URL and connected discount code
   const updatedOrder = await updateOrder(orderId, orderDataToUpdateInDB);
