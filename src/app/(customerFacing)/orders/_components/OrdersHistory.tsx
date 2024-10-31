@@ -3,6 +3,7 @@ import { formatCurrency } from "@/lib/formatters";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import Link from "next/link";
+import Image from "next/image";
 import ImageThumbnail from "@/components/ImageThumbnail";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,43 @@ export default function OrdersHistory({
                   ) / 100
                 )}
               </p>
+
+              {order.invoicePdfUrl && (
+                <div className="flex flex-col items-end justify-end">
+                  <span className="text-sm text-muted-foreground">
+                    Download Invoice
+                  </span>
+                  <Button
+                    href={order.invoicePdfUrl}
+                    variant="link"
+                    className="h-[40px] w-[40px] p-0 transition-opacity hover:opacity-50"
+                    title="Click to download the invoice"
+                  >
+                    <Image
+                      src="/pdf_icon.png"
+                      alt="Invoice icon"
+                      width={40}
+                      height={40}
+                      className="h-full w-full"
+                    />
+                    <span className="sr-only">Download an Invoice</span>
+                  </Button>
+                </div>
+              )}
+              {!order.invoicePdfUrl && order.receiptUrl && (
+                <div className="my-2 translate-x-4">
+                  <Link
+                    href={order.receiptUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Click to view the receipt"
+                    className="px-4 py-2 text-base text-muted-foreground underline underline-offset-2 transition-colors hover:text-black"
+                  >
+                    Receipt
+                  </Link>
+                </div>
+              )}
+
               <time
                 dateTime={order.createdAt.toUTCString()}
                 className="block text-muted-foreground"
