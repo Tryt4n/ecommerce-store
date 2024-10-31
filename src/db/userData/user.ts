@@ -2,6 +2,7 @@
 
 import db from "../init";
 import type { DiscountCode } from "@prisma/client";
+import type { ShoppingCart } from "@/types/shoppingCart";
 
 export async function getUser(email: string) {
   try {
@@ -45,7 +46,7 @@ export async function getUser(email: string) {
 export async function createOrEditUserWithOrder(
   id: string,
   email: string,
-  products: { productId: string; quantity: number; priceInCents: number }[],
+  products: ShoppingCart,
   orderId: string,
   discountCodeId?: DiscountCode["id"]
 ) {
@@ -67,7 +68,7 @@ export async function createOrEditUserWithOrder(
             orderItems: {
               createMany: {
                 data: products.map((product) => ({
-                  productId: product.productId,
+                  productId: product.id,
                   quantity: product.quantity,
                 })),
               },
@@ -88,7 +89,7 @@ export async function createOrEditUserWithOrder(
             orderItems: {
               createMany: {
                 data: products.map((product) => ({
-                  productId: product.productId,
+                  productId: product.id,
                   quantity: product.quantity,
                 })),
               },

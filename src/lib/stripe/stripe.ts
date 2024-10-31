@@ -227,7 +227,7 @@ export async function createStripeCheckoutSession(
   customerId: string,
   orderId: string,
   products: {
-    productId: string;
+    id: string;
     quantity: number;
   }[],
   discountCodeId?: string,
@@ -236,7 +236,7 @@ export async function createStripeCheckoutSession(
   const lineItems: Stripe.PaymentLinkCreateParams.LineItem[] = [];
 
   for (const product of products) {
-    const productData = await stripe.products.retrieve(product.productId);
+    const productData = await stripe.products.retrieve(product.id);
 
     lineItems.push({
       price: productData.default_price as string,
