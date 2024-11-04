@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ErrorMessage from "@/components/ErrorMessage";
 import SubmitButton from "@/components/SubmitButton";
-import { Separator } from "@/components/ui/separator";
 
 export default function DiscountCodeForm({
   discountCode,
@@ -67,83 +66,68 @@ export default function DiscountCodeForm({
         </p>
       )}
 
-      {discountCodeValidation?.discountedProducts && (
-        <div className="my-4">
-          <ul className="my-4 list-decimal indent-2">
-            {discountCodeValidation.discountedProducts.map((product, index) => (
-              <li key={`${product.id}-${index}`}>
-                {index === 0 && <Separator className="my-1" />}
+      {discountCodeValidation &&
+        discountCodeValidation.allProducts &&
+        discountCodeValidation.discountedAmount && (
+          <section className="my-4">
+            <h3 className="sr-only">Discounts applied</h3>
 
-                <div className="flex justify-between">
-                  <div className="inline-flex gap-2">
-                    <h3 className="font-medium">{product.name}</h3>
-                    <p className="inline-flex">
-                      {product.oldPriceInCents !== product.priceInCents && (
-                        <>
-                          <s
-                            className="font-light text-muted-foreground"
-                            aria-label="Old price"
-                          >
-                            {formatCurrency(product.oldPriceInCents / 100)}
-                          </s>
-                          &nbsp;
-                        </>
-                      )}
-                      <span aria-label="New discounted price">
-                        {formatCurrency(product.priceInCents / 100)}
-                      </span>
-                    </p>
-                  </div>
+            {discountCodeValidation.discountedProduct && (
+              <div className="inline-flex gap-2">
+                <h3 className="font-medium">
+                  {discountCodeValidation.discountedProduct.name}
+                </h3>
+                <p className="inline-flex">
+                  {discountCodeValidation.discountedProduct.oldPriceInCents !==
+                    discountCodeValidation.discountedProduct.priceInCents && (
+                    <>
+                      <s
+                        className="font-light text-muted-foreground"
+                        aria-label="Old price"
+                      >
+                        {formatCurrency(
+                          discountCodeValidation.discountedProduct
+                            .oldPriceInCents / 100
+                        )}
+                      </s>
+                      &nbsp;
+                    </>
+                  )}
+                  <span aria-label="New discounted price">
+                    {formatCurrency(
+                      discountCodeValidation.discountedProduct.priceInCents /
+                        100
+                    )}
+                  </span>
+                </p>
+              </div>
+            )}
 
-                  <p className="inline-flex">
-                    <span
-                      className="text-muted-foreground"
-                      aria-label="Quantity"
-                    >
-                      x{product.quantity}
-                    </span>
-                    <span
-                      className="font-semibold"
-                      aria-label="Total amount for products"
-                    >
-                      {formatCurrency(
-                        (product.priceInCents * product.quantity) / 100
-                      )}
-                    </span>
-                  </p>
-                </div>
-
-                <Separator className="my-1" />
-              </li>
-            ))}
-          </ul>
-
-          <div className="text-end">
-            <p className="text-sm">
-              Total Discount:&nbsp;
-              {formatCurrency(
-                discountCodeValidation.discountedProducts.reduce(
-                  (acc, product) =>
-                    acc +
-                    product.oldPriceInCents * product.quantity -
-                    product.priceInCents * product.quantity,
-                  0
-                ) / 100
-              )}
-            </p>
-            <p>
-              Total Discounted Amount:&nbsp;
-              {formatCurrency(
-                discountCodeValidation.discountedProducts.reduce(
-                  (acc, product) =>
-                    acc + product.priceInCents * product.quantity,
-                  0
-                ) / 100
-              )}
-            </p>
-          </div>
-        </div>
-      )}
+            <div className="my-2 text-end">
+              <p className="text-sm">
+                Total Discount:&nbsp;
+                <span className="font-semibold">
+                  &minus;
+                  {formatCurrency(
+                    discountCodeValidation.discountedAmount / 100
+                  )}
+                </span>
+              </p>
+              <p>
+                Total Discounted Amount:&nbsp;
+                <span className="font-semibold">
+                  {formatCurrency(
+                    discountCodeValidation.allProducts.reduce(
+                      (acc, product) =>
+                        acc + product.priceInCents * product.quantity,
+                      0
+                    ) / 100
+                  )}
+                </span>
+              </p>
+            </div>
+          </section>
+        )}
     </form>
   );
 }
