@@ -5,12 +5,19 @@ export const addDiscountSchema = z
   .object({
     code: z
       .string()
-      .min(5, { message: "Code must be at least 5 characters" })
-      .max(40, { message: "Code must be less than 40 characters" })
+      .min(5, { message: "Code must be at least 5 characters long." })
+      .max(40, { message: "Code must be less than 40 characters long." })
       .refine((value) => !/\s/.test(value.trim()), {
-        message: "Code cannot contain spaces",
+        message: "Code cannot contain spaces.",
+      })
+      .refine((value) => /^[a-zA-Z0-9-]+$/.test(value), {
+        message:
+          "Code can only contain English letters [A-Z], numbers, and hyphens (-).",
       }),
-    discountAmount: z.coerce.number().int().min(1),
+    discountAmount: z.coerce
+      .number()
+      .int()
+      .min(1, { message: "Discount amount must be at least 1." }),
     discountType: z.nativeEnum(DiscountCodeType),
     allProducts: z.coerce.boolean(),
     productIds: z.array(z.string()).optional(),
@@ -18,12 +25,12 @@ export const addDiscountSchema = z
     expiresAt: z.preprocess(
       (value) => (value === "" ? undefined : value),
       z.coerce.date().min(new Date()).optional(),
-      { message: "Expires at must be in the future" }
+      { message: "Expires at must be in the future." }
     ),
     limit: z.preprocess(
       (value) => (value === "" ? undefined : value),
       z.coerce.number().int().min(1).optional(),
-      { message: "If you define limit it must be at least 1" }
+      { message: "If you define limit it must be at least 1." }
     ),
   })
   .refine(
@@ -31,15 +38,15 @@ export const addDiscountSchema = z
       data.discountAmount <= 100 ||
       data.discountType !== DiscountCodeType.PERCENTAGE,
     {
-      message: "Percentage discount must be less than or equal to 100%",
+      message: "Percentage discount must be less than or equal to 100%.",
       path: ["discountAmount"],
     }
   )
   .refine((data) => !data.allProducts || data.productIds == null, {
-    message: "Cannot select products when all products is selected",
+    message: "Cannot select products when all products is selected.",
     path: ["productIds"],
   })
   .refine((data) => data.allProducts || data.productIds != null, {
-    message: "Must select products when all products is not selected",
+    message: "Must select products when all products is not selected.",
     path: ["productIds"],
   });
