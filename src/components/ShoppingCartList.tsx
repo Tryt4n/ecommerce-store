@@ -73,11 +73,12 @@ export default function ShoppingCartList({
                   >
                     x{quantity}
                   </p>
-                  <div className="flex flex-col overflow-hidden rounded-md border">
+
+                  <div className="flex flex-col rounded-md border">
                     <Button
                       type="button"
                       variant="outline"
-                      className="h-6 w-6 rounded-none border-0 p-0"
+                      className="h-6 w-6 rounded-b-none border-0 p-0"
                       aria-controls={`quantity_${index}`}
                       onClick={() =>
                         changeProductQuantityInShoppingCart(id, "increment")
@@ -86,11 +87,11 @@ export default function ShoppingCartList({
                       <span className="sr-only">Increase quantity by 1</span>
                       <ChevronUp size={16} />
                     </Button>
-                    <hr />
+                    <Separator />
                     <Button
                       type="button"
                       variant="outline"
-                      className="h-6 w-6 rounded-none border-0 p-0"
+                      className="h-6 w-6 rounded-t-none border-0 p-0"
                       aria-controls={`quantity_${index}`}
                       onClick={() =>
                         changeProductQuantityInShoppingCart(id, "decrement")
